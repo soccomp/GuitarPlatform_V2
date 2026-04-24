@@ -1,102 +1,199 @@
 <template>
-  <div class="courses-view">
-    <div class="course-list">
+  <div class="courses-layout">
+    <!-- 左侧：课程列表 -->
+    <aside class="sidebar">
       <h2>课程列表</h2>
-      <div v-for="course in courses" :key="course.id" @click="selectCourse(course)">
-        <CourseCard :course="course" :selected="selectedCourse?.id === course.id" />
+      <div v-if="loading" class="loading">加载中...</div>
+      <div v-else-if="error" class="error">{{ error }}</div>
+      <div v-else>
+        <CourseCard
+          v-for="course in courses"
+          :key="course.id"
+          :course="course"
+          :selected="selectedId === course.id"
+          @click="selectCourse(course)"
+        />
+        <p v-if="courses.length === 0" class="empty">暂无课程</p>
       </div>
-      <p v-if="courses.length === 0" class="empty">暂无课程</p>
-    </div>
-    <div class="course-detail">
-      <template v-if="selectedCourse">
-        <h2>{{ selectedCourse.title }}</h2>
-        <p class="description">{{ selectedCourse.description }}</p>
-        <div class="transcript" v-if="transcript">
-          <h3>课程内容</h3>
-          <pre>{{ transcript }}</pre>
+    </aside>
+
+    <!-- 右侧：课程详情 -->
+    <section class="detail">
+      <div v-if="!selected" class="placeholder">
+        <p>👈 请选择一门课程</p>
+      </div>
+      <div v-else>
+        <h2>{{ selected.title }}</h2>
+        <p class="desc">{{ selected.description }}</p>
+
+        <!-- 视频播放器 -->
+        <div v-if="selected.video_path" class="video-wrap">
+          <video
+            :src="videoUrl"
+            controls
+            controlsList="nodownload"
+          ></video>
         </div>
-      </template>
-      <p v-else class="empty">请选择一个课程</p>
-    </div>
+
+        <!-- Transcript -->
+        <div class="transcript-section">
+          <h3>📝 课程笔记</h3>
+          <div v-if="transcriptLoading" class="loading">加载笔记中...</div>
+          <pre v-else class="transcript">{{ transcript }}</pre>
+        </div>
+      </div>
+    </section>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, watch } from 'vue'
 import CourseCard from '../components/CourseCard.vue'
 
 const courses = ref([])
-const selectedCourse = ref(null)
+const selectedId = ref(null)
 const transcript = ref('')
+const loading = ref(true)
+const error = ref('')
+const transcriptLoading = ref(false)
 
-async function fetchCourses() {
-  const res = await fetch('/api/courses')
-  courses.value = await res.json()
+const selected = computed(() =>
+  courses.value.find(c => c.id === selectedId.value) || null
+)
+
+const videoUrl = computed(() => {
+  if (!selected.value?.video_path) return ''
+  return `/library/courses/${selected.value.video_path}`
+})
+
+async function loadCourses() {
+  try {
+    const res = await fetch('/api/courses')
+    if (!res.ok) throw new Error('加载课程列表失败')
+    courses.value = await res.json()
+    if (courses.value.length > 0 && !selectedId.value) {
+      selectCourse(courses.value[0])
+    }
+  } catch (e) {
+    error.value = e.message
+  } finally {
+    loading.value = false
+  }
 }
 
 async function selectCourse(course) {
-  selectedCourse.value = course
-  const res = await fetch(`/api/courses/${course.id}/transcript`)
-  const data = await res.json()
-  transcript.value = data.content || '暂无 transcript 内容'
+  selectedId.value = course.id
+  transcriptLoading.value = true
+  transcript.value = ''
+  try {
+    const res = await fetch(`/api/courses/${course.id}/transcript`)
+    if (!res.ok) throw new Error('加载笔记失败')
+    const data = await res.json()
+    transcript.value = data.content || '(暂无笔记)'
+  } catch (e) {
+    transcript.value = '加载失败：' + e.message
+  } finally {
+    transcriptLoading.value = false
+  }
 }
 
-onMounted(fetchCourses)
+loadCourses()
 </script>
 
 <style scoped>
-.courses-view {
+.courses-layout {
   display: grid;
   grid-template-columns: 280px 1fr;
-  gap: 24px;
-  height: calc(100vh - 120px);
+  gap: 20px;
+  min-height: 600px;
 }
 
-.course-list {
+.sidebar {
   background: #16213e;
   border-radius: 12px;
-  padding: 16px;
-  overflow-y: auto;
+  padding: 20px;
 }
 
-.course-list h2 {
-  margin-bottom: 16px;
+.sidebar h2 {
   color: #e94560;
+  font-size: 18px;
+  margin-bottom: 16px;
 }
 
-.course-detail {
+.detail {
   background: #16213e;
   border-radius: 12px;
   padding: 24px;
-  overflow-y: auto;
 }
 
-.course-detail h2 {
-  color: #e94560;
+.detail h2 {
+  color: #eee;
+  font-size: 22px;
   margin-bottom: 8px;
 }
 
-.description {
-  color: #aaa;
+.desc {
+  color: #888;
+  margin-bottom: 20px;
+}
+
+.video-wrap {
   margin-bottom: 24px;
 }
 
-.transcript h3 {
-  color: #eee;
+.video-wrap video {
+  width: 100%;
+  border-radius: 8px;
+  background: #000;
+}
+
+.transcript-section h3 {
+  color: #e94560;
   margin-bottom: 12px;
 }
 
-.transcript pre {
+.transcript {
   background: #0f3460;
-  padding: 16px;
   border-radius: 8px;
+  padding: 16px;
+  color: #ccc;
+  font-size: 14px;
+  line-height: 1.8;
   white-space: pre-wrap;
-  line-height: 1.6;
+  word-break: break-word;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 400px;
+  color: #555;
+  font-size: 18px;
+}
+
+.loading {
+  color: #888;
+  text-align: center;
+  padding: 20px;
+}
+
+.error {
+  color: #e94560;
+  padding: 12px;
 }
 
 .empty {
-  color: #666;
+  color: #555;
   text-align: center;
-  margin-top: 48px;
+  padding: 20px;
+}
+
+@media (max-width: 768px) {
+  .courses-layout {
+    grid-template-columns: 1fr;
+  }
 }
 </style>

@@ -1,17 +1,22 @@
 <template>
-  <div id="app">
-    <nav class="top-nav">
+  <div class="app">
+    <header class="header">
       <h1>🎸 吉他学习平台 v2</h1>
-      <div class="nav-links">
-        <button @click="currentView = 'courses'" :class="{ active: currentView === 'courses' }">课程学习</button>
-        <button @click="currentView = 'songs'" :class="{ active: currentView === 'songs' }">歌曲练习</button>
-        <button @click="currentView = 'videos'" :class="{ active: currentView === 'videos' }">收藏视频</button>
-      </div>
-    </nav>
-    <main>
-      <Courses v-if="currentView === 'courses'" />
-      <Songs v-else-if="currentView === 'songs'" />
-      <Videos v-else-if="currentView === 'videos'" />
+      <nav class="nav">
+        <button
+          v-for="tab in tabs"
+          :key="tab.id"
+          :class="{ active: currentTab === tab.id }"
+          @click="currentTab = tab.id"
+        >
+          {{ tab.label }}
+        </button>
+      </nav>
+    </header>
+    <main class="main">
+      <Courses v-if="currentTab === 'courses'" />
+      <Songs v-else-if="currentTab === 'songs'" />
+      <Videos v-else-if="currentTab === 'videos'" />
     </main>
   </div>
 </template>
@@ -22,62 +27,71 @@ import Courses from './views/Courses.vue'
 import Songs from './views/Songs.vue'
 import Videos from './views/Videos.vue'
 
-const currentView = ref('courses')
+const currentTab = ref('courses')
+const tabs = [
+  { id: 'courses', label: '📚 课程学习' },
+  { id: 'songs',   label: '🎵 歌曲练习' },
+  { id: 'videos',  label: '📹 收藏视频' },
+]
 </script>
 
 <style>
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+* { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif;
-  background: #1a1a2e;
+  background: #0f0f1a;
   color: #eee;
-}
-
-#app {
+  font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif;
   min-height: 100vh;
 }
 
-.top-nav {
+.app {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px 16px;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.header h1 {
+  font-size: 28px;
+  color: #e94560;
+  margin-bottom: 16px;
+}
+
+.nav {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.nav button {
   background: #16213e;
-  padding: 16px 24px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-}
-
-.top-nav h1 {
-  font-size: 20px;
-  color: #e94560;
-}
-
-.nav-links {
-  display: flex;
-  gap: 12px;
-}
-
-.nav-links button {
-  background: transparent;
-  border: 1px solid #e94560;
-  color: #e94560;
-  padding: 8px 16px;
-  border-radius: 6px;
+  color: #ccc;
+  border: 2px solid #16213e;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-size: 15px;
   cursor: pointer;
   transition: all 0.2s;
 }
 
-.nav-links button.active,
-.nav-links button:hover {
-  background: #e94560;
+.nav button:hover {
+  border-color: #e94560;
   color: #fff;
 }
 
-main {
-  padding: 24px;
+.nav button.active {
+  background: #1a1a2e;
+  border-color: #e94560;
+  color: #e94560;
+}
+
+.main {
+  min-height: 500px;
 }
 </style>
