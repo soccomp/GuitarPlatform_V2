@@ -1,0 +1,20 @@
+{
+  "courses": [
+    {
+      "id": "course_001",
+      "title": "吉他新思维 - 入门篇",
+      "description": "从零开始学习吉他",
+      "transcript_path": "course_001/transcript.md",
+      "video_path": "course_001/video.mp4"
+    },
+    {
+      "id": "course_002",
+      "title": "吉他新思维 - 和弦进行",
+      "description": "常用和弦进行与转换",
+      "transcript_path": "course_002/transcript.md",
+      "video_path": "course_002/video.mp4"
+    }
+  ],
+  "songs": [],
+  "videos": []
+}
