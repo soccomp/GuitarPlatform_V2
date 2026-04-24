@@ -15,6 +15,22 @@
       "video_path": "course_002/video.mp4"
     }
   ],
-  "songs": [],
+  "songs": [
+    {
+      "id": "song_demo",
+      "title": "灰色轨迹",
+      "artist": "Beyond",
+      "path": "songs/灰色轨迹/",
+      "versions": [
+        {
+          "name": "录音室版",
+          "files": {
+            "audio": "demo.mp3"
+          }
+        }
+      ],
+      "markers": []
+    }
+  ],
   "videos": []
 }
