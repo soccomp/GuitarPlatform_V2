@@ -4,6 +4,8 @@ from fastapi.staticfiles import StaticFiles
 from pathlib import Path
 import sys
 
+from config import DATA_DIR, LIBRARY_DIR
+
 # Add backend directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent))
 
@@ -26,9 +28,8 @@ app.include_router(songs.router)
 app.include_router(videos.router)
 
 # Static files
-BASE_DIR = Path(__file__).parent
-app.mount("/library", StaticFiles(directory=str(BASE_DIR / "library")), name="library")
-app.mount("/data", StaticFiles(directory=str(BASE_DIR / "data")), name="data")
+app.mount("/library", StaticFiles(directory=str(LIBRARY_DIR)), name="library")
+app.mount("/data", StaticFiles(directory=str(DATA_DIR)), name="data")
 
 if __name__ == "__main__":
     import uvicorn

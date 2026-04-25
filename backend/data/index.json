@@ -1,36 +1,5813 @@
 {
   "courses": [
     {
-      "id": "course_001",
-      "title": "吉他新思维 - 入门篇",
-      "description": "从零开始学习吉他",
-      "transcript_path": "course_001/transcript.md",
-      "video_path": "course_001/video.mp4"
+      "id": "course_01-01-1dd69a0d50",
+      "title": "01-十二平均律",
+      "series": "吉他新思维",
+      "level": "01-必要乐理【视频】",
+      "description": "01-必要乐理【视频】",
+      "video_path": "吉他新思维/01-必要乐理【视频】/01-十二平均律.mp4",
+      "transcript_path": "",
+      "tags": [
+        "01-必要乐理【视频】"
+      ],
+      "materials": {}
     },
     {
-      "id": "course_002",
-      "title": "吉他新思维 - 和弦进行",
-      "description": "常用和弦进行与转换",
-      "transcript_path": "course_002/transcript.md",
-      "video_path": "course_002/video.mp4"
+      "id": "course_01-02-404f9c3f57",
+      "title": "02-大调音阶公式",
+      "series": "吉他新思维",
+      "level": "01-必要乐理【视频】",
+      "description": "01-必要乐理【视频】",
+      "video_path": "吉他新思维/01-必要乐理【视频】/02-大调音阶公式.mp4",
+      "transcript_path": "",
+      "tags": [
+        "01-必要乐理【视频】"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_01-03-c87d48b5e6",
+      "title": "03-音名 唱名 固定调 首调",
+      "series": "吉他新思维",
+      "level": "01-必要乐理【视频】",
+      "description": "01-必要乐理【视频】",
+      "video_path": "吉他新思维/01-必要乐理【视频】/03-音名 唱名 固定调 首调.mp4",
+      "transcript_path": "",
+      "tags": [
+        "01-必要乐理【视频】"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_01-04-6a2e1cf040",
+      "title": "04-音程",
+      "series": "吉他新思维",
+      "level": "01-必要乐理【视频】",
+      "description": "01-必要乐理【视频】",
+      "video_path": "吉他新思维/01-必要乐理【视频】/04-音程.mp4",
+      "transcript_path": "",
+      "tags": [
+        "01-必要乐理【视频】"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_01-05-3d0b75f0be",
+      "title": "05-变化音程",
+      "series": "吉他新思维",
+      "level": "01-必要乐理【视频】",
+      "description": "01-必要乐理【视频】",
+      "video_path": "吉他新思维/01-必要乐理【视频】/05-变化音程.mp4",
+      "transcript_path": "",
+      "tags": [
+        "01-必要乐理【视频】"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_01-06-41c6711e9e",
+      "title": "06-音程的核心练习",
+      "series": "吉他新思维",
+      "level": "01-必要乐理【视频】",
+      "description": "01-必要乐理【视频】",
+      "video_path": "吉他新思维/01-必要乐理【视频】/06-音程的核心练习.mp4",
+      "transcript_path": "",
+      "tags": [
+        "01-必要乐理【视频】"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_01-07-be0d1d40c4",
+      "title": "07-音程测试",
+      "series": "吉他新思维",
+      "level": "01-必要乐理【视频】",
+      "description": "01-必要乐理【视频】",
+      "video_path": "吉他新思维/01-必要乐理【视频】/07-音程测试.mp4",
+      "transcript_path": "",
+      "tags": [
+        "01-必要乐理【视频】"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_01-08-0cc8e58c0f",
+      "title": "08-大小三和弦和弦",
+      "series": "吉他新思维",
+      "level": "01-必要乐理【视频】",
+      "description": "01-必要乐理【视频】",
+      "video_path": "吉他新思维/01-必要乐理【视频】/08-大小三和弦和弦.mp4",
+      "transcript_path": "",
+      "tags": [
+        "01-必要乐理【视频】"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_01-09-b1e39528b8",
+      "title": "09-所有和弦代号",
+      "series": "吉他新思维",
+      "level": "01-必要乐理【视频】",
+      "description": "01-必要乐理【视频】",
+      "video_path": "吉他新思维/01-必要乐理【视频】/09-所有和弦代号.mp4",
+      "transcript_path": "",
+      "tags": [
+        "01-必要乐理【视频】"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_01-10-c-01f1453dea",
+      "title": "10-C大调和弦",
+      "series": "吉他新思维",
+      "level": "01-必要乐理【视频】",
+      "description": "01-必要乐理【视频】",
+      "video_path": "吉他新思维/01-必要乐理【视频】/10-C大调和弦.mp4",
+      "transcript_path": "",
+      "tags": [
+        "01-必要乐理【视频】"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_01-11-fd1c7026a5",
+      "title": "11-吉他指板结构",
+      "series": "吉他新思维",
+      "level": "01-必要乐理【视频】",
+      "description": "01-必要乐理【视频】",
+      "video_path": "吉他新思维/01-必要乐理【视频】/11-吉他指板结构.mp4",
+      "transcript_path": "",
+      "tags": [
+        "01-必要乐理【视频】"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_02-01-8adfb1d3be",
+      "title": "01-如何练音阶",
+      "series": "吉他新思维",
+      "level": "02-左右手锻炼【视频】",
+      "description": "02-左右手锻炼【视频】 / 左手能力锻炼",
+      "video_path": "吉他新思维/02-左右手锻炼【视频】/左手能力锻炼/01-如何练音阶.mp4",
+      "transcript_path": "",
+      "tags": [
+        "02-左右手锻炼【视频】",
+        "左手能力锻炼"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_02-02-1b18b0dd5f",
+      "title": "02-报吉他班的人，在学什么？",
+      "series": "吉他新思维",
+      "level": "02-左右手锻炼【视频】",
+      "description": "02-左右手锻炼【视频】 / 左手能力锻炼",
+      "video_path": "吉他新思维/02-左右手锻炼【视频】/左手能力锻炼/02-报吉他班的人，在学什么？.mp4",
+      "transcript_path": "",
+      "tags": [
+        "02-左右手锻炼【视频】",
+        "左手能力锻炼"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_02-03-3e8f70e05b",
+      "title": "03-《生日快乐》弹唱以及指弹",
+      "series": "吉他新思维",
+      "level": "02-左右手锻炼【视频】",
+      "description": "02-左右手锻炼【视频】 / 左手能力锻炼",
+      "video_path": "吉他新思维/02-左右手锻炼【视频】/左手能力锻炼/03-《生日快乐》弹唱以及指弹.mp4",
+      "transcript_path": "",
+      "tags": [
+        "02-左右手锻炼【视频】",
+        "左手能力锻炼"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_02-e51d624b06",
+      "title": "世上只有妈妈好-蜗牛与黄鹂鸟-掀起你的盖头来",
+      "series": "吉他新思维",
+      "level": "02-左右手锻炼【视频】",
+      "description": "02-左右手锻炼【视频】 / 左手能力锻炼",
+      "video_path": "吉他新思维/02-左右手锻炼【视频】/左手能力锻炼/世上只有妈妈好-蜗牛与黄鹂鸟-掀起你的盖头来.mov",
+      "transcript_path": "",
+      "tags": [
+        "02-左右手锻炼【视频】",
+        "左手能力锻炼"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_02-e47120c51e",
+      "title": "伦敦桥-找朋友-玛丽有只小羊羔-幸福拍手歌-听妈妈的话",
+      "series": "吉他新思维",
+      "level": "02-左右手锻炼【视频】",
+      "description": "02-左右手锻炼【视频】 / 左手能力锻炼",
+      "video_path": "吉他新思维/02-左右手锻炼【视频】/左手能力锻炼/伦敦桥-找朋友-玛丽有只小羊羔-幸福拍手歌-听妈妈的话.mov",
+      "transcript_path": "",
+      "tags": [
+        "02-左右手锻炼【视频】",
+        "左手能力锻炼"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_02-0a920255d8",
+      "title": "天空之城",
+      "series": "吉他新思维",
+      "level": "02-左右手锻炼【视频】",
+      "description": "02-左右手锻炼【视频】 / 左手能力锻炼",
+      "video_path": "吉他新思维/02-左右手锻炼【视频】/左手能力锻炼/天空之城.mov",
+      "transcript_path": "",
+      "tags": [
+        "02-左右手锻炼【视频】",
+        "左手能力锻炼"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_02-c1fd2ac519",
+      "title": "小叮当-一分钱",
+      "series": "吉他新思维",
+      "level": "02-左右手锻炼【视频】",
+      "description": "02-左右手锻炼【视频】 / 左手能力锻炼",
+      "video_path": "吉他新思维/02-左右手锻炼【视频】/左手能力锻炼/小叮当-一分钱.mov",
+      "transcript_path": "",
+      "tags": [
+        "02-左右手锻炼【视频】",
+        "左手能力锻炼"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_02-7d9315c8b7",
+      "title": "小星星-划船歌-粉刷匠",
+      "series": "吉他新思维",
+      "level": "02-左右手锻炼【视频】",
+      "description": "02-左右手锻炼【视频】 / 左手能力锻炼",
+      "video_path": "吉他新思维/02-左右手锻炼【视频】/左手能力锻炼/小星星-划船歌-粉刷匠.mov",
+      "transcript_path": "",
+      "tags": [
+        "02-左右手锻炼【视频】",
+        "左手能力锻炼"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_02-844022091f",
+      "title": "小步舞曲-致爱丽丝",
+      "series": "吉他新思维",
+      "level": "02-左右手锻炼【视频】",
+      "description": "02-左右手锻炼【视频】 / 左手能力锻炼",
+      "video_path": "吉他新思维/02-左右手锻炼【视频】/左手能力锻炼/小步舞曲-致爱丽丝.mov",
+      "transcript_path": "",
+      "tags": [
+        "02-左右手锻炼【视频】",
+        "左手能力锻炼"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_02-5711b4bc2e",
+      "title": "小毛驴-两只老虎-小兔子乖乖",
+      "series": "吉他新思维",
+      "level": "02-左右手锻炼【视频】",
+      "description": "02-左右手锻炼【视频】 / 左手能力锻炼",
+      "video_path": "吉他新思维/02-左右手锻炼【视频】/左手能力锻炼/小毛驴-两只老虎-小兔子乖乖.mov",
+      "transcript_path": "",
+      "tags": [
+        "02-左右手锻炼【视频】",
+        "左手能力锻炼"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_02-73ccc58c45",
+      "title": "小红帽-多年以前",
+      "series": "吉他新思维",
+      "level": "02-左右手锻炼【视频】",
+      "description": "02-左右手锻炼【视频】 / 左手能力锻炼",
+      "video_path": "吉他新思维/02-左右手锻炼【视频】/左手能力锻炼/小红帽-多年以前.mov",
+      "transcript_path": "",
+      "tags": [
+        "02-左右手锻炼【视频】",
+        "左手能力锻炼"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_02-f39c0ab0f8",
+      "title": "数鸭子-扬基杜得尔-兰花草",
+      "series": "吉他新思维",
+      "level": "02-左右手锻炼【视频】",
+      "description": "02-左右手锻炼【视频】 / 左手能力锻炼",
+      "video_path": "吉他新思维/02-左右手锻炼【视频】/左手能力锻炼/数鸭子-扬基杜得尔-兰花草.mov",
+      "transcript_path": "",
+      "tags": [
+        "02-左右手锻炼【视频】",
+        "左手能力锻炼"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_02-6f994580d4",
+      "title": "春天在哪里-新年好",
+      "series": "吉他新思维",
+      "level": "02-左右手锻炼【视频】",
+      "description": "02-左右手锻炼【视频】 / 左手能力锻炼",
+      "video_path": "吉他新思维/02-左右手锻炼【视频】/左手能力锻炼/春天在哪里-新年好.mov",
+      "transcript_path": "",
+      "tags": [
+        "02-左右手锻炼【视频】",
+        "左手能力锻炼"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_02-784f95bdba",
+      "title": "欢乐颂-圣诞歌",
+      "series": "吉他新思维",
+      "level": "02-左右手锻炼【视频】",
+      "description": "02-左右手锻炼【视频】 / 左手能力锻炼",
+      "video_path": "吉他新思维/02-左右手锻炼【视频】/左手能力锻炼/欢乐颂-圣诞歌.mov",
+      "transcript_path": "",
+      "tags": [
+        "02-左右手锻炼【视频】",
+        "左手能力锻炼"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_02-63a816dbf3",
+      "title": "洋娃娃和小熊跳舞-爱的罗曼史",
+      "series": "吉他新思维",
+      "level": "02-左右手锻炼【视频】",
+      "description": "02-左右手锻炼【视频】 / 左手能力锻炼",
+      "video_path": "吉他新思维/02-左右手锻炼【视频】/左手能力锻炼/洋娃娃和小熊跳舞-爱的罗曼史.mov",
+      "transcript_path": "",
+      "tags": [
+        "02-左右手锻炼【视频】",
+        "左手能力锻炼"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_02-bd5986683e",
+      "title": "生日快乐-千与千寻",
+      "series": "吉他新思维",
+      "level": "02-左右手锻炼【视频】",
+      "description": "02-左右手锻炼【视频】 / 左手能力锻炼",
+      "video_path": "吉他新思维/02-左右手锻炼【视频】/左手能力锻炼/生日快乐-千与千寻.mov",
+      "transcript_path": "",
+      "tags": [
+        "02-左右手锻炼【视频】",
+        "左手能力锻炼"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_02-a64fdf14c1",
+      "title": "让我们荡起双桨-平安夜",
+      "series": "吉他新思维",
+      "level": "02-左右手锻炼【视频】",
+      "description": "02-左右手锻炼【视频】 / 左手能力锻炼",
+      "video_path": "吉他新思维/02-左右手锻炼【视频】/左手能力锻炼/让我们荡起双桨-平安夜.mov",
+      "transcript_path": "",
+      "tags": [
+        "02-左右手锻炼【视频】",
+        "左手能力锻炼"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_02-6750c665d1",
+      "title": "送别-哇哈哈",
+      "series": "吉他新思维",
+      "level": "02-左右手锻炼【视频】",
+      "description": "02-左右手锻炼【视频】 / 左手能力锻炼",
+      "video_path": "吉他新思维/02-左右手锻炼【视频】/左手能力锻炼/送别-哇哈哈.mov",
+      "transcript_path": "",
+      "tags": [
+        "02-左右手锻炼【视频】",
+        "左手能力锻炼"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_02-p19-20-da3e3b75ce",
+      "title": "常用伴奏方法（P19-20）",
+      "series": "吉他新思维",
+      "level": "02-左右手锻炼【视频】",
+      "description": "02-左右手锻炼【视频】",
+      "video_path": "吉他新思维/02-左右手锻炼【视频】/常用伴奏方法（P19-20）.mp4",
+      "transcript_path": "",
+      "tags": [
+        "02-左右手锻炼【视频】"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_02-22-p14-18-fe24a1a0de",
+      "title": "拨弦练习22条（P14-18）",
+      "series": "吉他新思维",
+      "level": "02-左右手锻炼【视频】",
+      "description": "02-左右手锻炼【视频】",
+      "video_path": "吉他新思维/02-左右手锻炼【视频】/拨弦练习22条（P14-18）.mp4",
+      "transcript_path": "",
+      "tags": [
+        "02-左右手锻炼【视频】"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_03-01-8-34052ba8cc",
+      "title": "8分音符弱起教学",
+      "series": "吉他新思维",
+      "level": "03-节奏教学【视频】",
+      "description": "03-节奏教学【视频】 / 01-八分音符弱起节奏",
+      "video_path": "吉他新思维/03-节奏教学【视频】/01-八分音符弱起节奏/8分音符弱起教学.mp4",
+      "transcript_path": "",
+      "tags": [
+        "03-节奏教学【视频】",
+        "01-八分音符弱起节奏"
+      ],
+      "materials": {
+        "pdf": [
+          "吉他新思维/03-节奏教学【视频】/01-八分音符弱起节奏/好日子.pdf"
+        ],
+        "gp": [
+          "吉他新思维/03-节奏教学【视频】/01-八分音符弱起节奏/好日子.gp"
+        ],
+        "audio": [
+          "吉他新思维/03-节奏教学【视频】/01-八分音符弱起节奏/好日子伴奏（中速100）.mp3",
+          "吉他新思维/03-节奏教学【视频】/01-八分音符弱起节奏/好日子伴奏（原速 118）.mp3",
+          "吉他新思维/03-节奏教学【视频】/01-八分音符弱起节奏/好日子示范.mp3"
+        ]
+      }
+    },
+    {
+      "id": "course_03-02-a-3-swing-shuffle-a15b29cb3d",
+      "title": "3连音 Swing  Shuffle节奏",
+      "series": "吉他新思维",
+      "level": "03-节奏教学【视频】",
+      "description": "03-节奏教学【视频】 / 02-哆啦A梦",
+      "video_path": "吉他新思维/03-节奏教学【视频】/02-哆啦A梦/3连音 Swing  Shuffle节奏.mp4",
+      "transcript_path": "",
+      "tags": [
+        "03-节奏教学【视频】",
+        "02-哆啦A梦"
+      ],
+      "materials": {
+        "pdf": [
+          "吉他新思维/03-节奏教学【视频】/02-哆啦A梦/多啦A梦.pdf"
+        ],
+        "gp": [
+          "吉他新思维/03-节奏教学【视频】/02-哆啦A梦/多啦A梦.gp"
+        ],
+        "audio": [
+          "吉他新思维/03-节奏教学【视频】/02-哆啦A梦/多啦A梦伴奏.mp3",
+          "吉他新思维/03-节奏教学【视频】/02-哆啦A梦/示范音频.mp3"
+        ]
+      }
+    },
+    {
+      "id": "course_03-03-16-b27215dd45",
+      "title": "16分音符教学-标清",
+      "series": "吉他新思维",
+      "level": "03-节奏教学【视频】",
+      "description": "03-节奏教学【视频】 / 03-十六分音符系统练习",
+      "video_path": "吉他新思维/03-节奏教学【视频】/03-十六分音符系统练习/16分音符教学-标清.mp4",
+      "transcript_path": "",
+      "tags": [
+        "03-节奏教学【视频】",
+        "03-十六分音符系统练习"
+      ],
+      "materials": {
+        "pdf": [
+          "吉他新思维/03-节奏教学【视频】/03-十六分音符系统练习/16分音符练习.pdf"
+        ],
+        "gp": [
+          "吉他新思维/03-节奏教学【视频】/03-十六分音符系统练习/16分音符练习.gp"
+        ]
+      }
+    },
+    {
+      "id": "course_03-04-funk-funk-4bda4436e5",
+      "title": "Funk风格扫弦以及乐句",
+      "series": "吉他新思维",
+      "level": "03-节奏教学【视频】",
+      "description": "03-节奏教学【视频】 / 04-Funk风格乐句以及扫弦",
+      "video_path": "吉他新思维/03-节奏教学【视频】/04-Funk风格乐句以及扫弦/Funk风格扫弦以及乐句.mp4",
+      "transcript_path": "",
+      "tags": [
+        "03-节奏教学【视频】",
+        "04-Funk风格乐句以及扫弦"
+      ],
+      "materials": {
+        "pdf": [
+          "吉他新思维/03-节奏教学【视频】/04-Funk风格乐句以及扫弦/Funk练习曲谱.pdf"
+        ],
+        "gp": [
+          "吉他新思维/03-节奏教学【视频】/04-Funk风格乐句以及扫弦/Funk练习曲谱.gp"
+        ],
+        "audio": [
+          "吉他新思维/03-节奏教学【视频】/04-Funk风格乐句以及扫弦/练习曲示范.mp3",
+          "吉他新思维/03-节奏教学【视频】/04-Funk风格乐句以及扫弦/鼓声伴奏.mp3"
+        ]
+      }
+    },
+    {
+      "id": "course_03-05-5c4b1d36cb",
+      "title": "节奏视唱教学",
+      "series": "吉他新思维",
+      "level": "03-节奏教学【视频】",
+      "description": "03-节奏教学【视频】 / 05-节奏视唱",
+      "video_path": "吉他新思维/03-节奏教学【视频】/05-节奏视唱/节奏视唱教学.mp4",
+      "transcript_path": "",
+      "tags": [
+        "03-节奏教学【视频】",
+        "05-节奏视唱"
+      ],
+      "materials": {
+        "pdf": [
+          "吉他新思维/03-节奏教学【视频】/05-节奏视唱/节奏视唱.pdf"
+        ],
+        "gp": [
+          "吉他新思维/03-节奏教学【视频】/05-节奏视唱/节奏视唱.gp"
+        ]
+      }
+    },
+    {
+      "id": "course_03-05-1-53078832a7",
+      "title": "节奏视唱示范1",
+      "series": "吉他新思维",
+      "level": "03-节奏教学【视频】",
+      "description": "03-节奏教学【视频】 / 05-节奏视唱",
+      "video_path": "吉他新思维/03-节奏教学【视频】/05-节奏视唱/节奏视唱示范1.mp4",
+      "transcript_path": "",
+      "tags": [
+        "03-节奏教学【视频】",
+        "05-节奏视唱"
+      ],
+      "materials": {
+        "pdf": [
+          "吉他新思维/03-节奏教学【视频】/05-节奏视唱/节奏视唱.pdf"
+        ],
+        "gp": [
+          "吉他新思维/03-节奏教学【视频】/05-节奏视唱/节奏视唱.gp"
+        ]
+      }
+    },
+    {
+      "id": "course_03-06-520fa631be",
+      "title": "教学视频",
+      "series": "吉他新思维",
+      "level": "03-节奏教学【视频】",
+      "description": "03-节奏教学【视频】 / 06-超级玛丽",
+      "video_path": "吉他新思维/03-节奏教学【视频】/06-超级玛丽/教学视频.mp4",
+      "transcript_path": "",
+      "tags": [
+        "03-节奏教学【视频】",
+        "06-超级玛丽"
+      ],
+      "materials": {
+        "pdf": [
+          "吉他新思维/03-节奏教学【视频】/06-超级玛丽/超级玛丽 .pdf"
+        ],
+        "gp": [
+          "吉他新思维/03-节奏教学【视频】/06-超级玛丽/超级玛丽 .gp"
+        ],
+        "audio": [
+          "吉他新思维/03-节奏教学【视频】/06-超级玛丽/超级玛丽伴奏 .mp3",
+          "吉他新思维/03-节奏教学【视频】/06-超级玛丽/近藤浩治 - 地上BGM (スーパーマリオブラザーズ).mp3"
+        ]
+      }
+    },
+    {
+      "id": "course_03-06-b331dd1b03",
+      "title": "跟唱视频",
+      "series": "吉他新思维",
+      "level": "03-节奏教学【视频】",
+      "description": "03-节奏教学【视频】 / 06-超级玛丽",
+      "video_path": "吉他新思维/03-节奏教学【视频】/06-超级玛丽/跟唱视频.mp4",
+      "transcript_path": "",
+      "tags": [
+        "03-节奏教学【视频】",
+        "06-超级玛丽"
+      ],
+      "materials": {
+        "pdf": [
+          "吉他新思维/03-节奏教学【视频】/06-超级玛丽/超级玛丽 .pdf"
+        ],
+        "gp": [
+          "吉他新思维/03-节奏教学【视频】/06-超级玛丽/超级玛丽 .gp"
+        ],
+        "audio": [
+          "吉他新思维/03-节奏教学【视频】/06-超级玛丽/超级玛丽伴奏 .mp3",
+          "吉他新思维/03-节奏教学【视频】/06-超级玛丽/近藤浩治 - 地上BGM (スーパーマリオブラザーズ).mp3"
+        ]
+      }
+    },
+    {
+      "id": "course_04-p63-f8a0b72d59",
+      "title": "五度音程乐句练习（P63）",
+      "series": "吉他新思维",
+      "level": "04-一弦三音【视频】",
+      "description": "04-一弦三音【视频】",
+      "video_path": "吉他新思维/04-一弦三音【视频】/五度音程乐句练习（P63）.mov",
+      "transcript_path": "",
+      "tags": [
+        "04-一弦三音【视频】"
+      ],
+      "materials": {
+        "gp": [
+          "吉他新思维/04-一弦三音【视频】/五度音程乐句练习（P63）.gp",
+          "吉他新思维/04-一弦三音【视频】/四度音程（P57）.gp",
+          "吉他新思维/04-一弦三音【视频】/演奏音阶启发（P7-72）.gp"
+        ]
+      }
+    },
+    {
+      "id": "course_04-p57-2b45b23a57",
+      "title": "四度音程（P57）",
+      "series": "吉他新思维",
+      "level": "04-一弦三音【视频】",
+      "description": "04-一弦三音【视频】",
+      "video_path": "吉他新思维/04-一弦三音【视频】/四度音程（P57）.mov",
+      "transcript_path": "",
+      "tags": [
+        "04-一弦三音【视频】"
+      ],
+      "materials": {
+        "gp": [
+          "吉他新思维/04-一弦三音【视频】/五度音程乐句练习（P63）.gp",
+          "吉他新思维/04-一弦三音【视频】/四度音程（P57）.gp",
+          "吉他新思维/04-一弦三音【视频】/演奏音阶启发（P7-72）.gp"
+        ]
+      }
+    },
+    {
+      "id": "course_04-p7-72-8d7c33162a",
+      "title": "演奏音阶启发（P7-72）",
+      "series": "吉他新思维",
+      "level": "04-一弦三音【视频】",
+      "description": "04-一弦三音【视频】",
+      "video_path": "吉他新思维/04-一弦三音【视频】/演奏音阶启发（P7-72）.mov",
+      "transcript_path": "",
+      "tags": [
+        "04-一弦三音【视频】"
+      ],
+      "materials": {
+        "gp": [
+          "吉他新思维/04-一弦三音【视频】/五度音程乐句练习（P63）.gp",
+          "吉他新思维/04-一弦三音【视频】/四度音程（P57）.gp",
+          "吉他新思维/04-一弦三音【视频】/演奏音阶启发（P7-72）.gp"
+        ]
+      }
+    },
+    {
+      "id": "course_04-01-0c76d6f479",
+      "title": "01-课程简介",
+      "series": "吉他新思维",
+      "level": "04-一弦三音【视频】",
+      "description": "04-一弦三音【视频】 / 系统视频",
+      "video_path": "吉他新思维/04-一弦三音【视频】/系统视频/01-课程简介.mp4",
+      "transcript_path": "",
+      "tags": [
+        "04-一弦三音【视频】",
+        "系统视频"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_04-02-29c435522b",
+      "title": "02-一弦三音介绍",
+      "series": "吉他新思维",
+      "level": "04-一弦三音【视频】",
+      "description": "04-一弦三音【视频】 / 系统视频",
+      "video_path": "吉他新思维/04-一弦三音【视频】/系统视频/02-一弦三音介绍.mp4",
+      "transcript_path": "",
+      "tags": [
+        "04-一弦三音【视频】",
+        "系统视频"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_04-03-ce3584b0ba",
+      "title": "03-单弦音符练习",
+      "series": "吉他新思维",
+      "level": "04-一弦三音【视频】",
+      "description": "04-一弦三音【视频】 / 系统视频",
+      "video_path": "吉他新思维/04-一弦三音【视频】/系统视频/03-单弦音符练习.mp4",
+      "transcript_path": "",
+      "tags": [
+        "04-一弦三音【视频】",
+        "系统视频"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_04-04-74149a618b",
+      "title": "04-四度音程",
+      "series": "吉他新思维",
+      "level": "04-一弦三音【视频】",
+      "description": "04-一弦三音【视频】 / 系统视频",
+      "video_path": "吉他新思维/04-一弦三音【视频】/系统视频/04-四度音程.mp4",
+      "transcript_path": "",
+      "tags": [
+        "04-一弦三音【视频】",
+        "系统视频"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_04-05-6f77dc89e0",
+      "title": "05-一弦三音核心规律",
+      "series": "吉他新思维",
+      "level": "04-一弦三音【视频】",
+      "description": "04-一弦三音【视频】 / 系统视频",
+      "video_path": "吉他新思维/04-一弦三音【视频】/系统视频/05-一弦三音核心规律.mp4",
+      "transcript_path": "",
+      "tags": [
+        "04-一弦三音【视频】",
+        "系统视频"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_04-06-1b8bf9e376",
+      "title": "06-五度音程",
+      "series": "吉他新思维",
+      "level": "04-一弦三音【视频】",
+      "description": "04-一弦三音【视频】 / 系统视频",
+      "video_path": "吉他新思维/04-一弦三音【视频】/系统视频/06-五度音程.mp4",
+      "transcript_path": "",
+      "tags": [
+        "04-一弦三音【视频】",
+        "系统视频"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_04-07-94ac352001",
+      "title": "07-一弦三音记忆法",
+      "series": "吉他新思维",
+      "level": "04-一弦三音【视频】",
+      "description": "04-一弦三音【视频】 / 系统视频",
+      "video_path": "吉他新思维/04-一弦三音【视频】/系统视频/07-一弦三音记忆法.mp4",
+      "transcript_path": "",
+      "tags": [
+        "04-一弦三音【视频】",
+        "系统视频"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_04-08-7be36654f7",
+      "title": "08-常用摸进",
+      "series": "吉他新思维",
+      "level": "04-一弦三音【视频】",
+      "description": "04-一弦三音【视频】 / 系统视频",
+      "video_path": "吉他新思维/04-一弦三音【视频】/系统视频/08-常用摸进.mp4",
+      "transcript_path": "",
+      "tags": [
+        "04-一弦三音【视频】",
+        "系统视频"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_04-09-121e767751",
+      "title": "09-演奏音阶启发",
+      "series": "吉他新思维",
+      "level": "04-一弦三音【视频】",
+      "description": "04-一弦三音【视频】 / 系统视频",
+      "video_path": "吉他新思维/04-一弦三音【视频】/系统视频/09-演奏音阶启发.mp4",
+      "transcript_path": "",
+      "tags": [
+        "04-一弦三音【视频】",
+        "系统视频"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_04-10-aaddf1149f",
+      "title": "10-单元总结",
+      "series": "吉他新思维",
+      "level": "04-一弦三音【视频】",
+      "description": "04-一弦三音【视频】 / 系统视频",
+      "video_path": "吉他新思维/04-一弦三音【视频】/系统视频/10-单元总结.mp4",
+      "transcript_path": "",
+      "tags": [
+        "04-一弦三音【视频】",
+        "系统视频"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_05-caged-1-d5f96553d3",
+      "title": "1-课程简介",
+      "series": "吉他新思维",
+      "level": "05-CAGED【视频】",
+      "description": "05-CAGED【视频】",
+      "video_path": "吉他新思维/05-CAGED【视频】/1-课程简介.mp4",
+      "transcript_path": "",
+      "tags": [
+        "05-CAGED【视频】"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_05-caged-10-caged-a284b697f1",
+      "title": "10-CAGED小七和弦",
+      "series": "吉他新思维",
+      "level": "05-CAGED【视频】",
+      "description": "05-CAGED【视频】",
+      "video_path": "吉他新思维/05-CAGED【视频】/10-CAGED小七和弦.mp4",
+      "transcript_path": "",
+      "tags": [
+        "05-CAGED【视频】"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_05-caged-11-caged-4bc47a40c4",
+      "title": "11-CAGED半减七和弦",
+      "series": "吉他新思维",
+      "level": "05-CAGED【视频】",
+      "description": "05-CAGED【视频】",
+      "video_path": "吉他新思维/05-CAGED【视频】/11-CAGED半减七和弦.mp4",
+      "transcript_path": "",
+      "tags": [
+        "05-CAGED【视频】"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_05-caged-12-caged-95048ff291",
+      "title": "12-CAGED所有和弦指型",
+      "series": "吉他新思维",
+      "level": "05-CAGED【视频】",
+      "description": "05-CAGED【视频】",
+      "video_path": "吉他新思维/05-CAGED【视频】/12-CAGED所有和弦指型.mp4",
+      "transcript_path": "",
+      "tags": [
+        "05-CAGED【视频】"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_05-caged-13-ff3316781b",
+      "title": "13-和弦终极练习",
+      "series": "吉他新思维",
+      "level": "05-CAGED【视频】",
+      "description": "05-CAGED【视频】",
+      "video_path": "吉他新思维/05-CAGED【视频】/13-和弦终极练习.mp4",
+      "transcript_path": "",
+      "tags": [
+        "05-CAGED【视频】"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_05-caged-14-2aeaf79374",
+      "title": "14-练习总结",
+      "series": "吉他新思维",
+      "level": "05-CAGED【视频】",
+      "description": "05-CAGED【视频】",
+      "video_path": "吉他新思维/05-CAGED【视频】/14-练习总结.mp4",
+      "transcript_path": "",
+      "tags": [
+        "05-CAGED【视频】"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_05-caged-15-12e3a8a56d",
+      "title": "15-和弦与音阶的关系",
+      "series": "吉他新思维",
+      "level": "05-CAGED【视频】",
+      "description": "05-CAGED【视频】",
+      "video_path": "吉他新思维/05-CAGED【视频】/15-和弦与音阶的关系.mp4",
+      "transcript_path": "",
+      "tags": [
+        "05-CAGED【视频】"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_05-caged-16-a107ea6e5a",
+      "title": "16-实战《彩虹》",
+      "series": "吉他新思维",
+      "level": "05-CAGED【视频】",
+      "description": "05-CAGED【视频】",
+      "video_path": "吉他新思维/05-CAGED【视频】/16-实战《彩虹》.mp4",
+      "transcript_path": "",
+      "tags": [
+        "05-CAGED【视频】"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_05-caged-17-0b5e216b0d",
+      "title": "17-实战《淘汰》",
+      "series": "吉他新思维",
+      "level": "05-CAGED【视频】",
+      "description": "05-CAGED【视频】",
+      "video_path": "吉他新思维/05-CAGED【视频】/17-实战《淘汰》.mp4",
+      "transcript_path": "",
+      "tags": [
+        "05-CAGED【视频】"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_05-caged-18-490b637517",
+      "title": "18-《淘汰》示范",
+      "series": "吉他新思维",
+      "level": "05-CAGED【视频】",
+      "description": "05-CAGED【视频】",
+      "video_path": "吉他新思维/05-CAGED【视频】/18-《淘汰》示范.mp4",
+      "transcript_path": "",
+      "tags": [
+        "05-CAGED【视频】"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_05-caged-19-4691e9f49e",
+      "title": "19实战《黑色毛衣》",
+      "series": "吉他新思维",
+      "level": "05-CAGED【视频】",
+      "description": "05-CAGED【视频】",
+      "video_path": "吉他新思维/05-CAGED【视频】/19实战《黑色毛衣》.mp4",
+      "transcript_path": "",
+      "tags": [
+        "05-CAGED【视频】"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_05-caged-2-9ef3541a30",
+      "title": "2-和弦的意义",
+      "series": "吉他新思维",
+      "level": "05-CAGED【视频】",
+      "description": "05-CAGED【视频】",
+      "video_path": "吉他新思维/05-CAGED【视频】/2-和弦的意义.mp4",
+      "transcript_path": "",
+      "tags": [
+        "05-CAGED【视频】"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_05-caged-20-ed1d945a3f",
+      "title": "20-单元总结",
+      "series": "吉他新思维",
+      "level": "05-CAGED【视频】",
+      "description": "05-CAGED【视频】",
+      "video_path": "吉他新思维/05-CAGED【视频】/20-单元总结.mp4",
+      "transcript_path": "",
+      "tags": [
+        "05-CAGED【视频】"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_05-caged-3-b6305839e1",
+      "title": "3-和弦音排列",
+      "series": "吉他新思维",
+      "level": "05-CAGED【视频】",
+      "description": "05-CAGED【视频】",
+      "video_path": "吉他新思维/05-CAGED【视频】/3-和弦音排列.mp4",
+      "transcript_path": "",
+      "tags": [
+        "05-CAGED【视频】"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_05-caged-4-05e21f15de",
+      "title": "4-和弦指型连接方法",
+      "series": "吉他新思维",
+      "level": "05-CAGED【视频】",
+      "description": "05-CAGED【视频】",
+      "video_path": "吉他新思维/05-CAGED【视频】/4-和弦指型连接方法.mp4",
+      "transcript_path": "",
+      "tags": [
+        "05-CAGED【视频】"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_05-caged-5-145-bb81ad14a6",
+      "title": "5-同把位找145",
+      "series": "吉他新思维",
+      "level": "05-CAGED【视频】",
+      "description": "05-CAGED【视频】",
+      "video_path": "吉他新思维/05-CAGED【视频】/5-同把位找145.mp4",
+      "transcript_path": "",
+      "tags": [
+        "05-CAGED【视频】"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_05-caged-6-f804368962",
+      "title": "6-五指形核心练习",
+      "series": "吉他新思维",
+      "level": "05-CAGED【视频】",
+      "description": "05-CAGED【视频】",
+      "video_path": "吉他新思维/05-CAGED【视频】/6-五指形核心练习.mp4",
+      "transcript_path": "",
+      "tags": [
+        "05-CAGED【视频】"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_05-caged-7-ac8f7a1e62",
+      "title": "7-和弦结构表",
+      "series": "吉他新思维",
+      "level": "05-CAGED【视频】",
+      "description": "05-CAGED【视频】",
+      "video_path": "吉他新思维/05-CAGED【视频】/7-和弦结构表.mp4",
+      "transcript_path": "",
+      "tags": [
+        "05-CAGED【视频】"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_05-caged-8-caged-045b671fbc",
+      "title": "8-CAGED小三和弦",
+      "series": "吉他新思维",
+      "level": "05-CAGED【视频】",
+      "description": "05-CAGED【视频】",
+      "video_path": "吉他新思维/05-CAGED【视频】/8-CAGED小三和弦.mp4",
+      "transcript_path": "",
+      "tags": [
+        "05-CAGED【视频】"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_05-caged-9-caged-02ee551f51",
+      "title": "9-CAGED大七与属七",
+      "series": "吉他新思维",
+      "level": "05-CAGED【视频】",
+      "description": "05-CAGED【视频】",
+      "video_path": "吉他新思维/05-CAGED【视频】/9-CAGED大七与属七.mp4",
+      "transcript_path": "",
+      "tags": [
+        "05-CAGED【视频】"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_06-eb-p104-253731d48c",
+      "title": "Eb音符互动乐句（P104）",
+      "series": "吉他新思维",
+      "level": "06-五声音阶【视频】",
+      "description": "06-五声音阶【视频】",
+      "video_path": "吉他新思维/06-五声音阶【视频】/Eb音符互动乐句（P104）.mov",
+      "transcript_path": "",
+      "tags": [
+        "06-五声音阶【视频】"
+      ],
+      "materials": {
+        "gp": [
+          "吉他新思维/06-五声音阶【视频】/Eb音符互动乐句（P104）.gp",
+          "吉他新思维/06-五声音阶【视频】/华丽五声终章（P109）.gp",
+          "吉他新思维/06-五声音阶【视频】/超实用五声音阶乐句（P99）.gp",
+          "吉他新思维/06-五声音阶【视频】/降五音乐句（P107）.gp"
+        ],
+        "audio": [
+          "吉他新思维/06-五声音阶【视频】/《二十二》SOLO学习（P105）.mp3"
+        ]
+      }
+    },
+    {
+      "id": "course_06-p109-f9ee87982d",
+      "title": "华丽五声终章（P109）",
+      "series": "吉他新思维",
+      "level": "06-五声音阶【视频】",
+      "description": "06-五声音阶【视频】",
+      "video_path": "吉他新思维/06-五声音阶【视频】/华丽五声终章（P109）.mov",
+      "transcript_path": "",
+      "tags": [
+        "06-五声音阶【视频】"
+      ],
+      "materials": {
+        "gp": [
+          "吉他新思维/06-五声音阶【视频】/Eb音符互动乐句（P104）.gp",
+          "吉他新思维/06-五声音阶【视频】/华丽五声终章（P109）.gp",
+          "吉他新思维/06-五声音阶【视频】/超实用五声音阶乐句（P99）.gp",
+          "吉他新思维/06-五声音阶【视频】/降五音乐句（P107）.gp"
+        ],
+        "audio": [
+          "吉他新思维/06-五声音阶【视频】/《二十二》SOLO学习（P105）.mp3"
+        ]
+      }
+    },
+    {
+      "id": "course_06-01-2ed307a947",
+      "title": "01-单元简介",
+      "series": "吉他新思维",
+      "level": "06-五声音阶【视频】",
+      "description": "06-五声音阶【视频】 / 系统教学视频",
+      "video_path": "吉他新思维/06-五声音阶【视频】/系统教学视频/01-单元简介.mp4",
+      "transcript_path": "",
+      "tags": [
+        "06-五声音阶【视频】",
+        "系统教学视频"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_06-02-217836a6f6",
+      "title": "02-初步认识五声音阶",
+      "series": "吉他新思维",
+      "level": "06-五声音阶【视频】",
+      "description": "06-五声音阶【视频】 / 系统教学视频",
+      "video_path": "吉他新思维/06-五声音阶【视频】/系统教学视频/02-初步认识五声音阶.mp4",
+      "transcript_path": "",
+      "tags": [
+        "06-五声音阶【视频】",
+        "系统教学视频"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_06-03-6341a1a94f",
+      "title": "03-常用摸进",
+      "series": "吉他新思维",
+      "level": "06-五声音阶【视频】",
+      "description": "06-五声音阶【视频】 / 系统教学视频",
+      "video_path": "吉他新思维/06-五声音阶【视频】/系统教学视频/03-常用摸进.mp4",
+      "transcript_path": "",
+      "tags": [
+        "06-五声音阶【视频】",
+        "系统教学视频"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_06-04-2918be764f",
+      "title": "04-好用的路线",
+      "series": "吉他新思维",
+      "level": "06-五声音阶【视频】",
+      "description": "06-五声音阶【视频】 / 系统教学视频",
+      "video_path": "吉他新思维/06-五声音阶【视频】/系统教学视频/04-好用的路线.mp4",
+      "transcript_path": "",
+      "tags": [
+        "06-五声音阶【视频】",
+        "系统教学视频"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_06-05-f102a0438e",
+      "title": "05-练脑时刻",
+      "series": "吉他新思维",
+      "level": "06-五声音阶【视频】",
+      "description": "06-五声音阶【视频】 / 系统教学视频",
+      "video_path": "吉他新思维/06-五声音阶【视频】/系统教学视频/05-练脑时刻.mp4",
+      "transcript_path": "",
+      "tags": [
+        "06-五声音阶【视频】",
+        "系统教学视频"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_06-06-9a125a29fd",
+      "title": "06-爵士思维演奏",
+      "series": "吉他新思维",
+      "level": "06-五声音阶【视频】",
+      "description": "06-五声音阶【视频】 / 系统教学视频",
+      "video_path": "吉他新思维/06-五声音阶【视频】/系统教学视频/06-爵士思维演奏.mp4",
+      "transcript_path": "",
+      "tags": [
+        "06-五声音阶【视频】",
+        "系统教学视频"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_06-07-2afd185714",
+      "title": "07-五声音阶加入降三音",
+      "series": "吉他新思维",
+      "level": "06-五声音阶【视频】",
+      "description": "06-五声音阶【视频】 / 系统教学视频",
+      "video_path": "吉他新思维/06-五声音阶【视频】/系统教学视频/07-五声音阶加入降三音.mp4",
+      "transcript_path": "",
+      "tags": [
+        "06-五声音阶【视频】",
+        "系统教学视频"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_06-08-eb-f53316c8f4",
+      "title": "08-Eb音符乐句",
+      "series": "吉他新思维",
+      "level": "06-五声音阶【视频】",
+      "description": "06-五声音阶【视频】 / 系统教学视频",
+      "video_path": "吉他新思维/06-五声音阶【视频】/系统教学视频/08-Eb音符乐句.mp4",
+      "transcript_path": "",
+      "tags": [
+        "06-五声音阶【视频】",
+        "系统教学视频"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_06-09-b2252ffcdd",
+      "title": "09-二十二",
+      "series": "吉他新思维",
+      "level": "06-五声音阶【视频】",
+      "description": "06-五声音阶【视频】 / 系统教学视频",
+      "video_path": "吉他新思维/06-五声音阶【视频】/系统教学视频/09-二十二.mp4",
+      "transcript_path": "",
+      "tags": [
+        "06-五声音阶【视频】",
+        "系统教学视频"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_06-10-15f727c422",
+      "title": "10-降五音乐句",
+      "series": "吉他新思维",
+      "level": "06-五声音阶【视频】",
+      "description": "06-五声音阶【视频】 / 系统教学视频",
+      "video_path": "吉他新思维/06-五声音阶【视频】/系统教学视频/10-降五音乐句.mp4",
+      "transcript_path": "",
+      "tags": [
+        "06-五声音阶【视频】",
+        "系统教学视频"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_06-11-8b0df15f00",
+      "title": "11-五声音阶终章",
+      "series": "吉他新思维",
+      "level": "06-五声音阶【视频】",
+      "description": "06-五声音阶【视频】 / 系统教学视频",
+      "video_path": "吉他新思维/06-五声音阶【视频】/系统教学视频/11-五声音阶终章.mp4",
+      "transcript_path": "",
+      "tags": [
+        "06-五声音阶【视频】",
+        "系统教学视频"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_06-p99-3e2c488039",
+      "title": "超实用五声音阶乐句（P99）",
+      "series": "吉他新思维",
+      "level": "06-五声音阶【视频】",
+      "description": "06-五声音阶【视频】",
+      "video_path": "吉他新思维/06-五声音阶【视频】/超实用五声音阶乐句（P99）.mov",
+      "transcript_path": "",
+      "tags": [
+        "06-五声音阶【视频】"
+      ],
+      "materials": {
+        "gp": [
+          "吉他新思维/06-五声音阶【视频】/Eb音符互动乐句（P104）.gp",
+          "吉他新思维/06-五声音阶【视频】/华丽五声终章（P109）.gp",
+          "吉他新思维/06-五声音阶【视频】/超实用五声音阶乐句（P99）.gp",
+          "吉他新思维/06-五声音阶【视频】/降五音乐句（P107）.gp"
+        ],
+        "audio": [
+          "吉他新思维/06-五声音阶【视频】/《二十二》SOLO学习（P105）.mp3"
+        ]
+      }
+    },
+    {
+      "id": "course_06-p107-5393f14534",
+      "title": "降五音乐句（P107）",
+      "series": "吉他新思维",
+      "level": "06-五声音阶【视频】",
+      "description": "06-五声音阶【视频】",
+      "video_path": "吉他新思维/06-五声音阶【视频】/降五音乐句（P107）.mov",
+      "transcript_path": "",
+      "tags": [
+        "06-五声音阶【视频】"
+      ],
+      "materials": {
+        "gp": [
+          "吉他新思维/06-五声音阶【视频】/Eb音符互动乐句（P104）.gp",
+          "吉他新思维/06-五声音阶【视频】/华丽五声终章（P109）.gp",
+          "吉他新思维/06-五声音阶【视频】/超实用五声音阶乐句（P99）.gp",
+          "吉他新思维/06-五声音阶【视频】/降五音乐句（P107）.gp"
+        ],
+        "audio": [
+          "吉他新思维/06-五声音阶【视频】/《二十二》SOLO学习（P105）.mp3"
+        ]
+      }
+    },
+    {
+      "id": "course_07-p114-d382a61b2e",
+      "title": "利用大七和弦构建旋律（P114）",
+      "series": "吉他新思维",
+      "level": "07-大七素材【视频】",
+      "description": "07-大七素材【视频】",
+      "video_path": "吉他新思维/07-大七素材【视频】/利用大七和弦构建旋律（P114）.mov",
+      "transcript_path": "",
+      "tags": [
+        "07-大七素材【视频】"
+      ],
+      "materials": {
+        "gp": [
+          "吉他新思维/07-大七素材【视频】/利用大七和弦构建旋律（P114）.gp",
+          "吉他新思维/07-大七素材【视频】/华丽大七最终形态（P126-130）.gp",
+          "吉他新思维/07-大七素材【视频】/四三二弦大七和弦（P118）.gp",
+          "吉他新思维/07-大七素材【视频】/大七与五声音阶（P117）.gp",
+          "吉他新思维/07-大七素材【视频】/经济拨弦乐句（P125）.gp"
+        ]
+      }
+    },
+    {
+      "id": "course_07-p126-130-46ab31fd86",
+      "title": "华丽大七最终形态（P126-130）",
+      "series": "吉他新思维",
+      "level": "07-大七素材【视频】",
+      "description": "07-大七素材【视频】",
+      "video_path": "吉他新思维/07-大七素材【视频】/华丽大七最终形态（P126-130）.mov",
+      "transcript_path": "",
+      "tags": [
+        "07-大七素材【视频】"
+      ],
+      "materials": {
+        "gp": [
+          "吉他新思维/07-大七素材【视频】/利用大七和弦构建旋律（P114）.gp",
+          "吉他新思维/07-大七素材【视频】/华丽大七最终形态（P126-130）.gp",
+          "吉他新思维/07-大七素材【视频】/四三二弦大七和弦（P118）.gp",
+          "吉他新思维/07-大七素材【视频】/大七与五声音阶（P117）.gp",
+          "吉他新思维/07-大七素材【视频】/经济拨弦乐句（P125）.gp"
+        ]
+      }
+    },
+    {
+      "id": "course_07-p118-90bb134e01",
+      "title": "四三二弦大七和弦（P118）",
+      "series": "吉他新思维",
+      "level": "07-大七素材【视频】",
+      "description": "07-大七素材【视频】",
+      "video_path": "吉他新思维/07-大七素材【视频】/四三二弦大七和弦（P118）.mov",
+      "transcript_path": "",
+      "tags": [
+        "07-大七素材【视频】"
+      ],
+      "materials": {
+        "gp": [
+          "吉他新思维/07-大七素材【视频】/利用大七和弦构建旋律（P114）.gp",
+          "吉他新思维/07-大七素材【视频】/华丽大七最终形态（P126-130）.gp",
+          "吉他新思维/07-大七素材【视频】/四三二弦大七和弦（P118）.gp",
+          "吉他新思维/07-大七素材【视频】/大七与五声音阶（P117）.gp",
+          "吉他新思维/07-大七素材【视频】/经济拨弦乐句（P125）.gp"
+        ]
+      }
+    },
+    {
+      "id": "course_07-p117-bc615b5cfd",
+      "title": "大七与五声音阶（P117）",
+      "series": "吉他新思维",
+      "level": "07-大七素材【视频】",
+      "description": "07-大七素材【视频】",
+      "video_path": "吉他新思维/07-大七素材【视频】/大七与五声音阶（P117）.mov",
+      "transcript_path": "",
+      "tags": [
+        "07-大七素材【视频】"
+      ],
+      "materials": {
+        "gp": [
+          "吉他新思维/07-大七素材【视频】/利用大七和弦构建旋律（P114）.gp",
+          "吉他新思维/07-大七素材【视频】/华丽大七最终形态（P126-130）.gp",
+          "吉他新思维/07-大七素材【视频】/四三二弦大七和弦（P118）.gp",
+          "吉他新思维/07-大七素材【视频】/大七与五声音阶（P117）.gp",
+          "吉他新思维/07-大七素材【视频】/经济拨弦乐句（P125）.gp"
+        ]
+      }
+    },
+    {
+      "id": "course_07-01-841d86479b",
+      "title": "01-课程介绍",
+      "series": "吉他新思维",
+      "level": "07-大七素材【视频】",
+      "description": "07-大七素材【视频】 / 系统视频",
+      "video_path": "吉他新思维/07-大七素材【视频】/系统视频/01-课程介绍.mp4",
+      "transcript_path": "",
+      "tags": [
+        "07-大七素材【视频】",
+        "系统视频"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_07-02-aacd1607bc",
+      "title": "02-两弦一组的琶音",
+      "series": "吉他新思维",
+      "level": "07-大七素材【视频】",
+      "description": "07-大七素材【视频】 / 系统视频",
+      "video_path": "吉他新思维/07-大七素材【视频】/系统视频/02-两弦一组的琶音.mp4",
+      "transcript_path": "",
+      "tags": [
+        "07-大七素材【视频】",
+        "系统视频"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_07-03-9601513d95",
+      "title": "03-利用琶音制造旋律",
+      "series": "吉他新思维",
+      "level": "07-大七素材【视频】",
+      "description": "07-大七素材【视频】 / 系统视频",
+      "video_path": "吉他新思维/07-大七素材【视频】/系统视频/03-利用琶音制造旋律.mp4",
+      "transcript_path": "",
+      "tags": [
+        "07-大七素材【视频】",
+        "系统视频"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_07-04-a3ce47254e",
+      "title": "04-三二一弦琶音",
+      "series": "吉他新思维",
+      "level": "07-大七素材【视频】",
+      "description": "07-大七素材【视频】 / 系统视频",
+      "video_path": "吉他新思维/07-大七素材【视频】/系统视频/04-三二一弦琶音.mp4",
+      "transcript_path": "",
+      "tags": [
+        "07-大七素材【视频】",
+        "系统视频"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_07-05-4cbd943321",
+      "title": "05-大七与五声音阶",
+      "series": "吉他新思维",
+      "level": "07-大七素材【视频】",
+      "description": "07-大七素材【视频】 / 系统视频",
+      "video_path": "吉他新思维/07-大七素材【视频】/系统视频/05-大七与五声音阶.mp4",
+      "transcript_path": "",
+      "tags": [
+        "07-大七素材【视频】",
+        "系统视频"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_07-06-2f1b918714",
+      "title": "06-四三二弦琶音",
+      "series": "吉他新思维",
+      "level": "07-大七素材【视频】",
+      "description": "07-大七素材【视频】 / 系统视频",
+      "video_path": "吉他新思维/07-大七素材【视频】/系统视频/06-四三二弦琶音.mp4",
+      "transcript_path": "",
+      "tags": [
+        "07-大七素材【视频】",
+        "系统视频"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_07-07-fc93d9b5e7",
+      "title": "07-两个八度的琶音（上）",
+      "series": "吉他新思维",
+      "level": "07-大七素材【视频】",
+      "description": "07-大七素材【视频】 / 系统视频",
+      "video_path": "吉他新思维/07-大七素材【视频】/系统视频/07-两个八度的琶音（上）.mp4",
+      "transcript_path": "",
+      "tags": [
+        "07-大七素材【视频】",
+        "系统视频"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_07-08-543ca675f1",
+      "title": "08-两个八度的琶音（下）",
+      "series": "吉他新思维",
+      "level": "07-大七素材【视频】",
+      "description": "07-大七素材【视频】 / 系统视频",
+      "video_path": "吉他新思维/07-大七素材【视频】/系统视频/08-两个八度的琶音（下）.mp4",
+      "transcript_path": "",
+      "tags": [
+        "07-大七素材【视频】",
+        "系统视频"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_07-09-caged-002db75116",
+      "title": "09-CAGED系统琶音",
+      "series": "吉他新思维",
+      "level": "07-大七素材【视频】",
+      "description": "07-大七素材【视频】 / 系统视频",
+      "video_path": "吉他新思维/07-大七素材【视频】/系统视频/09-CAGED系统琶音.mp4",
+      "transcript_path": "",
+      "tags": [
+        "07-大七素材【视频】",
+        "系统视频"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_07-10-9508c9b8a6",
+      "title": "10-琶音摸进",
+      "series": "吉他新思维",
+      "level": "07-大七素材【视频】",
+      "description": "07-大七素材【视频】 / 系统视频",
+      "video_path": "吉他新思维/07-大七素材【视频】/系统视频/10-琶音摸进.mp4",
+      "transcript_path": "",
+      "tags": [
+        "07-大七素材【视频】",
+        "系统视频"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_07-11-41954a4776",
+      "title": "11-三个八度琶音",
+      "series": "吉他新思维",
+      "level": "07-大七素材【视频】",
+      "description": "07-大七素材【视频】 / 系统视频",
+      "video_path": "吉他新思维/07-大七素材【视频】/系统视频/11-三个八度琶音.mp4",
+      "transcript_path": "",
+      "tags": [
+        "07-大七素材【视频】",
+        "系统视频"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_07-12-d2ba00dbc9",
+      "title": "12-经济拨弦乐句",
+      "series": "吉他新思维",
+      "level": "07-大七素材【视频】",
+      "description": "07-大七素材【视频】 / 系统视频",
+      "video_path": "吉他新思维/07-大七素材【视频】/系统视频/12-经济拨弦乐句.mp4",
+      "transcript_path": "",
+      "tags": [
+        "07-大七素材【视频】",
+        "系统视频"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_07-13-2ee12c9529",
+      "title": "13-华丽大七终章",
+      "series": "吉他新思维",
+      "level": "07-大七素材【视频】",
+      "description": "07-大七素材【视频】 / 系统视频",
+      "video_path": "吉他新思维/07-大七素材【视频】/系统视频/13-华丽大七终章.mp4",
+      "transcript_path": "",
+      "tags": [
+        "07-大七素材【视频】",
+        "系统视频"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_07-14-d372dd73e5",
+      "title": "14-实战应用（上）",
+      "series": "吉他新思维",
+      "level": "07-大七素材【视频】",
+      "description": "07-大七素材【视频】 / 系统视频",
+      "video_path": "吉他新思维/07-大七素材【视频】/系统视频/14-实战应用（上）.mp4",
+      "transcript_path": "",
+      "tags": [
+        "07-大七素材【视频】",
+        "系统视频"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_07-15-2272cc9b5b",
+      "title": "15-实战应用（下）",
+      "series": "吉他新思维",
+      "level": "07-大七素材【视频】",
+      "description": "07-大七素材【视频】 / 系统视频",
+      "video_path": "吉他新思维/07-大七素材【视频】/系统视频/15-实战应用（下）.mp4",
+      "transcript_path": "",
+      "tags": [
+        "07-大七素材【视频】",
+        "系统视频"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_07-16-ffdec35b78",
+      "title": "16-单元总结",
+      "series": "吉他新思维",
+      "level": "07-大七素材【视频】",
+      "description": "07-大七素材【视频】 / 系统视频",
+      "video_path": "吉他新思维/07-大七素材【视频】/系统视频/16-单元总结.mp4",
+      "transcript_path": "",
+      "tags": [
+        "07-大七素材【视频】",
+        "系统视频"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_07-p125-5b5cdc938a",
+      "title": "经济拨弦乐句（P125）",
+      "series": "吉他新思维",
+      "level": "07-大七素材【视频】",
+      "description": "07-大七素材【视频】",
+      "video_path": "吉他新思维/07-大七素材【视频】/经济拨弦乐句（P125）.mov",
+      "transcript_path": "",
+      "tags": [
+        "07-大七素材【视频】"
+      ],
+      "materials": {
+        "gp": [
+          "吉他新思维/07-大七素材【视频】/利用大七和弦构建旋律（P114）.gp",
+          "吉他新思维/07-大七素材【视频】/华丽大七最终形态（P126-130）.gp",
+          "吉他新思维/07-大七素材【视频】/四三二弦大七和弦（P118）.gp",
+          "吉他新思维/07-大七素材【视频】/大七与五声音阶（P117）.gp",
+          "吉他新思维/07-大七素材【视频】/经济拨弦乐句（P125）.gp"
+        ]
+      }
+    },
+    {
+      "id": "course_08-p139-dc56f57276",
+      "title": "混合布鲁斯音阶（P139）",
+      "series": "吉他新思维",
+      "level": "08-属七和弦【视频】",
+      "description": "08-属七和弦【视频】",
+      "video_path": "吉他新思维/08-属七和弦【视频】/混合布鲁斯音阶（P139）.mov",
+      "transcript_path": "",
+      "tags": [
+        "08-属七和弦【视频】"
+      ],
+      "materials": {
+        "gp": [
+          "吉他新思维/08-属七和弦【视频】/混合布鲁斯音阶（P139）.gp"
+        ]
+      }
+    },
+    {
+      "id": "course_08-01-8ab85f6b46",
+      "title": "01-课程介绍",
+      "series": "吉他新思维",
+      "level": "08-属七和弦【视频】",
+      "description": "08-属七和弦【视频】 / 系统视频",
+      "video_path": "吉他新思维/08-属七和弦【视频】/系统视频/01-课程介绍.mp4",
+      "transcript_path": "",
+      "tags": [
+        "08-属七和弦【视频】",
+        "系统视频"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_08-02-bfcaff385f",
+      "title": "02-属七和弦的功能",
+      "series": "吉他新思维",
+      "level": "08-属七和弦【视频】",
+      "description": "08-属七和弦【视频】 / 系统视频",
+      "video_path": "吉他新思维/08-属七和弦【视频】/系统视频/02-属七和弦的功能.mp4",
+      "transcript_path": "",
+      "tags": [
+        "08-属七和弦【视频】",
+        "系统视频"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_08-03-22b7194553",
+      "title": "03-属七琶音",
+      "series": "吉他新思维",
+      "level": "08-属七和弦【视频】",
+      "description": "08-属七和弦【视频】 / 系统视频",
+      "video_path": "吉他新思维/08-属七和弦【视频】/系统视频/03-属七琶音.mp4",
+      "transcript_path": "",
+      "tags": [
+        "08-属七和弦【视频】",
+        "系统视频"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_08-04-252cac8b6a",
+      "title": "04-经济拨弦",
+      "series": "吉他新思维",
+      "level": "08-属七和弦【视频】",
+      "description": "08-属七和弦【视频】 / 系统视频",
+      "video_path": "吉他新思维/08-属七和弦【视频】/系统视频/04-经济拨弦.mp4",
+      "transcript_path": "",
+      "tags": [
+        "08-属七和弦【视频】",
+        "系统视频"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_08-05-5d0e30ce46",
+      "title": "05-属九琶音",
+      "series": "吉他新思维",
+      "level": "08-属七和弦【视频】",
+      "description": "08-属七和弦【视频】 / 系统视频",
+      "video_path": "吉他新思维/08-属七和弦【视频】/系统视频/05-属九琶音.mp4",
+      "transcript_path": "",
+      "tags": [
+        "08-属七和弦【视频】",
+        "系统视频"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_08-06-9db8809f21",
+      "title": "06-混合布鲁斯",
+      "series": "吉他新思维",
+      "level": "08-属七和弦【视频】",
+      "description": "08-属七和弦【视频】 / 系统视频",
+      "video_path": "吉他新思维/08-属七和弦【视频】/系统视频/06-混合布鲁斯.mp4",
+      "transcript_path": "",
+      "tags": [
+        "08-属七和弦【视频】",
+        "系统视频"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_08-07-60930cd2be",
+      "title": "07-实战示范",
+      "series": "吉他新思维",
+      "level": "08-属七和弦【视频】",
+      "description": "08-属七和弦【视频】 / 系统视频",
+      "video_path": "吉他新思维/08-属七和弦【视频】/系统视频/07-实战示范.mp4",
+      "transcript_path": "",
+      "tags": [
+        "08-属七和弦【视频】",
+        "系统视频"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_09-p151-2cb1468e8f",
+      "title": "布鲁斯乐句（P151）",
+      "series": "吉他新思维",
+      "level": "09-小七和弦【视频】",
+      "description": "09-小七和弦【视频】",
+      "video_path": "吉他新思维/09-小七和弦【视频】/布鲁斯乐句（P151）.mov",
+      "transcript_path": "",
+      "tags": [
+        "09-小七和弦【视频】"
+      ],
+      "materials": {
+        "gp": [
+          "吉他新思维/09-小七和弦【视频】/布鲁斯乐句（P151）.gp"
+        ]
+      }
+    },
+    {
+      "id": "course_09-01-ea364df272",
+      "title": "01-课程介绍",
+      "series": "吉他新思维",
+      "level": "09-小七和弦【视频】",
+      "description": "09-小七和弦【视频】 / 系统视频",
+      "video_path": "吉他新思维/09-小七和弦【视频】/系统视频/01-课程介绍.mp4",
+      "transcript_path": "",
+      "tags": [
+        "09-小七和弦【视频】",
+        "系统视频"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_09-02-db8e9e29a9",
+      "title": "02-小七和弦琶音",
+      "series": "吉他新思维",
+      "level": "09-小七和弦【视频】",
+      "description": "09-小七和弦【视频】 / 系统视频",
+      "video_path": "吉他新思维/09-小七和弦【视频】/系统视频/02-小七和弦琶音.mp4",
+      "transcript_path": "",
+      "tags": [
+        "09-小七和弦【视频】",
+        "系统视频"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_09-03-49602139f4",
+      "title": "03-小调五声音阶",
+      "series": "吉他新思维",
+      "level": "09-小七和弦【视频】",
+      "description": "09-小七和弦【视频】 / 系统视频",
+      "video_path": "吉他新思维/09-小七和弦【视频】/系统视频/03-小调五声音阶.mp4",
+      "transcript_path": "",
+      "tags": [
+        "09-小七和弦【视频】",
+        "系统视频"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_09-04-69f0dcc6b5",
+      "title": "04-布鲁斯音阶",
+      "series": "吉他新思维",
+      "level": "09-小七和弦【视频】",
+      "description": "09-小七和弦【视频】 / 系统视频",
+      "video_path": "吉他新思维/09-小七和弦【视频】/系统视频/04-布鲁斯音阶.mp4",
+      "transcript_path": "",
+      "tags": [
+        "09-小七和弦【视频】",
+        "系统视频"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_09-05-6531a923ea",
+      "title": "05-五声音阶如何弹好听",
+      "series": "吉他新思维",
+      "level": "09-小七和弦【视频】",
+      "description": "09-小七和弦【视频】 / 系统视频",
+      "video_path": "吉他新思维/09-小七和弦【视频】/系统视频/05-五声音阶如何弹好听.mp4",
+      "transcript_path": "",
+      "tags": [
+        "09-小七和弦【视频】",
+        "系统视频"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_09-06-97ba72ea6b",
+      "title": "06-布鲁斯乐句",
+      "series": "吉他新思维",
+      "level": "09-小七和弦【视频】",
+      "description": "09-小七和弦【视频】 / 系统视频",
+      "video_path": "吉他新思维/09-小七和弦【视频】/系统视频/06-布鲁斯乐句.mp4",
+      "transcript_path": "",
+      "tags": [
+        "09-小七和弦【视频】",
+        "系统视频"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_09-07-fa1dbce363",
+      "title": "07-代理素材",
+      "series": "吉他新思维",
+      "level": "09-小七和弦【视频】",
+      "description": "09-小七和弦【视频】 / 系统视频",
+      "video_path": "吉他新思维/09-小七和弦【视频】/系统视频/07-代理素材.mp4",
+      "transcript_path": "",
+      "tags": [
+        "09-小七和弦【视频】",
+        "系统视频"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_09-08-1efe373a89",
+      "title": "08-单元总结",
+      "series": "吉他新思维",
+      "level": "09-小七和弦【视频】",
+      "description": "09-小七和弦【视频】 / 系统视频",
+      "video_path": "吉他新思维/09-小七和弦【视频】/系统视频/08-单元总结.mp4",
+      "transcript_path": "",
+      "tags": [
+        "09-小七和弦【视频】",
+        "系统视频"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_10-dorian-dorian-p159-92309e6b3e",
+      "title": "Dorian短句练习（P159）",
+      "series": "吉他新思维",
+      "level": "10-Dorian【视频】",
+      "description": "10-Dorian【视频】",
+      "video_path": "吉他新思维/10-Dorian【视频】/Dorian短句练习（P159）.mov",
+      "transcript_path": "",
+      "tags": [
+        "10-Dorian【视频】"
+      ],
+      "materials": {
+        "gp": [
+          "吉他新思维/10-Dorian【视频】/Dorian律动（P160）.gp",
+          "吉他新思维/10-Dorian【视频】/Dorian短句练习（P159）.gp"
+        ]
+      }
+    },
+    {
+      "id": "course_10-dorian-01-c68c8ac05c",
+      "title": "01-课程介绍",
+      "series": "吉他新思维",
+      "level": "10-Dorian【视频】",
+      "description": "10-Dorian【视频】 / 系统视频",
+      "video_path": "吉他新思维/10-Dorian【视频】/系统视频/01-课程介绍.mp4",
+      "transcript_path": "",
+      "tags": [
+        "10-Dorian【视频】",
+        "系统视频"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_10-dorian-02-be92da5488",
+      "title": "02-演奏经验分享",
+      "series": "吉他新思维",
+      "level": "10-Dorian【视频】",
+      "description": "10-Dorian【视频】 / 系统视频",
+      "video_path": "吉他新思维/10-Dorian【视频】/系统视频/02-演奏经验分享.mp4",
+      "transcript_path": "",
+      "tags": [
+        "10-Dorian【视频】",
+        "系统视频"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_10-dorian-03-dorian-5687515471",
+      "title": "03-Dorian音阶律动",
+      "series": "吉他新思维",
+      "level": "10-Dorian【视频】",
+      "description": "10-Dorian【视频】 / 系统视频",
+      "video_path": "吉他新思维/10-Dorian【视频】/系统视频/03-Dorian音阶律动.mp4",
+      "transcript_path": "",
+      "tags": [
+        "10-Dorian【视频】",
+        "系统视频"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_10-dorian-04-e85d7c15f7",
+      "title": "04-和弦系统",
+      "series": "吉他新思维",
+      "level": "10-Dorian【视频】",
+      "description": "10-Dorian【视频】 / 系统视频",
+      "video_path": "吉他新思维/10-Dorian【视频】/系统视频/04-和弦系统.mp4",
+      "transcript_path": "",
+      "tags": [
+        "10-Dorian【视频】",
+        "系统视频"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_10-dorian-05-ee6a81fbda",
+      "title": "05-半减七琶音",
+      "series": "吉他新思维",
+      "level": "10-Dorian【视频】",
+      "description": "10-Dorian【视频】 / 系统视频",
+      "video_path": "吉他新思维/10-Dorian【视频】/系统视频/05-半减七琶音.mp4",
+      "transcript_path": "",
+      "tags": [
+        "10-Dorian【视频】",
+        "系统视频"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_10-dorian-06-dorian-1f5a31c80f",
+      "title": "06-Dorian四级和弦",
+      "series": "吉他新思维",
+      "level": "10-Dorian【视频】",
+      "description": "10-Dorian【视频】 / 系统视频",
+      "video_path": "吉他新思维/10-Dorian【视频】/系统视频/06-Dorian四级和弦.mp4",
+      "transcript_path": "",
+      "tags": [
+        "10-Dorian【视频】",
+        "系统视频"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_10-dorian-07-284892a1ef",
+      "title": "07-和声分析",
+      "series": "吉他新思维",
+      "level": "10-Dorian【视频】",
+      "description": "10-Dorian【视频】 / 系统视频",
+      "video_path": "吉他新思维/10-Dorian【视频】/系统视频/07-和声分析.mp4",
+      "transcript_path": "",
+      "tags": [
+        "10-Dorian【视频】",
+        "系统视频"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_11-01-22ef4e55ae",
+      "title": "01-课程介绍",
+      "series": "吉他新思维",
+      "level": "11-自然小调【视频】",
+      "description": "11-自然小调【视频】",
+      "video_path": "吉他新思维/11-自然小调【视频】/01-课程介绍.mp4",
+      "transcript_path": "",
+      "tags": [
+        "11-自然小调【视频】"
+      ],
+      "materials": {
+        "audio": [
+          "吉他新思维/11-自然小调【视频】/大小调SOLO实战（179）.mp3",
+          "吉他新思维/11-自然小调【视频】/大小调转换 90速度.mp3"
+        ]
+      }
+    },
+    {
+      "id": "course_11-02-5465990f02",
+      "title": "02-同主音大小调转换",
+      "series": "吉他新思维",
+      "level": "11-自然小调【视频】",
+      "description": "11-自然小调【视频】",
+      "video_path": "吉他新思维/11-自然小调【视频】/02-同主音大小调转换.mp4",
+      "transcript_path": "",
+      "tags": [
+        "11-自然小调【视频】"
+      ],
+      "materials": {
+        "audio": [
+          "吉他新思维/11-自然小调【视频】/大小调SOLO实战（179）.mp3",
+          "吉他新思维/11-自然小调【视频】/大小调转换 90速度.mp3"
+        ]
+      }
+    },
+    {
+      "id": "course_11-03-195ac8e4eb",
+      "title": "03-小调和弦系统",
+      "series": "吉他新思维",
+      "level": "11-自然小调【视频】",
+      "description": "11-自然小调【视频】",
+      "video_path": "吉他新思维/11-自然小调【视频】/03-小调和弦系统.mp4",
+      "transcript_path": "",
+      "tags": [
+        "11-自然小调【视频】"
+      ],
+      "materials": {
+        "audio": [
+          "吉他新思维/11-自然小调【视频】/大小调SOLO实战（179）.mp3",
+          "吉他新思维/11-自然小调【视频】/大小调转换 90速度.mp3"
+        ]
+      }
+    },
+    {
+      "id": "course_11-04-b1bcc2437d",
+      "title": "04-大调歌变小调",
+      "series": "吉他新思维",
+      "level": "11-自然小调【视频】",
+      "description": "11-自然小调【视频】",
+      "video_path": "吉他新思维/11-自然小调【视频】/04-大调歌变小调.mp4",
+      "transcript_path": "",
+      "tags": [
+        "11-自然小调【视频】"
+      ],
+      "materials": {
+        "audio": [
+          "吉他新思维/11-自然小调【视频】/大小调SOLO实战（179）.mp3",
+          "吉他新思维/11-自然小调【视频】/大小调转换 90速度.mp3"
+        ]
+      }
+    },
+    {
+      "id": "course_11-05-9524ba6c6a",
+      "title": "05-小调和弦练习",
+      "series": "吉他新思维",
+      "level": "11-自然小调【视频】",
+      "description": "11-自然小调【视频】",
+      "video_path": "吉他新思维/11-自然小调【视频】/05-小调和弦练习.mp4",
+      "transcript_path": "",
+      "tags": [
+        "11-自然小调【视频】"
+      ],
+      "materials": {
+        "audio": [
+          "吉他新思维/11-自然小调【视频】/大小调SOLO实战（179）.mp3",
+          "吉他新思维/11-自然小调【视频】/大小调转换 90速度.mp3"
+        ]
+      }
+    },
+    {
+      "id": "course_11-06-solo-43b4a17e4d",
+      "title": "06-大小调SOLO实战",
+      "series": "吉他新思维",
+      "level": "11-自然小调【视频】",
+      "description": "11-自然小调【视频】",
+      "video_path": "吉他新思维/11-自然小调【视频】/06-大小调SOLO实战.mp4",
+      "transcript_path": "",
+      "tags": [
+        "11-自然小调【视频】"
+      ],
+      "materials": {
+        "audio": [
+          "吉他新思维/11-自然小调【视频】/大小调SOLO实战（179）.mp3",
+          "吉他新思维/11-自然小调【视频】/大小调转换 90速度.mp3"
+        ]
+      }
+    },
+    {
+      "id": "course_12-01-ca6096e5ad",
+      "title": "01-课程介绍",
+      "series": "吉他新思维",
+      "level": "12-三和弦【视频】",
+      "description": "12-三和弦【视频】",
+      "video_path": "吉他新思维/12-三和弦【视频】/01-课程介绍.mp4",
+      "transcript_path": "",
+      "tags": [
+        "12-三和弦【视频】"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_12-02-e6d9a65b16",
+      "title": "02-三二一弦上的和弦",
+      "series": "吉他新思维",
+      "level": "12-三和弦【视频】",
+      "description": "12-三和弦【视频】",
+      "video_path": "吉他新思维/12-三和弦【视频】/02-三二一弦上的和弦.mp4",
+      "transcript_path": "",
+      "tags": [
+        "12-三和弦【视频】"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_12-03-ae0de560a8",
+      "title": "03-四三二弦上的和弦",
+      "series": "吉他新思维",
+      "level": "12-三和弦【视频】",
+      "description": "12-三和弦【视频】",
+      "video_path": "吉他新思维/12-三和弦【视频】/03-四三二弦上的和弦.mp4",
+      "transcript_path": "",
+      "tags": [
+        "12-三和弦【视频】"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_12-04-3dcef12254",
+      "title": "04-五四三弦上的和弦",
+      "series": "吉他新思维",
+      "level": "12-三和弦【视频】",
+      "description": "12-三和弦【视频】",
+      "video_path": "吉他新思维/12-三和弦【视频】/04-五四三弦上的和弦.mp4",
+      "transcript_path": "",
+      "tags": [
+        "12-三和弦【视频】"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_12-05-8bda578164",
+      "title": "05-大三和弦趋近音",
+      "series": "吉他新思维",
+      "level": "12-三和弦【视频】",
+      "description": "12-三和弦【视频】",
+      "video_path": "吉他新思维/12-三和弦【视频】/05-大三和弦趋近音.mp4",
+      "transcript_path": "",
+      "tags": [
+        "12-三和弦【视频】"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_12-06-adf35ea59d",
+      "title": "06-小三和弦趋近音",
+      "series": "吉他新思维",
+      "level": "12-三和弦【视频】",
+      "description": "12-三和弦【视频】",
+      "video_path": "吉他新思维/12-三和弦【视频】/06-小三和弦趋近音.mp4",
+      "transcript_path": "",
+      "tags": [
+        "12-三和弦【视频】"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_12-07-c7142dc232",
+      "title": "07-三和弦跳音摸进",
+      "series": "吉他新思维",
+      "level": "12-三和弦【视频】",
+      "description": "12-三和弦【视频】",
+      "video_path": "吉他新思维/12-三和弦【视频】/07-三和弦跳音摸进.mp4",
+      "transcript_path": "",
+      "tags": [
+        "12-三和弦【视频】"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_13-02-e830634da9",
+      "title": "02-和声小调和弦系统",
+      "series": "吉他新思维",
+      "level": "13-和声小调【视频】",
+      "description": "13-和声小调【视频】",
+      "video_path": "吉他新思维/13-和声小调【视频】/02-和声小调和弦系统.mp4",
+      "transcript_path": "",
+      "tags": [
+        "13-和声小调【视频】"
+      ],
+      "materials": {
+        "audio": [
+          "吉他新思维/13-和声小调【视频】/和声小调1451伴奏.mp3"
+        ]
+      }
+    },
+    {
+      "id": "course_13-03-611796ffa8",
+      "title": "03-和弦指型",
+      "series": "吉他新思维",
+      "level": "13-和声小调【视频】",
+      "description": "13-和声小调【视频】",
+      "video_path": "吉他新思维/13-和声小调【视频】/03-和弦指型.mp4",
+      "transcript_path": "",
+      "tags": [
+        "13-和声小调【视频】"
+      ],
+      "materials": {
+        "audio": [
+          "吉他新思维/13-和声小调【视频】/和声小调1451伴奏.mp3"
+        ]
+      }
+    },
+    {
+      "id": "course_13-04-e0c87359b1",
+      "title": "04-音阶路线",
+      "series": "吉他新思维",
+      "level": "13-和声小调【视频】",
+      "description": "13-和声小调【视频】",
+      "video_path": "吉他新思维/13-和声小调【视频】/04-音阶路线.mp4",
+      "transcript_path": "",
+      "tags": [
+        "13-和声小调【视频】"
+      ],
+      "materials": {
+        "audio": [
+          "吉他新思维/13-和声小调【视频】/和声小调1451伴奏.mp3"
+        ]
+      }
+    },
+    {
+      "id": "course_13-05-6a8b29d39f",
+      "title": "05-和声小调模进",
+      "series": "吉他新思维",
+      "level": "13-和声小调【视频】",
+      "description": "13-和声小调【视频】",
+      "video_path": "吉他新思维/13-和声小调【视频】/05-和声小调模进.mp4",
+      "transcript_path": "",
+      "tags": [
+        "13-和声小调【视频】"
+      ],
+      "materials": {
+        "audio": [
+          "吉他新思维/13-和声小调【视频】/和声小调1451伴奏.mp3"
+        ]
+      }
+    },
+    {
+      "id": "course_13-06-cc5196d59f",
+      "title": "06-弗拉门戈乐句",
+      "series": "吉他新思维",
+      "level": "13-和声小调【视频】",
+      "description": "13-和声小调【视频】",
+      "video_path": "吉他新思维/13-和声小调【视频】/06-弗拉门戈乐句.mp4",
+      "transcript_path": "",
+      "tags": [
+        "13-和声小调【视频】"
+      ],
+      "materials": {
+        "audio": [
+          "吉他新思维/13-和声小调【视频】/和声小调1451伴奏.mp3"
+        ]
+      }
+    },
+    {
+      "id": "course_13-07-9da9d63b80",
+      "title": "07-和声小调如何弹好听",
+      "series": "吉他新思维",
+      "level": "13-和声小调【视频】",
+      "description": "13-和声小调【视频】",
+      "video_path": "吉他新思维/13-和声小调【视频】/07-和声小调如何弹好听.mp4",
+      "transcript_path": "",
+      "tags": [
+        "13-和声小调【视频】"
+      ],
+      "materials": {
+        "audio": [
+          "吉他新思维/13-和声小调【视频】/和声小调1451伴奏.mp3"
+        ]
+      }
+    },
+    {
+      "id": "course_13-08-ed0a430d54",
+      "title": "08-减七琶音",
+      "series": "吉他新思维",
+      "level": "13-和声小调【视频】",
+      "description": "13-和声小调【视频】",
+      "video_path": "吉他新思维/13-和声小调【视频】/08-减七琶音.mp4",
+      "transcript_path": "",
+      "tags": [
+        "13-和声小调【视频】"
+      ],
+      "materials": {
+        "audio": [
+          "吉他新思维/13-和声小调【视频】/和声小调1451伴奏.mp3"
+        ]
+      }
+    },
+    {
+      "id": "course_13-09-c23726aa0c",
+      "title": "09-和声小调实战应用一",
+      "series": "吉他新思维",
+      "level": "13-和声小调【视频】",
+      "description": "13-和声小调【视频】",
+      "video_path": "吉他新思维/13-和声小调【视频】/09-和声小调实战应用一.mp4",
+      "transcript_path": "",
+      "tags": [
+        "13-和声小调【视频】"
+      ],
+      "materials": {
+        "audio": [
+          "吉他新思维/13-和声小调【视频】/和声小调1451伴奏.mp3"
+        ]
+      }
+    },
+    {
+      "id": "course_13-10-fly-me-to-the-moon-0780515457",
+      "title": "10-Fly Me To The Moon",
+      "series": "吉他新思维",
+      "level": "13-和声小调【视频】",
+      "description": "13-和声小调【视频】",
+      "video_path": "吉他新思维/13-和声小调【视频】/10-Fly Me To The Moon.mp4",
+      "transcript_path": "",
+      "tags": [
+        "13-和声小调【视频】"
+      ],
+      "materials": {
+        "audio": [
+          "吉他新思维/13-和声小调【视频】/和声小调1451伴奏.mp3"
+        ]
+      }
+    },
+    {
+      "id": "course_14-alt-p223-8ae659cd1a",
+      "title": "Alt音阶记忆法（P223）",
+      "series": "吉他新思维",
+      "level": "14-旋律小调",
+      "description": "14-旋律小调",
+      "video_path": "吉他新思维/14-旋律小调/Alt音阶记忆法（P223）.mov",
+      "transcript_path": "",
+      "tags": [
+        "14-旋律小调"
+      ],
+      "materials": {
+        "gp": [
+          "吉他新思维/14-旋律小调/Alt音阶记忆法（P223）.gp",
+          "吉他新思维/14-旋律小调/琶音与音阶融合（P217）.gp"
+        ]
+      }
+    },
+    {
+      "id": "course_14-p214-b663cd1bf2",
+      "title": "旋律小调初步探索（P214）",
+      "series": "吉他新思维",
+      "level": "14-旋律小调",
+      "description": "14-旋律小调",
+      "video_path": "吉他新思维/14-旋律小调/旋律小调初步探索（P214）.mp4",
+      "transcript_path": "",
+      "tags": [
+        "14-旋律小调"
+      ],
+      "materials": {
+        "gp": [
+          "吉他新思维/14-旋律小调/Alt音阶记忆法（P223）.gp",
+          "吉他新思维/14-旋律小调/琶音与音阶融合（P217）.gp"
+        ]
+      }
+    },
+    {
+      "id": "course_14-p217-45c6760722",
+      "title": "琶音与音阶融合（P217）",
+      "series": "吉他新思维",
+      "level": "14-旋律小调",
+      "description": "14-旋律小调",
+      "video_path": "吉他新思维/14-旋律小调/琶音与音阶融合（P217）.mov",
+      "transcript_path": "",
+      "tags": [
+        "14-旋律小调"
+      ],
+      "materials": {
+        "gp": [
+          "吉他新思维/14-旋律小调/Alt音阶记忆法（P223）.gp",
+          "吉他新思维/14-旋律小调/琶音与音阶融合（P217）.gp"
+        ]
+      }
+    },
+    {
+      "id": "course_pdf-12-cd1325c7ad",
+      "title": "12个调大调音阶",
+      "series": "吉他新思维",
+      "level": "伴奏+PDF",
+      "description": "伴奏+PDF / 伴奏",
+      "video_path": "吉他新思维/伴奏+PDF/伴奏/12个调大调音阶.mp4",
+      "transcript_path": "",
+      "tags": [
+        "伴奏+PDF",
+        "伴奏"
+      ],
+      "materials": {
+        "audio": [
+          "吉他新思维/伴奏+PDF/伴奏/1 3属 4 4小 5 .mp3",
+          "吉他新思维/伴奏+PDF/伴奏/1111 4425.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/1541.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/1645.wav",
+          "吉他新思维/伴奏+PDF/伴奏/251轻松版.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/AMaj9伴奏.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/A属7升9伴奏.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/A布鲁斯.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/B调Dorian伴奏.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/C1221.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/C7#9.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/Cm7慢速.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/C和弦 慢速75.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/C大调 15634125.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/C大调1625.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/C大调251.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/C大调6251 .mp3",
+          "吉他新思维/伴奏+PDF/伴奏/C调13632345.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/C调1625摇摆.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/C调Dorian伴奏.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/C调慢速bossa nova.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/D 小调摇滚.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/D小调和声.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/D小调摇滚改编.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/D调13632345.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/D调2-5-1.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/Emotive ballad.m4a",
+          "吉他新思维/伴奏+PDF/伴奏/E大调1-6-2-5.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/F13632345.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/Funk伴奏.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/G调 2516属.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/fly me to the moon 伴奏.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/jfk_outsideconceptsbluesmasterclass_FullBacking.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/一个Am和弦.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/一个Cm和弦.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/一个C和弦.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/一个F和弦.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/一个F和弦慢速.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/伴奏1625SWING.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/加州招待所.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/和声小调1451.m4a",
+          "吉他新思维/伴奏+PDF/伴奏/大小调1451.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/大小调转换 75速度.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/大小调转换 90速度.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/大调 1451.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/实战SOLO 陶喆二十二.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/小调62514236.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/小调62514236（快）.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/爵士.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/爵士慢速.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/纯伴奏.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/降B13632345.mp3"
+        ]
+      }
+    },
+    {
+      "id": "course_pdf-c-97d62b315f",
+      "title": "C大调流行爵士",
+      "series": "吉他新思维",
+      "level": "伴奏+PDF",
+      "description": "伴奏+PDF / 伴奏",
+      "video_path": "吉他新思维/伴奏+PDF/伴奏/C大调流行爵士.mp4",
+      "transcript_path": "",
+      "tags": [
+        "伴奏+PDF",
+        "伴奏"
+      ],
+      "materials": {
+        "audio": [
+          "吉他新思维/伴奏+PDF/伴奏/1 3属 4 4小 5 .mp3",
+          "吉他新思维/伴奏+PDF/伴奏/1111 4425.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/1541.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/1645.wav",
+          "吉他新思维/伴奏+PDF/伴奏/251轻松版.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/AMaj9伴奏.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/A属7升9伴奏.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/A布鲁斯.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/B调Dorian伴奏.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/C1221.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/C7#9.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/Cm7慢速.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/C和弦 慢速75.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/C大调 15634125.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/C大调1625.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/C大调251.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/C大调6251 .mp3",
+          "吉他新思维/伴奏+PDF/伴奏/C调13632345.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/C调1625摇摆.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/C调Dorian伴奏.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/C调慢速bossa nova.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/D 小调摇滚.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/D小调和声.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/D小调摇滚改编.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/D调13632345.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/D调2-5-1.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/Emotive ballad.m4a",
+          "吉他新思维/伴奏+PDF/伴奏/E大调1-6-2-5.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/F13632345.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/Funk伴奏.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/G调 2516属.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/fly me to the moon 伴奏.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/jfk_outsideconceptsbluesmasterclass_FullBacking.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/一个Am和弦.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/一个Cm和弦.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/一个C和弦.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/一个F和弦.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/一个F和弦慢速.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/伴奏1625SWING.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/加州招待所.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/和声小调1451.m4a",
+          "吉他新思维/伴奏+PDF/伴奏/大小调1451.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/大小调转换 75速度.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/大小调转换 90速度.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/大调 1451.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/实战SOLO 陶喆二十二.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/小调62514236.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/小调62514236（快）.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/爵士.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/爵士慢速.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/纯伴奏.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/降B13632345.mp3"
+        ]
+      }
+    },
+    {
+      "id": "course_pdf-c-neo-soul-88bpm-001-c-neo-soul-88bpm-cb58052755",
+      "title": "C调 Neo Soul 伴奏  88bpm - 001 - C调 Neo Soul 伴奏  88bpm",
+      "series": "吉他新思维",
+      "level": "伴奏+PDF",
+      "description": "伴奏+PDF / 伴奏",
+      "video_path": "吉他新思维/伴奏+PDF/伴奏/C调 Neo Soul 伴奏  88bpm - 001 - C调 Neo Soul 伴奏  88bpm.mp4",
+      "transcript_path": "",
+      "tags": [
+        "伴奏+PDF",
+        "伴奏"
+      ],
+      "materials": {
+        "audio": [
+          "吉他新思维/伴奏+PDF/伴奏/1 3属 4 4小 5 .mp3",
+          "吉他新思维/伴奏+PDF/伴奏/1111 4425.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/1541.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/1645.wav",
+          "吉他新思维/伴奏+PDF/伴奏/251轻松版.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/AMaj9伴奏.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/A属7升9伴奏.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/A布鲁斯.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/B调Dorian伴奏.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/C1221.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/C7#9.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/Cm7慢速.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/C和弦 慢速75.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/C大调 15634125.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/C大调1625.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/C大调251.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/C大调6251 .mp3",
+          "吉他新思维/伴奏+PDF/伴奏/C调13632345.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/C调1625摇摆.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/C调Dorian伴奏.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/C调慢速bossa nova.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/D 小调摇滚.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/D小调和声.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/D小调摇滚改编.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/D调13632345.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/D调2-5-1.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/Emotive ballad.m4a",
+          "吉他新思维/伴奏+PDF/伴奏/E大调1-6-2-5.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/F13632345.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/Funk伴奏.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/G调 2516属.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/fly me to the moon 伴奏.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/jfk_outsideconceptsbluesmasterclass_FullBacking.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/一个Am和弦.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/一个Cm和弦.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/一个C和弦.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/一个F和弦.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/一个F和弦慢速.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/伴奏1625SWING.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/加州招待所.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/和声小调1451.m4a",
+          "吉他新思维/伴奏+PDF/伴奏/大小调1451.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/大小调转换 75速度.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/大小调转换 90速度.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/大调 1451.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/实战SOLO 陶喆二十二.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/小调62514236.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/小调62514236（快）.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/爵士.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/爵士慢速.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/纯伴奏.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/降B13632345.mp3"
+        ]
+      }
+    },
+    {
+      "id": "course_pdf-slow-blues-1cc2e5bdaa",
+      "title": "slow blues",
+      "series": "吉他新思维",
+      "level": "伴奏+PDF",
+      "description": "伴奏+PDF / 伴奏",
+      "video_path": "吉他新思维/伴奏+PDF/伴奏/slow blues.mp4",
+      "transcript_path": "",
+      "tags": [
+        "伴奏+PDF",
+        "伴奏"
+      ],
+      "materials": {
+        "audio": [
+          "吉他新思维/伴奏+PDF/伴奏/1 3属 4 4小 5 .mp3",
+          "吉他新思维/伴奏+PDF/伴奏/1111 4425.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/1541.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/1645.wav",
+          "吉他新思维/伴奏+PDF/伴奏/251轻松版.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/AMaj9伴奏.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/A属7升9伴奏.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/A布鲁斯.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/B调Dorian伴奏.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/C1221.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/C7#9.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/Cm7慢速.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/C和弦 慢速75.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/C大调 15634125.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/C大调1625.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/C大调251.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/C大调6251 .mp3",
+          "吉他新思维/伴奏+PDF/伴奏/C调13632345.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/C调1625摇摆.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/C调Dorian伴奏.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/C调慢速bossa nova.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/D 小调摇滚.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/D小调和声.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/D小调摇滚改编.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/D调13632345.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/D调2-5-1.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/Emotive ballad.m4a",
+          "吉他新思维/伴奏+PDF/伴奏/E大调1-6-2-5.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/F13632345.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/Funk伴奏.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/G调 2516属.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/fly me to the moon 伴奏.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/jfk_outsideconceptsbluesmasterclass_FullBacking.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/一个Am和弦.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/一个Cm和弦.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/一个C和弦.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/一个F和弦.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/一个F和弦慢速.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/伴奏1625SWING.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/加州招待所.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/和声小调1451.m4a",
+          "吉他新思维/伴奏+PDF/伴奏/大小调1451.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/大小调转换 75速度.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/大小调转换 90速度.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/大调 1451.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/实战SOLO 陶喆二十二.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/小调62514236.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/小调62514236（快）.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/爵士.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/爵士慢速.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/纯伴奏.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/降B13632345.mp3"
+        ]
+      }
+    },
+    {
+      "id": "course_pdf-smooth-neo-soul-in-cm-001-smooth-neo-soul-in-cm-1658fc77d3",
+      "title": "“Smooth Neo Soul风格” 即兴伴奏 in Cm - 001 - “Smooth Neo Soul风格” 即兴伴奏 in Cm",
+      "series": "吉他新思维",
+      "level": "伴奏+PDF",
+      "description": "伴奏+PDF / 伴奏",
+      "video_path": "吉他新思维/伴奏+PDF/伴奏/“Smooth Neo Soul风格” 即兴伴奏 in Cm - 001 - “Smooth Neo Soul风格” 即兴伴奏 in Cm.mp4",
+      "transcript_path": "",
+      "tags": [
+        "伴奏+PDF",
+        "伴奏"
+      ],
+      "materials": {
+        "audio": [
+          "吉他新思维/伴奏+PDF/伴奏/1 3属 4 4小 5 .mp3",
+          "吉他新思维/伴奏+PDF/伴奏/1111 4425.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/1541.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/1645.wav",
+          "吉他新思维/伴奏+PDF/伴奏/251轻松版.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/AMaj9伴奏.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/A属7升9伴奏.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/A布鲁斯.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/B调Dorian伴奏.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/C1221.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/C7#9.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/Cm7慢速.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/C和弦 慢速75.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/C大调 15634125.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/C大调1625.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/C大调251.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/C大调6251 .mp3",
+          "吉他新思维/伴奏+PDF/伴奏/C调13632345.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/C调1625摇摆.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/C调Dorian伴奏.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/C调慢速bossa nova.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/D 小调摇滚.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/D小调和声.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/D小调摇滚改编.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/D调13632345.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/D调2-5-1.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/Emotive ballad.m4a",
+          "吉他新思维/伴奏+PDF/伴奏/E大调1-6-2-5.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/F13632345.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/Funk伴奏.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/G调 2516属.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/fly me to the moon 伴奏.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/jfk_outsideconceptsbluesmasterclass_FullBacking.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/一个Am和弦.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/一个Cm和弦.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/一个C和弦.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/一个F和弦.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/一个F和弦慢速.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/伴奏1625SWING.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/加州招待所.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/和声小调1451.m4a",
+          "吉他新思维/伴奏+PDF/伴奏/大小调1451.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/大小调转换 75速度.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/大小调转换 90速度.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/大调 1451.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/实战SOLO 陶喆二十二.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/小调62514236.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/小调62514236（快）.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/爵士.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/爵士慢速.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/纯伴奏.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/降B13632345.mp3"
+        ]
+      }
+    },
+    {
+      "id": "course_pdf-001-fa6b9089f1",
+      "title": "【周杰伦】可爱女人_纯伴奏 - 001 - 【周杰伦】可爱女人_纯伴奏",
+      "series": "吉他新思维",
+      "level": "伴奏+PDF",
+      "description": "伴奏+PDF / 伴奏",
+      "video_path": "吉他新思维/伴奏+PDF/伴奏/【周杰伦】可爱女人_纯伴奏 - 001 - 【周杰伦】可爱女人_纯伴奏.mp4",
+      "transcript_path": "",
+      "tags": [
+        "伴奏+PDF",
+        "伴奏"
+      ],
+      "materials": {
+        "audio": [
+          "吉他新思维/伴奏+PDF/伴奏/1 3属 4 4小 5 .mp3",
+          "吉他新思维/伴奏+PDF/伴奏/1111 4425.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/1541.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/1645.wav",
+          "吉他新思维/伴奏+PDF/伴奏/251轻松版.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/AMaj9伴奏.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/A属7升9伴奏.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/A布鲁斯.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/B调Dorian伴奏.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/C1221.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/C7#9.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/Cm7慢速.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/C和弦 慢速75.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/C大调 15634125.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/C大调1625.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/C大调251.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/C大调6251 .mp3",
+          "吉他新思维/伴奏+PDF/伴奏/C调13632345.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/C调1625摇摆.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/C调Dorian伴奏.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/C调慢速bossa nova.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/D 小调摇滚.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/D小调和声.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/D小调摇滚改编.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/D调13632345.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/D调2-5-1.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/Emotive ballad.m4a",
+          "吉他新思维/伴奏+PDF/伴奏/E大调1-6-2-5.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/F13632345.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/Funk伴奏.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/G调 2516属.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/fly me to the moon 伴奏.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/jfk_outsideconceptsbluesmasterclass_FullBacking.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/一个Am和弦.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/一个Cm和弦.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/一个C和弦.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/一个F和弦.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/一个F和弦慢速.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/伴奏1625SWING.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/加州招待所.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/和声小调1451.m4a",
+          "吉他新思维/伴奏+PDF/伴奏/大小调1451.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/大小调转换 75速度.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/大小调转换 90速度.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/大调 1451.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/实战SOLO 陶喆二十二.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/小调62514236.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/小调62514236（快）.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/爵士.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/爵士慢速.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/纯伴奏.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/降B13632345.mp3"
+        ]
+      }
+    },
+    {
+      "id": "course_pdf-bossa-nova-d-251-90-bpm-001-em7-a7-dmaj7-bossa-90-bpm-syracuse-partie-a-backing-track-8e02e2efd9",
+      "title": "【爵士吉他伴奏】bossa nova风格练习 D大调251 ( 90 bpm) 即兴伴奏 - 001 - Em7 A7 DMaj7 (bossa 90 bpm) (Syracuse Partie A) - Backing Track",
+      "series": "吉他新思维",
+      "level": "伴奏+PDF",
+      "description": "伴奏+PDF / 伴奏",
+      "video_path": "吉他新思维/伴奏+PDF/伴奏/【爵士吉他伴奏】bossa nova风格练习 D大调251 ( 90 bpm) 即兴伴奏 - 001 - Em7 A7 DMaj7 (bossa 90 bpm) (Syracuse Partie A) - Backing Track.mp4",
+      "transcript_path": "",
+      "tags": [
+        "伴奏+PDF",
+        "伴奏"
+      ],
+      "materials": {
+        "audio": [
+          "吉他新思维/伴奏+PDF/伴奏/1 3属 4 4小 5 .mp3",
+          "吉他新思维/伴奏+PDF/伴奏/1111 4425.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/1541.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/1645.wav",
+          "吉他新思维/伴奏+PDF/伴奏/251轻松版.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/AMaj9伴奏.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/A属7升9伴奏.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/A布鲁斯.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/B调Dorian伴奏.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/C1221.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/C7#9.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/Cm7慢速.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/C和弦 慢速75.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/C大调 15634125.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/C大调1625.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/C大调251.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/C大调6251 .mp3",
+          "吉他新思维/伴奏+PDF/伴奏/C调13632345.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/C调1625摇摆.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/C调Dorian伴奏.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/C调慢速bossa nova.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/D 小调摇滚.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/D小调和声.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/D小调摇滚改编.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/D调13632345.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/D调2-5-1.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/Emotive ballad.m4a",
+          "吉他新思维/伴奏+PDF/伴奏/E大调1-6-2-5.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/F13632345.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/Funk伴奏.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/G调 2516属.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/fly me to the moon 伴奏.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/jfk_outsideconceptsbluesmasterclass_FullBacking.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/一个Am和弦.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/一个Cm和弦.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/一个C和弦.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/一个F和弦.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/一个F和弦慢速.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/伴奏1625SWING.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/加州招待所.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/和声小调1451.m4a",
+          "吉他新思维/伴奏+PDF/伴奏/大小调1451.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/大小调转换 75速度.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/大小调转换 90速度.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/大调 1451.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/实战SOLO 陶喆二十二.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/小调62514236.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/小调62514236（快）.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/爵士.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/爵士慢速.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/纯伴奏.mp3",
+          "吉他新思维/伴奏+PDF/伴奏/降B13632345.mp3"
+        ]
+      }
+    },
+    {
+      "id": "course_b-10-8-1113215823",
+      "title": "10_成田电吉他中级进阶课-8：组合闷音技术讲解",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "description": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他中级进阶课 - 带源码课件/10_成田电吉他中级进阶课-8：组合闷音技术讲解.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他中级进阶课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-11-9-988f60e31b",
+      "title": "11_成田电吉他中级进阶课-9：组合闷音进阶教学",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "description": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他中级进阶课 - 带源码课件/11_成田电吉他中级进阶课-9：组合闷音进阶教学.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他中级进阶课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-12-10-3e2a9ecc69",
+      "title": "12_成田电吉他中级进阶课-10：怎么创造组合闷音？",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "description": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他中级进阶课 - 带源码课件/12_成田电吉他中级进阶课-10：怎么创造组合闷音？.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他中级进阶课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-13-11-86cf471636",
+      "title": "13_成田电吉他中级进阶课-11：组合闷音练习曲",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "description": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他中级进阶课 - 带源码课件/13_成田电吉他中级进阶课-11：组合闷音练习曲.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他中级进阶课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-14-12-power-chord-e296c038b2",
+      "title": "14_成田电吉他中级进阶课-12：什么是Power Chord强力和弦_",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "description": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他中级进阶课 - 带源码课件/14_成田电吉他中级进阶课-12：什么是Power Chord强力和弦_.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他中级进阶课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-15-13-68f4929108",
+      "title": "15_成田电吉他中级进阶课-13：组合闷音进阶练习曲",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "description": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他中级进阶课 - 带源码课件/15_成田电吉他中级进阶课-13：组合闷音进阶练习曲.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他中级进阶课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-16-14-33f05b802f",
+      "title": "16_成田电吉他中级进阶课-14：组合闷音进阶练习曲讲解",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "description": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他中级进阶课 - 带源码课件/16_成田电吉他中级进阶课-14：组合闷音进阶练习曲讲解.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他中级进阶课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-17-15-b3c1805cd6",
+      "title": "17_成田电吉他中级进阶课-15：什么是护弦_",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "description": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他中级进阶课 - 带源码课件/17_成田电吉他中级进阶课-15：什么是护弦_.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他中级进阶课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-18-16-e37937422a",
+      "title": "18_成田电吉他中级进阶课-16：左手护弦技术教学",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "description": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他中级进阶课 - 带源码课件/18_成田电吉他中级进阶课-16：左手护弦技术教学.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他中级进阶课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-19-17-67f1a49612",
+      "title": "19_成田电吉他中级进阶课-17：左手护弦练习曲",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "description": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他中级进阶课 - 带源码课件/19_成田电吉他中级进阶课-17：左手护弦练习曲.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他中级进阶课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-1-c36ddda5d5",
+      "title": "1_中级课详细介绍！-中级课详细介绍",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "description": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他中级进阶课 - 带源码课件/1_中级课详细介绍！-中级课详细介绍.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他中级进阶课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-20-18-f249408a0b",
+      "title": "20_成田电吉他中级进阶课-18：左手护弦练习曲讲解",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "description": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他中级进阶课 - 带源码课件/20_成田电吉他中级进阶课-18：左手护弦练习曲讲解.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他中级进阶课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-21-19-80a7b2fd50",
+      "title": "21_成田电吉他中级进阶课-19：右手护弦技术教学",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "description": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他中级进阶课 - 带源码课件/21_成田电吉他中级进阶课-19：右手护弦技术教学.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他中级进阶课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-22-20-a358000a12",
+      "title": "22_成田电吉他中级进阶课-20：关于左手护弦的扩展",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "description": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他中级进阶课 - 带源码课件/22_成田电吉他中级进阶课-20：关于左手护弦的扩展.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他中级进阶课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-23-21-4662dc3354",
+      "title": "23_成田电吉他中级进阶课-21：右手护弦练习曲演示",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "description": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他中级进阶课 - 带源码课件/23_成田电吉他中级进阶课-21：右手护弦练习曲演示.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他中级进阶课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-24-22-aee36bb014",
+      "title": "24_成田电吉他中级进阶课-22：右手护弦练习曲教学",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "description": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他中级进阶课 - 带源码课件/24_成田电吉他中级进阶课-22：右手护弦练习曲教学.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他中级进阶课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-25-23-cf63e2beac",
+      "title": "25_成田电吉他中级进阶课-23：左右手护弦进阶练习曲",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "description": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他中级进阶课 - 带源码课件/25_成田电吉他中级进阶课-23：左右手护弦进阶练习曲.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他中级进阶课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-26-24-1841a65667",
+      "title": "26_成田电吉他中级进阶课-24：左右手护弦进阶练习曲讲解（上）",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "description": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他中级进阶课 - 带源码课件/26_成田电吉他中级进阶课-24：左右手护弦进阶练习曲讲解（上）.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他中级进阶课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-27-24-e8f1ccb8bf",
+      "title": "27_成田电吉他中级进阶课-24：左右手护弦进阶练习曲讲解（下）",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "description": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他中级进阶课 - 带源码课件/27_成田电吉他中级进阶课-24：左右手护弦进阶练习曲讲解（下）.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他中级进阶课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-28-25-feb29a438f",
+      "title": "28_成田电吉他中级进阶课-25：什么是击弦？",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "description": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他中级进阶课 - 带源码课件/28_成田电吉他中级进阶课-25：什么是击弦？.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他中级进阶课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-29-26-e3742b1d9b",
+      "title": "29_成田电吉他中级进阶课-26：击弦技术讲解和注意事项",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "description": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他中级进阶课 - 带源码课件/29_成田电吉他中级进阶课-26：击弦技术讲解和注意事项.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他中级进阶课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-2-a56fb0e25b",
+      "title": "2_买课后先看这个视频！-注意！买课后第一时间要看的！",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "description": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他中级进阶课 - 带源码课件/2_买课后先看这个视频！-注意！买课后第一时间要看的！.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他中级进阶课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-30-27-780b5ef425",
+      "title": "30_成田电吉他中级进阶课-27：击弦练习曲",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "description": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他中级进阶课 - 带源码课件/30_成田电吉他中级进阶课-27：击弦练习曲.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他中级进阶课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-31-28-dee2809ac7",
+      "title": "31_成田电吉他中级进阶课-28：击弦练习曲讲解",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "description": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他中级进阶课 - 带源码课件/31_成田电吉他中级进阶课-28：击弦练习曲讲解.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他中级进阶课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-32-29-1891b14b01",
+      "title": "32_成田电吉他中级进阶课-29：什么是勾弦",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "description": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他中级进阶课 - 带源码课件/32_成田电吉他中级进阶课-29：什么是勾弦.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他中级进阶课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-33-30-f12318cda9",
+      "title": "33_成田电吉他中级进阶课-30：勾弦技术讲解和注意事项",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "description": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他中级进阶课 - 带源码课件/33_成田电吉他中级进阶课-30：勾弦技术讲解和注意事项.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他中级进阶课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-34-31-e146819081",
+      "title": "34_成田电吉他中级进阶课-31：勾弦练习曲",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "description": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他中级进阶课 - 带源码课件/34_成田电吉他中级进阶课-31：勾弦练习曲.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他中级进阶课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-35-32-a79cfc5c63",
+      "title": "35_成田电吉他中级进阶课-32：勾弦练习曲讲解",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "description": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他中级进阶课 - 带源码课件/35_成田电吉他中级进阶课-32：勾弦练习曲讲解.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他中级进阶课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-36-33-81a3faa4fa",
+      "title": "36_成田电吉他中级进阶课-33：击勾弦进阶练习曲",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "description": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他中级进阶课 - 带源码课件/36_成田电吉他中级进阶课-33：击勾弦进阶练习曲.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他中级进阶课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-37-34-45ca1a0b8a",
+      "title": "37_成田电吉他中级进阶课-34：击勾弦进阶练习曲讲解（上）",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "description": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他中级进阶课 - 带源码课件/37_成田电吉他中级进阶课-34：击勾弦进阶练习曲讲解（上）.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他中级进阶课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-38-34-ee124ba825",
+      "title": "38_成田电吉他中级进阶课-34：击勾弦进阶练习曲讲解（中）",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "description": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他中级进阶课 - 带源码课件/38_成田电吉他中级进阶课-34：击勾弦进阶练习曲讲解（中）.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他中级进阶课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-39-34-206b8c0f23",
+      "title": "39_成田电吉他中级进阶课-34：击勾弦进阶练习曲讲解（下）",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "description": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他中级进阶课 - 带源码课件/39_成田电吉他中级进阶课-34：击勾弦进阶练习曲讲解（下）.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他中级进阶课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-3-1-0236f60319",
+      "title": "3_成田电吉他中级进阶课-1：什么是闷音？",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "description": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他中级进阶课 - 带源码课件/3_成田电吉他中级进阶课-1：什么是闷音？.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他中级进阶课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-40-35-51a28c3872",
+      "title": "40_成田电吉他中级进阶课-35：什么是推弦？",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "description": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他中级进阶课 - 带源码课件/40_成田电吉他中级进阶课-35：什么是推弦？.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他中级进阶课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-41-36-0028f69d93",
+      "title": "41_成田电吉他中级进阶课-36：推弦的音程关系",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "description": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他中级进阶课 - 带源码课件/41_成田电吉他中级进阶课-36：推弦的音程关系.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他中级进阶课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-42-37-c32c0d6d0b",
+      "title": "42_成田电吉他中级进阶课-37：推弦的形式和方向选择",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "description": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他中级进阶课 - 带源码课件/42_成田电吉他中级进阶课-37：推弦的形式和方向选择.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他中级进阶课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-43-38-ef59010e5a",
+      "title": "43_成田电吉他中级进阶课-38：为什么要推弦",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "description": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他中级进阶课 - 带源码课件/43_成田电吉他中级进阶课-38：为什么要推弦.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他中级进阶课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-44-39-ebee7a0965",
+      "title": "44_成田电吉他中级进阶课-39：推弦的基本手型（上）",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "description": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他中级进阶课 - 带源码课件/44_成田电吉他中级进阶课-39：推弦的基本手型（上）.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他中级进阶课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-45-39-916478976b",
+      "title": "45_成田电吉他中级进阶课-39：推弦的基本手型（下）",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "description": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他中级进阶课 - 带源码课件/45_成田电吉他中级进阶课-39：推弦的基本手型（下）.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他中级进阶课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-46-40-9091f69e77",
+      "title": "46_成田电吉他中级进阶课-40：推弦的力度控制",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "description": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他中级进阶课 - 带源码课件/46_成田电吉他中级进阶课-40：推弦的力度控制.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他中级进阶课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-47-41-bda8d0b9fb",
+      "title": "47_成田电吉他中级进阶课-41：推弦的注意事项",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "description": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他中级进阶课 - 带源码课件/47_成田电吉他中级进阶课-41：推弦的注意事项.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他中级进阶课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-48-42-ea7489fb94",
+      "title": "48_成田电吉他中级进阶课-42：推弦基础练习曲",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "description": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他中级进阶课 - 带源码课件/48_成田电吉他中级进阶课-42：推弦基础练习曲.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他中级进阶课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-49-43-818e7a3812",
+      "title": "49_成田电吉他中级进阶课-43：推弦的标记",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "description": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他中级进阶课 - 带源码课件/49_成田电吉他中级进阶课-43：推弦的标记.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他中级进阶课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-4-2-1672928ac9",
+      "title": "4_成田电吉他中级进阶课-2：闷音有什么作用？",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "description": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他中级进阶课 - 带源码课件/4_成田电吉他中级进阶课-2：闷音有什么作用？.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他中级进阶课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-50-44-4b1bb942dc",
+      "title": "50_成田电吉他中级进阶课-44：推弦基础练习曲（讲解）",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "description": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他中级进阶课 - 带源码课件/50_成田电吉他中级进阶课-44：推弦基础练习曲（讲解）.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他中级进阶课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-51-45-1ad5556cdd",
+      "title": "51_成田电吉他中级进阶课-45：什么是揉弦？",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "description": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他中级进阶课 - 带源码课件/51_成田电吉他中级进阶课-45：什么是揉弦？.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他中级进阶课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-52-46-7a62946e46",
+      "title": "52_成田电吉他中级进阶课-46：揉弦的方式",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "description": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他中级进阶课 - 带源码课件/52_成田电吉他中级进阶课-46：揉弦的方式.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他中级进阶课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-53-47-9a08d27332",
+      "title": "53_成田电吉他中级进阶课-47：揉弦的技术讲解",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "description": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他中级进阶课 - 带源码课件/53_成田电吉他中级进阶课-47：揉弦的技术讲解.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他中级进阶课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-54-48-3f139d5d8f",
+      "title": "54_成田电吉他中级进阶课-48：揉弦手型讲解（上推）",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "description": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他中级进阶课 - 带源码课件/54_成田电吉他中级进阶课-48：揉弦手型讲解（上推）.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他中级进阶课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-55-48-f82ae6222a",
+      "title": "55_成田电吉他中级进阶课-48：揉弦手型讲解（下拉）",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "description": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他中级进阶课 - 带源码课件/55_成田电吉他中级进阶课-48：揉弦手型讲解（下拉）.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他中级进阶课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-56-49-840f18ba4d",
+      "title": "56_成田电吉他中级进阶课-49：揉弦的手指选择",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "description": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他中级进阶课 - 带源码课件/56_成田电吉他中级进阶课-49：揉弦的手指选择.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他中级进阶课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-57-50-b71c78990b",
+      "title": "57_成田电吉他中级进阶课-50：揉弦的注意事项",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "description": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他中级进阶课 - 带源码课件/57_成田电吉他中级进阶课-50：揉弦的注意事项.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他中级进阶课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-58-51-a4ac2bf818",
+      "title": "58_成田电吉他中级进阶课-51：推弦揉弦",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "description": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他中级进阶课 - 带源码课件/58_成田电吉他中级进阶课-51：推弦揉弦.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他中级进阶课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-59-52-42508dad61",
+      "title": "59_成田电吉他中级进阶课-52：揉弦血的教训",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "description": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他中级进阶课 - 带源码课件/59_成田电吉他中级进阶课-52：揉弦血的教训.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他中级进阶课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-5-3-60cb10a70b",
+      "title": "5_成田电吉他中级进阶课-3：闷音技术原理教学",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "description": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他中级进阶课 - 带源码课件/5_成田电吉他中级进阶课-3：闷音技术原理教学.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他中级进阶课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-60-53-750e25418b",
+      "title": "60_成田电吉他中级进阶课-53：揉弦基础练习曲",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "description": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他中级进阶课 - 带源码课件/60_成田电吉他中级进阶课-53：揉弦基础练习曲.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他中级进阶课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-61-54-1a49894b65",
+      "title": "61_成田电吉他中级进阶课-54：揉弦基础练习曲（讲解）",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "description": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他中级进阶课 - 带源码课件/61_成田电吉他中级进阶课-54：揉弦基础练习曲（讲解）.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他中级进阶课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-62-55-e084b3bb8b",
+      "title": "62_成田电吉他中级进阶课-55：什么是自然泛音",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "description": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他中级进阶课 - 带源码课件/62_成田电吉他中级进阶课-55：什么是自然泛音.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他中级进阶课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-63-56-f776a35154",
+      "title": "63_成田电吉他中级进阶课-56：自然泛音技术讲解（上）",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "description": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他中级进阶课 - 带源码课件/63_成田电吉他中级进阶课-56：自然泛音技术讲解（上）.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他中级进阶课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-64-56-f9e1a8675d",
+      "title": "64_成田电吉他中级进阶课-56：自然泛音技术讲解（下）",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "description": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他中级进阶课 - 带源码课件/64_成田电吉他中级进阶课-56：自然泛音技术讲解（下）.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他中级进阶课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-65-57-02e886b54f",
+      "title": "65_成田电吉他中级进阶课-57：自然泛音注意事项",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "description": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他中级进阶课 - 带源码课件/65_成田电吉他中级进阶课-57：自然泛音注意事项.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他中级进阶课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-66-58-b5b1cb6229",
+      "title": "66_成田电吉他中级进阶课-58：推弦&揉弦进阶练习曲",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "description": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他中级进阶课 - 带源码课件/66_成田电吉他中级进阶课-58：推弦&揉弦进阶练习曲.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他中级进阶课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-67-59-834a335f31",
+      "title": "67_成田电吉他中级进阶课-59：推弦&揉弦进阶练习曲讲解",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "description": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他中级进阶课 - 带源码课件/67_成田电吉他中级进阶课-59：推弦&揉弦进阶练习曲讲解.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他中级进阶课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-68-60-070a70da85",
+      "title": "68_成田电吉他中级进阶课-60：变调的乐理原理",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "description": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他中级进阶课 - 带源码课件/68_成田电吉他中级进阶课-60：变调的乐理原理.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他中级进阶课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-69-61-241bae8f64",
+      "title": "69_成田电吉他中级进阶课-61：吉他的变调实战",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "description": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他中级进阶课 - 带源码课件/69_成田电吉他中级进阶课-61：吉他的变调实战.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他中级进阶课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-6-4-b43e87afcc",
+      "title": "6_成田电吉他中级进阶课-4：闷音要注意的细节点",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "description": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他中级进阶课 - 带源码课件/6_成田电吉他中级进阶课-4：闷音要注意的细节点.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他中级进阶课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-70-62-7215487a57",
+      "title": "70_成田电吉他中级进阶课-62：变调基础练习曲",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "description": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他中级进阶课 - 带源码课件/70_成田电吉他中级进阶课-62：变调基础练习曲.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他中级进阶课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-71-63-47f2b5162f",
+      "title": "71_成田电吉他中级进阶课-63：变调基础练习曲讲解",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "description": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他中级进阶课 - 带源码课件/71_成田电吉他中级进阶课-63：变调基础练习曲讲解.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他中级进阶课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-72-64-08b95d51e5",
+      "title": "72_成田电吉他中级进阶课-64：什么是滑弦",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "description": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他中级进阶课 - 带源码课件/72_成田电吉他中级进阶课-64：什么是滑弦.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他中级进阶课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-73-65-71600f719e",
+      "title": "73_成田电吉他中级进阶课-65：滑弦技巧讲解",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "description": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他中级进阶课 - 带源码课件/73_成田电吉他中级进阶课-65：滑弦技巧讲解.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他中级进阶课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-74-66-331d13ba70",
+      "title": "74_成田电吉他中级进阶课-66：无头滑音",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "description": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他中级进阶课 - 带源码课件/74_成田电吉他中级进阶课-66：无头滑音.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他中级进阶课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-75-67-156818c0d7",
+      "title": "75_成田电吉他中级进阶课-67：滑弦注意事项",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "description": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他中级进阶课 - 带源码课件/75_成田电吉他中级进阶课-67：滑弦注意事项.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他中级进阶课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-76-68-3aae406a42",
+      "title": "76_成田电吉他中级进阶课-68：滑弦基础练习曲",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "description": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他中级进阶课 - 带源码课件/76_成田电吉他中级进阶课-68：滑弦基础练习曲.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他中级进阶课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-77-69-056d7c8b0d",
+      "title": "77_成田电吉他中级进阶课-69：滑弦基础练习曲讲解",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "description": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他中级进阶课 - 带源码课件/77_成田电吉他中级进阶课-69：滑弦基础练习曲讲解.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他中级进阶课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-78-70-fcf69fb5f7",
+      "title": "78_成田电吉他中级进阶课-70：中级课毕业曲",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "description": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他中级进阶课 - 带源码课件/78_成田电吉他中级进阶课-70：中级课毕业曲.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他中级进阶课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-79-71-df0dfbd39e",
+      "title": "79_成田电吉他中级进阶课-71：毕业曲讲解（上）",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "description": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他中级进阶课 - 带源码课件/79_成田电吉他中级进阶课-71：毕业曲讲解（上）.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他中级进阶课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-7-5-ef60d7cafa",
+      "title": "7_成田电吉他中级进阶课-5：全闷音练习曲",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "description": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他中级进阶课 - 带源码课件/7_成田电吉他中级进阶课-5：全闷音练习曲.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他中级进阶课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-80-71-86085621b9",
+      "title": "80_成田电吉他中级进阶课-71：毕业曲讲解（下）",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "description": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他中级进阶课 - 带源码课件/80_成田电吉他中级进阶课-71：毕业曲讲解（下）.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他中级进阶课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-81-72-713a519af5",
+      "title": "81_成田电吉他中级进阶课-72：中级课结束语",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "description": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他中级进阶课 - 带源码课件/81_成田电吉他中级进阶课-72：中级课结束语.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他中级进阶课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-8-6-6543d2ee1e",
+      "title": "8_成田电吉他中级进阶课-6：全闷音练习曲讲解",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "description": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他中级进阶课 - 带源码课件/8_成田电吉他中级进阶课-6：全闷音练习曲讲解.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他中级进阶课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-9-7-7e63526c03",
+      "title": "9_成田电吉他中级进阶课-7：什么是组合闷音？",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "description": "B站 - 成田电吉他中级进阶课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他中级进阶课 - 带源码课件/9_成田电吉他中级进阶课-7：什么是组合闷音？.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他中级进阶课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-1-d89116fab4",
+      "title": "1--重点！买课后先要看的！_注意！买课后第一时间要看的！",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "description": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他基础入门课 - 带源码课件/1--重点！买课后先要看的！_注意！买课后第一时间要看的！.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他基础入门课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-10-992b51e450",
+      "title": "10--基础课课程_浅谈右手拨弦的重要性",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "description": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他基础入门课 - 带源码课件/10--基础课课程_浅谈右手拨弦的重要性.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他基础入门课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-11-898b6bde9a",
+      "title": "11--基础课课程_全音符右手下拨练习",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "description": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他基础入门课 - 带源码课件/11--基础课课程_全音符右手下拨练习.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他基础入门课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-12-901b4378b5",
+      "title": "12--基础课课程_全音符右手上拨练习",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "description": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他基础入门课 - 带源码课件/12--基础课课程_全音符右手上拨练习.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他基础入门课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-13-b1cac27cd5",
+      "title": "13--基础课课程_二分音符右手下拨练习",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "description": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他基础入门课 - 带源码课件/13--基础课课程_二分音符右手下拨练习.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他基础入门课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-14-74046492b5",
+      "title": "14--基础课课程_二分音符右手上拨练习",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "description": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他基础入门课 - 带源码课件/14--基础课课程_二分音符右手上拨练习.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他基础入门课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-15-62f7e5db47",
+      "title": "15--基础课课程_四分音符右手下拨练习",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "description": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他基础入门课 - 带源码课件/15--基础课课程_四分音符右手下拨练习.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他基础入门课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-16-861344911f",
+      "title": "16--基础课课程_四分音符右手上拨练习",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "description": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他基础入门课 - 带源码课件/16--基础课课程_四分音符右手上拨练习.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他基础入门课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-17-add4bafd95",
+      "title": "17--基础课课程_右手混合交替拨弦练习",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "description": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他基础入门课 - 带源码课件/17--基础课课程_右手混合交替拨弦练习.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他基础入门课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-18-e9801415e8",
+      "title": "18--基础课课程_电吉他中左手的作用以及正确的按弦姿势",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "description": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他基础入门课 - 带源码课件/18--基础课课程_电吉他中左手的作用以及正确的按弦姿势.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他基础入门课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-19-1-9b6d5af9c6",
+      "title": "19--基础课课程_基础爬格子练习1",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "description": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他基础入门课 - 带源码课件/19--基础课课程_基础爬格子练习1.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他基础入门课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-2-cbc2d765f2",
+      "title": "2--基础课课程_电吉他木吉他的构造分解",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "description": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他基础入门课 - 带源码课件/2--基础课课程_电吉他木吉他的构造分解.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他基础入门课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-20-2-0781ba31da",
+      "title": "20--基础课课程_基础爬格子练习2",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "description": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他基础入门课 - 带源码课件/20--基础课课程_基础爬格子练习2.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他基础入门课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-21-fc4163a692",
+      "title": "21--基础课课程_基础爬格子混合练习",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "description": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他基础入门课 - 带源码课件/21--基础课课程_基础爬格子混合练习.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他基础入门课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-22-1-de6026fb02",
+      "title": "22--基础课课程_左右手综合练习曲1",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "description": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他基础入门课 - 带源码课件/22--基础课课程_左右手综合练习曲1.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他基础入门课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-23-2-3060329fec",
+      "title": "23--基础课课程_左右手综合练习曲2",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "description": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他基础入门课 - 带源码课件/23--基础课课程_左右手综合练习曲2.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他基础入门课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-24-59bf9b85ed",
+      "title": "24--基础课课程_正确的练琴音色选择",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "description": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他基础入门课 - 带源码课件/24--基础课课程_正确的练琴音色选择.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他基础入门课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-25-2f3f8ff5d5",
+      "title": "25--基础课课程_失真音色是什么，如何调整失真音色",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "description": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他基础入门课 - 带源码课件/25--基础课课程_失真音色是什么，如何调整失真音色.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他基础入门课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-26-d9aad3127a",
+      "title": "26--基础课课程_护弦技巧讲解",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "description": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他基础入门课 - 带源码课件/26--基础课课程_护弦技巧讲解.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他基础入门课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-27-3-d2c6c250a2",
+      "title": "27--基础课课程_左右手综合练习曲3",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "description": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他基础入门课 - 带源码课件/27--基础课课程_左右手综合练习曲3.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他基础入门课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-28-4-0a3c4415e6",
+      "title": "28--基础课课程_左右手综合练习曲4",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "description": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他基础入门课 - 带源码课件/28--基础课课程_左右手综合练习曲4.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他基础入门课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-29-5-c8e628ae30",
+      "title": "29--基础课课程_左右手综合练习曲5",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "description": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他基础入门课 - 带源码课件/29--基础课课程_左右手综合练习曲5.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他基础入门课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-3-76bae74ac1",
+      "title": "3--基础课课程_电吉他抱琴的正确姿势",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "description": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他基础入门课 - 带源码课件/3--基础课课程_电吉他抱琴的正确姿势.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他基础入门课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-30-63e2df62eb",
+      "title": "30--基础课课程_音阶指型概述",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "description": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他基础入门课 - 带源码课件/30--基础课课程_音阶指型概述.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他基础入门课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-31-fa-8efd346928",
+      "title": "31--基础课课程_fa指型训练（指型介绍）",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "description": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他基础入门课 - 带源码课件/31--基础课课程_fa指型训练（指型介绍）.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他基础入门课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-32-fa-3fe2e6d13a",
+      "title": "32--基础课课程_fa指型训练（练习曲和讲解）",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "description": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他基础入门课 - 带源码课件/32--基础课课程_fa指型训练（练习曲和讲解）.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他基础入门课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-33-sol-13c141c408",
+      "title": "33--基础课课程_sol指型训练（指型介绍）",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "description": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他基础入门课 - 带源码课件/33--基础课课程_sol指型训练（指型介绍）.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他基础入门课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-34-sol-8736912c39",
+      "title": "34--基础课课程_sol指型训练（练习曲）",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "description": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他基础入门课 - 带源码课件/34--基础课课程_sol指型训练（练习曲）.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他基础入门课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-35-sol-765961836b",
+      "title": "35--基础课课程_sol指型训练（练习曲讲解）",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "description": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他基础入门课 - 带源码课件/35--基础课课程_sol指型训练（练习曲讲解）.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他基础入门课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-36-la-8418934c79",
+      "title": "36--基础课课程_la指型训练（指型介绍）",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "description": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他基础入门课 - 带源码课件/36--基础课课程_la指型训练（指型介绍）.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他基础入门课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-37-la-03ade736d7",
+      "title": "37--基础课课程_la指型训练（练习曲）",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "description": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他基础入门课 - 带源码课件/37--基础课课程_la指型训练（练习曲）.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他基础入门课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-38-la-9d2a4c72b2",
+      "title": "38--基础课课程_la指型训练（练习曲讲解）",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "description": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他基础入门课 - 带源码课件/38--基础课课程_la指型训练（练习曲讲解）.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他基础入门课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-39-xi-9c69dae219",
+      "title": "39--基础课课程_xi指型训练（指型介绍）",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "description": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他基础入门课 - 带源码课件/39--基础课课程_xi指型训练（指型介绍）.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他基础入门课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-4-38a3221ce5",
+      "title": "4--基础课课程_如何正确给电吉他调弦",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "description": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他基础入门课 - 带源码课件/4--基础课课程_如何正确给电吉他调弦.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他基础入门课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-40-xi-a4c3dceaf6",
+      "title": "40--基础课课程_xi指型训练（练习曲）",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "description": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他基础入门课 - 带源码课件/40--基础课课程_xi指型训练（练习曲）.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他基础入门课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-41-xi-fedd99ec46",
+      "title": "41--基础课课程_xi指型训练（练习曲讲解）",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "description": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他基础入门课 - 带源码课件/41--基础课课程_xi指型训练（练习曲讲解）.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他基础入门课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-42-do-6b9a221e08",
+      "title": "42--基础课课程_do指型训练（指型介绍）",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "description": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他基础入门课 - 带源码课件/42--基础课课程_do指型训练（指型介绍）.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他基础入门课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-43-do-0923c374e5",
+      "title": "43--基础课课程_do指型练习曲",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "description": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他基础入门课 - 带源码课件/43--基础课课程_do指型练习曲.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他基础入门课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-44-do-d190e045f1",
+      "title": "44--基础课课程_do指型练习曲讲解",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "description": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他基础入门课 - 带源码课件/44--基础课课程_do指型练习曲讲解.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他基础入门课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-45-re-2d48f325c2",
+      "title": "45--基础课课程_re指型训练（指型介绍）",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "description": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他基础入门课 - 带源码课件/45--基础课课程_re指型训练（指型介绍）.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他基础入门课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-46-re-a35d77753e",
+      "title": "46--基础课课程_re指型练习曲",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "description": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他基础入门课 - 带源码课件/46--基础课课程_re指型练习曲.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他基础入门课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-47-re-08dbd0d2f0",
+      "title": "47--基础课课程_re指型练习曲讲解",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "description": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他基础入门课 - 带源码课件/47--基础课课程_re指型练习曲讲解.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他基础入门课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-48-mi-50ea26833a",
+      "title": "48--基础课课程_mi指型训练（指型介绍）",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "description": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他基础入门课 - 带源码课件/48--基础课课程_mi指型训练（指型介绍）.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他基础入门课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-49-mi-d4195ca32a",
+      "title": "49--基础课课程_mi指型练习曲",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "description": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他基础入门课 - 带源码课件/49--基础课课程_mi指型练习曲.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他基础入门课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-5-597b5c843b",
+      "title": "5--基础课课程_认识六线谱",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "description": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他基础入门课 - 带源码课件/5--基础课课程_认识六线谱.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他基础入门课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-50-mi-aa2ec8d659",
+      "title": "50--基础课课程_mi指型练习曲讲解",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "description": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他基础入门课 - 带源码课件/50--基础课课程_mi指型练习曲讲解.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他基础入门课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-51-eaed2e8240",
+      "title": "51--基础课课程_指型综合练习曲",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "description": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他基础入门课 - 带源码课件/51--基础课课程_指型综合练习曲.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他基础入门课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-52-5a4903b2e4",
+      "title": "52--基础课课程_指型综合练习曲（讲解）",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "description": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他基础入门课 - 带源码课件/52--基础课课程_指型综合练习曲（讲解）.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他基础入门课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-53-8432bbe8cd",
+      "title": "53--基础课课程_指型综合练习思路",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "description": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他基础入门课 - 带源码课件/53--基础课课程_指型综合练习思路.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他基础入门课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-54-1-16-d3f00f8552",
+      "title": "54--基础课课程_节奏训练1（16分音符）",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "description": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他基础入门课 - 带源码课件/54--基础课课程_节奏训练1（16分音符）.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他基础入门课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-55-1-16-725ab87fae",
+      "title": "55--基础课课程_节奏训练1（16分音符练习曲）",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "description": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他基础入门课 - 带源码课件/55--基础课课程_节奏训练1（16分音符练习曲）.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他基础入门课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-56-1-16-7b6be2ff94",
+      "title": "56--基础课课程_节奏训练1（16分音符练习曲讲解）",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "description": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他基础入门课 - 带源码课件/56--基础课课程_节奏训练1（16分音符练习曲讲解）.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他基础入门课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-57-2-8-16-fed0a943a1",
+      "title": "57--基础课课程_节奏训练2（前8后16）",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "description": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他基础入门课 - 带源码课件/57--基础课课程_节奏训练2（前8后16）.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他基础入门课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-58-2-8-16-34670e8998",
+      "title": "58--基础课课程_节奏训练2（前8后16练习曲）",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "description": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他基础入门课 - 带源码课件/58--基础课课程_节奏训练2（前8后16练习曲）.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他基础入门课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-59-2-8-16-bb12e7490a",
+      "title": "59--基础课课程_节奏训练2（前8后16练习曲讲解）",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "description": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他基础入门课 - 带源码课件/59--基础课课程_节奏训练2（前8后16练习曲讲解）.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他基础入门课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-6-bef28e0a4b",
+      "title": "6--基础课课程_不同拨片的区别以及如何选择拨片",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "description": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他基础入门课 - 带源码课件/6--基础课课程_不同拨片的区别以及如何选择拨片.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他基础入门课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-60-3-16-8-bf417c2361",
+      "title": "60--基础课课程_节奏训练3（前16后8）",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "description": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他基础入门课 - 带源码课件/60--基础课课程_节奏训练3（前16后8）.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他基础入门课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-61-3-16-8-987e12d495",
+      "title": "61--基础课课程_节奏训练3（前16后8练习曲）",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "description": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他基础入门课 - 带源码课件/61--基础课课程_节奏训练3（前16后8练习曲）.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他基础入门课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-62-3-16-8-4a7c911182",
+      "title": "62--基础课课程_节奏训练3（前16后8练习曲讲解）",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "description": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他基础入门课 - 带源码课件/62--基础课课程_节奏训练3（前16后8练习曲讲解）.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他基础入门课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-63-4-ae99714285",
+      "title": "63--基础课课程_ 节奏训练4（附点）",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "description": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他基础入门课 - 带源码课件/63--基础课课程_ 节奏训练4（附点）.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他基础入门课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-64-4-84faaeca06",
+      "title": "64--基础课课程_节奏训练4（前附点练习曲）",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "description": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他基础入门课 - 带源码课件/64--基础课课程_节奏训练4（前附点练习曲）.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他基础入门课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-65-4-34eda9a5eb",
+      "title": "65--基础课课程_节奏训练4（前附点练习曲讲解）",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "description": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他基础入门课 - 带源码课件/65--基础课课程_节奏训练4（前附点练习曲讲解）.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他基础入门课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-66-4-867ba6f957",
+      "title": "66--基础课课程_节奏训练4（后附点演示曲）",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "description": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他基础入门课 - 带源码课件/66--基础课课程_节奏训练4（后附点演示曲）.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他基础入门课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-67-4-05668b6bf2",
+      "title": "67--基础课课程_节奏训练4（后附点演示曲讲解）",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "description": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他基础入门课 - 带源码课件/67--基础课课程_节奏训练4（后附点演示曲讲解）.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他基础入门课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-68-5-cae4893d80",
+      "title": "68--基础课课程_节奏训练5（小切分练习曲）",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "description": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他基础入门课 - 带源码课件/68--基础课课程_节奏训练5（小切分练习曲）.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他基础入门课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-69-5-11032687f5",
+      "title": "69--基础课课程_节奏训练5（什么是小切分？）",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "description": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他基础入门课 - 带源码课件/69--基础课课程_节奏训练5（什么是小切分？）.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他基础入门课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-7-4a8f4427e4",
+      "title": "7--基础课课程_握拨片的正确姿势",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "description": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他基础入门课 - 带源码课件/7--基础课课程_握拨片的正确姿势.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他基础入门课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-70-5-c1c6b5e69a",
+      "title": "70--基础课课程_节奏训练5（小切分练习曲讲解）",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "description": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他基础入门课 - 带源码课件/70--基础课课程_节奏训练5（小切分练习曲讲解）.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他基础入门课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-71-6-982c6bc391",
+      "title": "71--基础课课程_节奏训练6（三连音演示曲）",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "description": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他基础入门课 - 带源码课件/71--基础课课程_节奏训练6（三连音演示曲）.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他基础入门课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-72-6-491cff714a",
+      "title": "72--基础课课程_节奏训练6（什么是三连音）",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "description": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他基础入门课 - 带源码课件/72--基础课课程_节奏训练6（什么是三连音）.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他基础入门课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-73-6-542de04002",
+      "title": "73--基础课课程_节奏训练6（三连音练习曲讲解）",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "description": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他基础入门课 - 带源码课件/73--基础课课程_节奏训练6（三连音练习曲讲解）.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他基础入门课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-8-6c9ceb9c3d",
+      "title": "8--基础课课程_右手的准备动作",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "description": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他基础入门课 - 带源码课件/8--基础课课程_右手的准备动作.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他基础入门课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-9-0cf3ef4c4c",
+      "title": "9--基础课课程_拨弦的方法",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "description": "B站 - 成田电吉他基础入门课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他基础入门课 - 带源码课件/9--基础课课程_拨弦的方法.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他基础入门课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-1-2f689a5b8e",
+      "title": "1--重点！买课后先要看的！_注意！买课后第一时间要看的！",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他核心技巧课 - 带源码课件",
+      "description": "B站 - 成田电吉他核心技巧课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他核心技巧课 - 带源码课件/1--重点！买课后先要看的！_注意！买课后第一时间要看的！.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他核心技巧课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-10-01-74fb1d1d88",
+      "title": "10--成田电吉他核心课_第三集：01-课程讲解",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他核心技巧课 - 带源码课件",
+      "description": "B站 - 成田电吉他核心技巧课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他核心技巧课 - 带源码课件/10--成田电吉他核心课_第三集：01-课程讲解.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他核心技巧课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-11-01-03539857cb",
+      "title": "11--成田电吉他核心课_第四集：01-练习曲（左手专项练习）",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他核心技巧课 - 带源码课件",
+      "description": "B站 - 成田电吉他核心技巧课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他核心技巧课 - 带源码课件/11--成田电吉他核心课_第四集：01-练习曲（左手专项练习）.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他核心技巧课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-12-02-a3a6830eca",
+      "title": "12--成田电吉他核心课_第四集：02-课程讲解",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他核心技巧课 - 带源码课件",
+      "description": "B站 - 成田电吉他核心技巧课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他核心技巧课 - 带源码课件/12--成田电吉他核心课_第四集：02-课程讲解.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他核心技巧课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-13-03-737bbb979d",
+      "title": "13--成田电吉他核心课_第四集：03-课程讲解",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他核心技巧课 - 带源码课件",
+      "description": "B站 - 成田电吉他核心技巧课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他核心技巧课 - 带源码课件/13--成田电吉他核心课_第四集：03-课程讲解.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他核心技巧课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-14-04-0bdc995acc",
+      "title": "14--成田电吉他核心课_第四集：04-练习曲讲解",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他核心技巧课 - 带源码课件",
+      "description": "B站 - 成田电吉他核心技巧课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他核心技巧课 - 带源码课件/14--成田电吉他核心课_第四集：04-练习曲讲解.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他核心技巧课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-15-01-a885c4a593",
+      "title": "15--成田电吉他核心课_第五集：01-练习曲",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他核心技巧课 - 带源码课件",
+      "description": "B站 - 成田电吉他核心技巧课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他核心技巧课 - 带源码课件/15--成田电吉他核心课_第五集：01-练习曲.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他核心技巧课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-16-02-52b28c495e",
+      "title": "16--成田电吉他核心课_第五集：02-课程讲解",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他核心技巧课 - 带源码课件",
+      "description": "B站 - 成田电吉他核心技巧课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他核心技巧课 - 带源码课件/16--成田电吉他核心课_第五集：02-课程讲解.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他核心技巧课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-17-03-0341a3a515",
+      "title": "17--成田电吉他核心课_第五集：03-练习曲讲解",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他核心技巧课 - 带源码课件",
+      "description": "B站 - 成田电吉他核心技巧课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他核心技巧课 - 带源码课件/17--成田电吉他核心课_第五集：03-练习曲讲解.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他核心技巧课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-18-01-57959984cb",
+      "title": "18--成田电吉他核心课_第六集：01-练习曲",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他核心技巧课 - 带源码课件",
+      "description": "B站 - 成田电吉他核心技巧课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他核心技巧课 - 带源码课件/18--成田电吉他核心课_第六集：01-练习曲.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他核心技巧课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-19-02-0f80618c5c",
+      "title": "19--成田电吉他核心课_第六集：02-课程讲解",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他核心技巧课 - 带源码课件",
+      "description": "B站 - 成田电吉他核心技巧课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他核心技巧课 - 带源码课件/19--成田电吉他核心课_第六集：02-课程讲解.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他核心技巧课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-2-66172ab0d7",
+      "title": "2--成田电吉他核心课_课前练习讲解",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他核心技巧课 - 带源码课件",
+      "description": "B站 - 成田电吉他核心技巧课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他核心技巧课 - 带源码课件/2--成田电吉他核心课_课前练习讲解.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他核心技巧课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-20-03-be4f9a0863",
+      "title": "20--成田电吉他核心课_第六集：03-课程讲解",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他核心技巧课 - 带源码课件",
+      "description": "B站 - 成田电吉他核心技巧课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他核心技巧课 - 带源码课件/20--成田电吉他核心课_第六集：03-课程讲解.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他核心技巧课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-21-04-dc58d310ef",
+      "title": "21--成田电吉他核心课_第六集：04-番外篇",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他核心技巧课 - 带源码课件",
+      "description": "B站 - 成田电吉他核心技巧课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他核心技巧课 - 带源码课件/21--成田电吉他核心课_第六集：04-番外篇.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他核心技巧课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-22-01-52c3647463",
+      "title": "22--成田电吉他核心课_第七集：01-练习曲",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他核心技巧课 - 带源码课件",
+      "description": "B站 - 成田电吉他核心技巧课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他核心技巧课 - 带源码课件/22--成田电吉他核心课_第七集：01-练习曲.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他核心技巧课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-23-02-f553a4b17b",
+      "title": "23--成田电吉他核心课_第七集：02-课程讲解",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他核心技巧课 - 带源码课件",
+      "description": "B站 - 成田电吉他核心技巧课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他核心技巧课 - 带源码课件/23--成田电吉他核心课_第七集：02-课程讲解.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他核心技巧课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-24-01-0aa20c1741",
+      "title": "24--成田电吉他核心课_第八集：01-练习曲",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他核心技巧课 - 带源码课件",
+      "description": "B站 - 成田电吉他核心技巧课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他核心技巧课 - 带源码课件/24--成田电吉他核心课_第八集：01-练习曲.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他核心技巧课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-25-02-c6a071de65",
+      "title": "25--成田电吉他核心课_第八集：02-课程讲解",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他核心技巧课 - 带源码课件",
+      "description": "B站 - 成田电吉他核心技巧课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他核心技巧课 - 带源码课件/25--成田电吉他核心课_第八集：02-课程讲解.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他核心技巧课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-26-03-1e1fe3863a",
+      "title": "26--成田电吉他核心课_第八集：03-左手篇",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他核心技巧课 - 带源码课件",
+      "description": "B站 - 成田电吉他核心技巧课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他核心技巧课 - 带源码课件/26--成田电吉他核心课_第八集：03-左手篇.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他核心技巧课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-27-04-83d5d2f9f3",
+      "title": "27--成田电吉他核心课_第八集：04-右手篇",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他核心技巧课 - 带源码课件",
+      "description": "B站 - 成田电吉他核心技巧课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他核心技巧课 - 带源码课件/27--成田电吉他核心课_第八集：04-右手篇.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他核心技巧课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-28-05-946e24997b",
+      "title": "28--成田电吉他核心课_第八集：05-和弦与指板",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他核心技巧课 - 带源码课件",
+      "description": "B站 - 成田电吉他核心技巧课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他核心技巧课 - 带源码课件/28--成田电吉他核心课_第八集：05-和弦与指板.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他核心技巧课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-29-01-878ddc99d3",
+      "title": "29--成田电吉他核心课_第九集：01-演示曲",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他核心技巧课 - 带源码课件",
+      "description": "B站 - 成田电吉他核心技巧课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他核心技巧课 - 带源码课件/29--成田电吉他核心课_第九集：01-演示曲.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他核心技巧课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-3-01-3-4aba444c8c",
+      "title": "3--成田电吉他核心课_第一集：01-练习曲（3连音）",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他核心技巧课 - 带源码课件",
+      "description": "B站 - 成田电吉他核心技巧课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他核心技巧课 - 带源码课件/3--成田电吉他核心课_第一集：01-练习曲（3连音）.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他核心技巧课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-30-02-690324eb15",
+      "title": "30--成田电吉他核心课_第九集：02-课程讲解",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他核心技巧课 - 带源码课件",
+      "description": "B站 - 成田电吉他核心技巧课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他核心技巧课 - 带源码课件/30--成田电吉他核心课_第九集：02-课程讲解.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他核心技巧课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-31-03-62ed720a8c",
+      "title": "31--成田电吉他核心课_第九集：03-番外篇",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他核心技巧课 - 带源码课件",
+      "description": "B站 - 成田电吉他核心技巧课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他核心技巧课 - 带源码课件/31--成田电吉他核心课_第九集：03-番外篇.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他核心技巧课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-32-df219a1cbd",
+      "title": "32--成田电吉他核心课_第九课：番外篇",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他核心技巧课 - 带源码课件",
+      "description": "B站 - 成田电吉他核心技巧课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他核心技巧课 - 带源码课件/32--成田电吉他核心课_第九课：番外篇.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他核心技巧课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-33-01-435a8efd28",
+      "title": "33--成田电吉他核心课_第十集：01-练习曲",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他核心技巧课 - 带源码课件",
+      "description": "B站 - 成田电吉他核心技巧课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他核心技巧课 - 带源码课件/33--成田电吉他核心课_第十集：01-练习曲.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他核心技巧课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-34-02-915c4cfc5a",
+      "title": "34--成田电吉他核心课_第十集：02-课程讲解",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他核心技巧课 - 带源码课件",
+      "description": "B站 - 成田电吉他核心技巧课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他核心技巧课 - 带源码课件/34--成田电吉他核心课_第十集：02-课程讲解.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他核心技巧课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-35-01-96f9f770c3",
+      "title": "35--成田电吉他核心课_第十一集：01-练习曲",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他核心技巧课 - 带源码课件",
+      "description": "B站 - 成田电吉他核心技巧课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他核心技巧课 - 带源码课件/35--成田电吉他核心课_第十一集：01-练习曲.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他核心技巧课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-36-02-dcff80dad1",
+      "title": "36--成田电吉他核心课_第十一集：02-课程讲解",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他核心技巧课 - 带源码课件",
+      "description": "B站 - 成田电吉他核心技巧课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他核心技巧课 - 带源码课件/36--成田电吉他核心课_第十一集：02-课程讲解.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他核心技巧课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-37-01-d955845c80",
+      "title": "37--成田电吉他核心课_第十二集：01-练习曲",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他核心技巧课 - 带源码课件",
+      "description": "B站 - 成田电吉他核心技巧课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他核心技巧课 - 带源码课件/37--成田电吉他核心课_第十二集：01-练习曲.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他核心技巧课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-38-02-1-2829303f22",
+      "title": "38--成田电吉他核心课_第十二集：02-课程讲解（1）",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他核心技巧课 - 带源码课件",
+      "description": "B站 - 成田电吉他核心技巧课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他核心技巧课 - 带源码课件/38--成田电吉他核心课_第十二集：02-课程讲解（1）.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他核心技巧课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-39-03-2-c33feba492",
+      "title": "39--成田电吉他核心课_第十二集：03-课程讲解（2）",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他核心技巧课 - 带源码课件",
+      "description": "B站 - 成田电吉他核心技巧课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他核心技巧课 - 带源码课件/39--成田电吉他核心课_第十二集：03-课程讲解（2）.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他核心技巧课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-4-02-16-f2f8f42fc0",
+      "title": "4--成田电吉他核心课_第一集：02-练习曲（16分音符）",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他核心技巧课 - 带源码课件",
+      "description": "B站 - 成田电吉他核心技巧课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他核心技巧课 - 带源码课件/4--成田电吉他核心课_第一集：02-练习曲（16分音符）.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他核心技巧课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-40-04-3-8c4e8ee805",
+      "title": "40--成田电吉他核心课_第十二集：04-课程讲解（3）",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他核心技巧课 - 带源码课件",
+      "description": "B站 - 成田电吉他核心技巧课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他核心技巧课 - 带源码课件/40--成田电吉他核心课_第十二集：04-课程讲解（3）.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他核心技巧课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-5-03-82fcc9b2c5",
+      "title": "5--成田电吉他核心课_第一集：03-课程讲解",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他核心技巧课 - 带源码课件",
+      "description": "B站 - 成田电吉他核心技巧课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他核心技巧课 - 带源码课件/5--成田电吉他核心课_第一集：03-课程讲解.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他核心技巧课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-6-04-661118906f",
+      "title": "6--成田电吉他核心课_第一集：04-番外篇",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他核心技巧课 - 带源码课件",
+      "description": "B站 - 成田电吉他核心技巧课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他核心技巧课 - 带源码课件/6--成田电吉他核心课_第一集：04-番外篇.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他核心技巧课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-7-01-3-6f7d03060f",
+      "title": "7--成田电吉他核心课_第二集：01-练习曲（3连音经济拨弦）",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他核心技巧课 - 带源码课件",
+      "description": "B站 - 成田电吉他核心技巧课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他核心技巧课 - 带源码课件/7--成田电吉他核心课_第二集：01-练习曲（3连音经济拨弦）.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他核心技巧课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-8-02-16-591d5957aa",
+      "title": "8--成田电吉他核心课_第二集：02-练习曲（16分音符经济拨弦）",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他核心技巧课 - 带源码课件",
+      "description": "B站 - 成田电吉他核心技巧课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他核心技巧课 - 带源码课件/8--成田电吉他核心课_第二集：02-练习曲（16分音符经济拨弦）.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他核心技巧课 - 带源码课件"
+      ],
+      "materials": {}
+    },
+    {
+      "id": "course_b-9-03-ff727d1691",
+      "title": "9--成田电吉他核心课_第二集：03-课程讲解",
+      "series": "成田电吉他",
+      "level": "B站 - 成田电吉他核心技巧课 - 带源码课件",
+      "description": "B站 - 成田电吉他核心技巧课 - 带源码课件",
+      "video_path": "成田电吉他/B站 - 成田电吉他核心技巧课 - 带源码课件/9--成田电吉他核心课_第二集：03-课程讲解.mp4",
+      "transcript_path": "",
+      "tags": [
+        "B站 - 成田电吉他核心技巧课 - 带源码课件"
+      ],
+      "materials": {}
     }
   ],
   "songs": [
     {
-      "id": "song_demo",
-      "title": "灰色轨迹",
-      "artist": "Beyond",
-      "path": "songs/灰色轨迹/",
+      "id": "song_0929f3fb22",
+      "title": "再见理想 各种版本",
+      "artist": "",
+      "path": "再见理想 各种版本",
       "versions": [
+        {
+          "name": "03 Live SOLO",
+          "files": {
+            "video": "03 Live SOLO/再見理想03 live.mp4",
+            "audio": "03 Live SOLO/再见理想03 Live （伴奏）.mp3",
+            "gp": "03 Live SOLO/再见理想（03Live前奏及间奏）.gp",
+            "pdf": "03 Live SOLO/再见理想（03Live前奏及间奏）.pdf"
+          }
+        },
+        {
+          "name": "05 Live SOLO",
+          "files": {
+            "video": "05 Live SOLO/Beyond_再見理想 Live 2005.mp4"
+          }
+        },
+        {
+          "name": "05 Live SOLO / 前奏",
+          "files": {
+            "gp": "05 Live SOLO/前奏/再见理想（05Live前奏）.gp",
+            "pdf": "05 Live SOLO/前奏/再见理想（05Live前奏）.pdf",
+            "audio": "05 Live SOLO/前奏/前奏伴奏（麦口罩原创伴奏）.mp3"
+          }
+        },
+        {
+          "name": "05 Live SOLO / 间奏",
+          "files": {
+            "gp": "05 Live SOLO/间奏/再见理想（05Live间奏）.gp",
+            "pdf": "05 Live SOLO/间奏/再见理想（05Live间奏）.pdf",
+            "audio": "05 Live SOLO/间奏/间奏伴奏（麦口罩原创伴奏）.mp3"
+          }
+        },
+        {
+          "name": "08十五周年 Live",
+          "files": {
+            "pdf": "08十五周年 Live/PDF 谱.pdf",
+            "audio": "08十五周年 Live/伴奏（麦口罩制作）.mp3",
+            "gp": "08十五周年 Live/再见理想（08Live间奏）.gp",
+            "video": "08十五周年 Live/原曲.mp4"
+          }
+        },
+        {
+          "name": "86黄家驹独唱版(间奏）",
+          "files": {
+            "gp": "86黄家驹独唱版(间奏）/1986年黄家驹独唱版（间奏）.gp",
+            "pdf": "86黄家驹独唱版(间奏）/1986年黄家驹独唱版（间奏）.pdf"
+          }
+        },
+        {
+          "name": "88录音室四人合唱版",
+          "files": {
+            "video": "88录音室四人合唱版/beyond-再見理想MTV.mp4",
+            "gp": "88录音室四人合唱版/再见理想（88录音室四人合唱版前奏及间奏）.gp",
+            "pdf": "88录音室四人合唱版/再见理想（88录音室四人合唱版前奏及间奏）.pdf",
+            "audio": "88录音室四人合唱版/再见理想（88版前奏和间奏伴奏）.mp3"
+          }
+        },
+        {
+          "name": "91 Live SOLO",
+          "files": {
+            "pdf": "91 Live SOLO/PDF 谱.pdf",
+            "image": "91 Live SOLO/WeChata6cdada1b3656204fb68612e501e5c69.png",
+            "audio": "91 Live SOLO/伴奏（麦口罩制作）.mp3",
+            "gp": "91 Live SOLO/再见理想（91 Live Solo）.gp",
+            "video": "91 Live SOLO/原曲.mp4"
+          }
+        },
+        {
+          "name": "再见理想（麦口罩SOLO版）",
+          "files": {
+            "audio": "再见理想（麦口罩SOLO版）/再见理想（带人声伴奏）.mp3",
+            "gp": "再见理想（麦口罩SOLO版）/再见理想（麦口罩SOLO版）.gp"
+          }
+        }
+      ],
+      "markers": []
+    },
+    {
+      "id": "song_08c70214e4",
+      "title": "天马座的幻想",
+      "artist": "",
+      "path": "天马座的幻想",
+      "versions": [
+        {
+          "name": "默认版",
+          "files": {
+            "gp": "复件 1圣斗士星失（天马座的幻想）.gp5",
+            "video": "天马座的幻想-圣斗士星矢-伴奏.mp4",
+            "pdf": "天马座的幻想.pdf",
+            "audio": "天马座的幻想伴奏.wav"
+          }
+        }
+      ],
+      "markers": []
+    },
+    {
+      "id": "song_dcb446eacc",
+      "title": "旧日的足迹",
+      "artist": "",
+      "path": "旧日的足迹",
+      "versions": [
+        {
+          "name": "03 Live 斗琴现场",
+          "files": {
+            "video": "03 Live 斗琴现场/原曲.mp4"
+          }
+        },
+        {
+          "name": "03 Live 斗琴现场 / 尾奏斗琴",
+          "files": {
+            "audio": "03 Live 斗琴现场/尾奏斗琴/尾奏伴奏（麦口罩制作）.mp3",
+            "gp": "03 Live 斗琴现场/尾奏斗琴/旧日足迹 03live版（尾奏斗琴）.gp",
+            "pdf": "03 Live 斗琴现场/尾奏斗琴/旧日足迹 03live版（尾奏斗琴）.pdf"
+          }
+        },
+        {
+          "name": "03 Live 斗琴现场 / 间奏双吉他",
+          "files": {
+            "gp": "03 Live 斗琴现场/间奏双吉他/旧日足迹 03live版（间奏双吉他）.gp",
+            "pdf": "03 Live 斗琴现场/间奏双吉他/旧日足迹 03live版（间奏双吉他）.pdf",
+            "audio": "03 Live 斗琴现场/间奏双吉他/麦口罩制作伴奏1（无合声吉他）.mp3"
+          }
+        },
+        {
+          "name": "91 Live专题 / 91 Live 整曲",
+          "files": {
+            "gp": "91 Live专题/91 Live 整曲/Beyond旧日的足迹 91 Live版.gp",
+            "pdf": "91 Live专题/91 Live 整曲/PDF 谱.pdf",
+            "video": "91 Live专题/91 Live 整曲/电台版.mp4"
+          }
+        },
+        {
+          "name": "91 Live专题 / 前+间+尾奏串烧 / 单吉他版",
+          "files": {
+            "pdf": "91 Live专题/前+间+尾奏串烧/单吉他版/PDF 谱.pdf",
+            "gp": "91 Live专题/前+间+尾奏串烧/单吉他版/前间尾奏单吉他串烧版.gp",
+            "audio": "91 Live专题/前+间+尾奏串烧/单吉他版/单吉他版（伴奏）.mp3"
+          }
+        },
+        {
+          "name": "91 Live专题 / 前+间+尾奏串烧 / 双吉他版",
+          "files": {
+            "pdf": "91 Live专题/前+间+尾奏串烧/双吉他版/PDF 谱.pdf",
+            "gp": "91 Live专题/前+间+尾奏串烧/双吉他版/前间尾奏双吉他串烧版.gp",
+            "audio": "91 Live专题/前+间+尾奏串烧/双吉他版/前间尾奏双吉他串烧（伴奏）.mp3"
+          }
+        },
+        {
+          "name": "91 Live专题 / 前奏间奏尾奏学习资料 / 前奏",
+          "files": {
+            "audio": "91 Live专题/前奏间奏尾奏学习资料/前奏/前奏伴奏.mp3",
+            "image": "91 Live专题/前奏间奏尾奏学习资料/前奏/前奏曲谱.png"
+          }
+        },
+        {
+          "name": "91 Live专题 / 前奏间奏尾奏学习资料 / 尾奏",
+          "files": {
+            "audio": "91 Live专题/前奏间奏尾奏学习资料/尾奏/尾奏伴奏1（无双吉他）.mp3",
+            "image": "91 Live专题/前奏间奏尾奏学习资料/尾奏/尾奏（Paul部分）.png"
+          }
+        },
+        {
+          "name": "91 Live专题 / 前奏间奏尾奏学习资料 / 间奏",
+          "files": {
+            "audio": "91 Live专题/前奏间奏尾奏学习资料/间奏/间奏伴奏1（无双吉他）.mp3",
+            "image": "91 Live专题/前奏间奏尾奏学习资料/间奏/间奏（Paul部分）.png"
+          }
+        }
+      ],
+      "markers": []
+    },
+    {
+      "id": "song_8334ed77a5",
+      "title": "早班火车",
+      "artist": "",
+      "path": "早班火车",
+      "versions": [
+        {
+          "name": "默认版",
+          "files": {
+            "pdf": "《早班火车》间奏+尾奏solo.pdf",
+            "audio": "《早班火车》间奏+尾奏solo伴奏 (online-audio-converter.com).mp3"
+          }
+        }
+      ],
+      "markers": []
+    },
+    {
+      "id": "song_9190a9f1a5",
+      "title": "权力的游戏",
+      "artist": "",
+      "path": "权力的游戏",
+      "versions": [
+        {
+          "name": "默认版",
+          "files": {
+            "gp": "权利的游戏 主题曲-降E简谱.gp",
+            "pdf": "权利的游戏 主题曲.pdf",
+            "audio": "权利的游戏 主题曲【伴奏】.mp3"
+          }
+        }
+      ],
+      "markers": []
+    },
+    {
+      "id": "song_8e8c79b7d9",
+      "title": "海阔天空 各种版本",
+      "artist": "",
+      "path": "海阔天空 各种版本",
+      "versions": [
+        {
+          "name": "1999年台北夏日音乐高峰会版",
+          "files": {
+            "pdf": "1999年台北夏日音乐高峰会版/PDF 谱.pdf",
+            "video": "1999年台北夏日音乐高峰会版/原曲.mp4",
+            "audio": "1999年台北夏日音乐高峰会版/海阔天空99版伴奏（音质和原版一样）.mp3",
+            "gp": "1999年台北夏日音乐高峰会版/海阔天空SOLO（99版）.gp"
+          }
+        },
+        {
+          "name": "2003 Live 尾奏",
+          "files": {
+            "video": "2003 Live 尾奏/Live'03 Beyond《海阔天空》.mp4",
+            "pdf": "2003 Live 尾奏/PDF 谱.pdf",
+            "audio": "2003 Live 尾奏/海阔天空03Live（麦口罩演奏纯享版）.mp3"
+          }
+        },
+        {
+          "name": "2005 Live 尾奏（修正版）",
+          "files": {
+            "audio": "2005 Live 尾奏（修正版）/2005《海阔天空》SOLO（麦口罩纯享版）.mp3",
+            "video": "2005 Live 尾奏（修正版）/Beyond - 《海阔天空》.mp4",
+            "gp": "2005 Live 尾奏（修正版）/（尾奏）海阔天空Beyond The Story Live 2005.gp",
+            "pdf": "2005 Live 尾奏（修正版）/（尾奏）海阔天空Beyond The Story Live 2005.pdf"
+          }
+        },
+        {
+          "name": "96 Live 尾奏（修正版）",
+          "files": {
+            "video": "96 Live 尾奏（修正版）/BEYOND【海闊天空】『beyond的精彩 LIVE & BASIC』Official Live Video.mp4",
+            "audio": "96 Live 尾奏（修正版）/伴奏2（麦口罩制作）.mp3",
+            "gp": "96 Live 尾奏（修正版）/海阔天空（96 演唱会版尾奏）.gp",
+            "pdf": "96 Live 尾奏（修正版）/海阔天空（96 演唱会版尾奏）.pdf"
+          }
+        },
+        {
+          "name": "97 Live（与周华健合作版）",
+          "files": {
+            "gp": "97 Live（与周华健合作版）/97（与周华健合作版）.gp",
+            "pdf": "97 Live（与周华健合作版）/97（与周华健合作版）.pdf",
+            "audio": "97 Live（与周华健合作版）/伴奏（麦口罩制作）.mp3",
+            "video": "97 Live（与周华健合作版）/周华健 新城97 劲爆情歌奖 海阔天空.mp4"
+          }
+        },
+        {
+          "name": "CD专辑版尾奏SOLO（修正版）",
+          "files": {
+            "pdf": "CD专辑版尾奏SOLO（修正版）/PDF 谱.pdf",
+            "audio": "CD专辑版尾奏SOLO（修正版）/《海阔天空》录音室版尾奏麦口罩重制伴奏.mp3",
+            "gp": "CD专辑版尾奏SOLO（修正版）/海阔天空尾奏(录音室版).gp"
+          }
+        },
+        {
+          "name": "E调麦口罩改编版",
+          "files": {
+            "pdf": "E调麦口罩改编版/PDF 谱.pdf",
+            "audio": "E调麦口罩改编版/无人声伴奏.mp3",
+            "gp": "E调麦口罩改编版/海阔天空（E调麦口罩演奏版）.gp"
+          }
+        },
+        {
+          "name": "左右乐队版（Drop D调弦） / 2021间奏版（伴奏重制）",
+          "files": {
+            "audio": "左右乐队版（Drop D调弦）/2021间奏版（伴奏重制）/伴奏.mp3",
+            "gp": "左右乐队版（Drop D调弦）/2021间奏版（伴奏重制）/海阔天空 左右乐队 （单独间奏版）.gp",
+            "pdf": "左右乐队版（Drop D调弦）/2021间奏版（伴奏重制）/海阔天空 左右乐队 （单独间奏版）.pdf"
+          }
+        },
+        {
+          "name": "左右乐队版（Drop D调弦） / 2024重制版（麦口罩特别版）",
+          "files": {
+            "gp": "左右乐队版（Drop D调弦）/2024重制版（麦口罩特别版）/2024重制版（麦口罩特别版）.gp",
+            "pdf": "左右乐队版（Drop D调弦）/2024重制版（麦口罩特别版）/PDF 谱.pdf",
+            "audio": "左右乐队版（Drop D调弦）/2024重制版（麦口罩特别版）/麦口罩演奏纯享版.mp3"
+          }
+        },
+        {
+          "name": "左右乐队版（Drop D调弦） / 卡拉OK版",
+          "files": {
+            "audio": "左右乐队版（Drop D调弦）/卡拉OK版/卡拉OK版伴奏.mp3",
+            "gp": "左右乐队版（Drop D调弦）/卡拉OK版/海阔天空 左右乐队 （麦口罩版）.gp",
+            "pdf": "左右乐队版（Drop D调弦）/卡拉OK版/海阔天空 左右乐队 （麦口罩版）.pdf"
+          }
+        },
+        {
+          "name": "左右乐队版（Drop D调弦） / 旧版",
+          "files": {
+            "audio": "左右乐队版（Drop D调弦）/旧版/尾奏伴奏.mp3",
+            "video": "左右乐队版（Drop D调弦）/旧版/海闊天空  左右.mp4",
+            "gp": "左右乐队版（Drop D调弦）/旧版/海阔天空 左右乐队 （麦口罩修订版）.gp"
+          }
+        },
+        {
+          "name": "左右乐队版（Drop D调弦） / 海王争霸专属文件夹",
+          "files": {
+            "audio": "左右乐队版（Drop D调弦）/海王争霸专属文件夹/海王争霸伴奏（前奏Riff+尾奏SOLO）.mp3",
+            "gp": "左右乐队版（Drop D调弦）/海王争霸专属文件夹/海王争霸参考乐谱.gp",
+            "pdf": "左右乐队版（Drop D调弦）/海王争霸专属文件夹/海王争霸参考乐谱.pdf"
+          }
+        },
+        {
+          "name": "巴西小伙版《海阔天空》",
+          "files": {
+            "pdf": "巴西小伙版《海阔天空》/PDF谱.pdf",
+            "video": "巴西小伙版《海阔天空》/原曲.mp4",
+            "audio": "巴西小伙版《海阔天空》/巴西小伙版《海阔天空》伴奏（麦口罩精制）.mp3"
+          }
+        }
+      ],
+      "markers": []
+    },
+    {
+      "id": "song_7070c16ec8",
+      "title": "灰色轨迹",
+      "artist": "",
+      "path": "灰色轨迹",
+      "versions": [
+        {
+          "name": "91 Live版",
+          "files": {
+            "video": "91 Live版/原曲视频.mp4"
+          }
+        },
+        {
+          "name": "91 Live版 / 尾奏",
+          "files": {
+            "gp": "91 Live版/尾奏/91灰色轨迹（尾奏）麦口罩精修版 .gp",
+            "pdf": "91 Live版/尾奏/91灰色轨迹（尾奏）麦口罩精修版 .pdf",
+            "audio": "91 Live版/尾奏/伴奏2（带木吉他轨）.mp3"
+          }
+        },
+        {
+          "name": "91 Live版 / 间奏",
+          "files": {
+            "gp": "91 Live版/间奏/91灰色轨迹（间奏）麦口罩精修版.gp",
+            "pdf": "91 Live版/间奏/91灰色轨迹（间奏）麦口罩精修版.pdf",
+            "audio": "91 Live版/间奏/麦口罩91间奏伴奏.mp3"
+          }
+        },
         {
           "name": "录音室版",
           "files": {
-            "audio": "demo.mp3"
+            "audio": "录音室版/原曲.mp3"
+          }
+        },
+        {
+          "name": "录音室版 / 尾奏",
+          "files": {
+            "audio": "录音室版/尾奏/伴奏2（带木吉他轨）.mp3",
+            "gp": "录音室版/尾奏/灰色轨迹（录音室版尾奏）.gp",
+            "pdf": "录音室版/尾奏/灰色轨迹（录音室版尾奏）.pdf"
+          }
+        },
+        {
+          "name": "录音室版 / 间奏",
+          "files": {
+            "audio": "录音室版/间奏/《灰色轨迹》间奏伴奏（麦口罩制.mp3",
+            "gp": "录音室版/间奏/灰色轨迹（录音室版间奏）.gp",
+            "pdf": "录音室版/间奏/灰色轨迹（录音室版间奏）.pdf"
           }
         }
       ],
       "markers": []
     }
   ],
-  "videos": []
+  "videos": [
+    {
+      "id": "video_demo_xhs_001",
+      "type": "collected",
+      "title": "小红书示例视频",
+      "source": "xiaohongshu",
+      "author": "示例作者",
+      "category": "扫弦",
+      "tags": [
+        "示例"
+      ],
+      "path": "xiaohongshu/demo-video.mp4",
+      "description": "用于展示收藏视频在统一学习页中的结构。"
+    }
+  ]
 }

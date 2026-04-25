@@ -35,6 +35,9 @@ jobs:
           cd backend
           python -c "from routers import courses, songs, videos; print('✅ imports OK')"
 
+      - name: Backend unit tests
+        run: python -m unittest discover -s backend/tests -v
+
   # ─── Vue Frontend ───────────────────────────────────────────────────────────
   frontend:
     runs-on: ubuntu-latest
