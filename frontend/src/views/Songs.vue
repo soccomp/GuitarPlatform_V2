@@ -423,9 +423,7 @@ export default {
       this.loopEnd = null
       this.stopAudio()
       if (this.currentAudioFile) {
-        this.audio.src = this.isFilePreview()
-          ? this.buildSongMediaUrl(this.currentAudioFile)
-          : `/api/songs/${this.selectedSong.id}/play?version=${encodeURIComponent(this.selectedVersion)}`
+        this.audio.src = this.buildSongMediaUrl(this.currentAudioFile)
         this.audio.load()
         this.audio.playbackRate = this.playbackRate
       }
@@ -521,7 +519,7 @@ export default {
       const cleanPath = path.split('/').map(encodeURIComponent).join('/')
       return this.isFilePreview()
         ? `file:///Users/claw/GuitarPlatform_v2/library/songs/${cleanPath}`
-        : `/library/songs/${cleanPath}`
+        : `/api/songs/${this.selectedSong.id}/asset?path=${encodeURIComponent(file)}`
     },
     isFilePreview() {
       return window.location.protocol === 'file:'
@@ -551,10 +549,10 @@ export default {
       this.gpError = ''
       this.scoreNotice = ''
 
-      if (type === 'gp' && this.isFilePreview() && this.selectedVersionFiles.pdf) {
+      if (type === 'gp' && this.selectedVersionFiles.pdf) {
         this.scoreType = 'pdf'
         this.scoreUrl = this.buildSongMediaUrl(this.selectedVersionFiles.pdf)
-        this.scoreNotice = '静态预览模式下，GP 暂时使用同版本 PDF 展示；启动本地服务后会切回 alphaTab 渲染。'
+        this.scoreNotice = 'GP 暂时使用同版本 PDF 预览。'
         this.showScoreModal = true
         this.destroyGpApi()
         return
@@ -568,7 +566,13 @@ export default {
         this.destroyGpApi()
       } else {
         await this.$nextTick()
-        await this.renderGP(this.scoreUrl)
+        const rendered = await this.renderGP(this.scoreUrl)
+        if (!rendered && this.selectedVersionFiles.pdf) {
+          this.scoreType = 'pdf'
+          this.scoreUrl = this.buildSongMediaUrl(this.selectedVersionFiles.pdf)
+          this.scoreNotice = 'GP 暂时无法渲染，已自动切换到同版本 PDF 预览。'
+          this.destroyGpApi()
+        }
       }
     },
     closeScoreModal() {
@@ -597,8 +601,10 @@ export default {
         this.gpApi = new alphaTab.AlphaTabApi(container, {
           file: url,
         })
+        return true
       } catch (error) {
         this.gpError = `GP 谱加载失败：${error.message}`
+        return false
       } finally {
         this.gpLoading = false
       }

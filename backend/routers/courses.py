@@ -1,5 +1,8 @@
+import mimetypes
+
 import httpx
 from fastapi import APIRouter, HTTPException
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
 from config import COURSES_DIR
@@ -96,7 +99,13 @@ async def stream_video(course_id: str):
     if not full_path.exists():
         raise HTTPException(status_code=404, detail="Video file not found")
 
-    return {"url": f"/library/courses/{video_path.strip('/')}"}
+    media_type, _ = mimetypes.guess_type(full_path.name)
+    return FileResponse(
+        path=full_path,
+        media_type=media_type or "application/octet-stream",
+        filename=full_path.name,
+        content_disposition_type="inline",
+    )
 
 
 @router.post("/{course_id}/ask", response_model=AskResponse)

@@ -350,7 +350,7 @@ const allVideos = computed(() => {
     tags: course.tags || [],
     path: course.video_path || '',
     materials: course.materials || {},
-    url: course.video_path ? courseLibraryUrl(course.video_path) : '',
+    url: course.video_path ? courseVideoUrl(course) : '',
   }))
 })
 
@@ -707,6 +707,13 @@ function hasMaterials(video) {
 
 function courseLibraryUrl(path) {
   return mediaUrl('courses', path)
+}
+
+function courseVideoUrl(course) {
+  if (isFilePreview()) {
+    return courseLibraryUrl(course.video_path)
+  }
+  return `/api/courses/${course.id}/stream`
 }
 
 function fileName(path) {
