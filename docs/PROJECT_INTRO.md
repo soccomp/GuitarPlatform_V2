@@ -101,7 +101,7 @@
 
 ### 1. 系统教材模块
 
-![系统教材模块](images/system-courses.png)
+![系统教材模块](images/system-courses.jpg)
 
 系统教材模块服务于“按课程体系学习”的场景。
 
@@ -119,9 +119,9 @@
 
 ### 2. 学习视频模块
 
-![学习视频模块](images/learning-videos.png)
+![学习视频模块](images/learning-videos.jpg)
 
-![学习视频弹窗播放](images/learning-video-modal.png)
+![学习视频弹窗播放](images/learning-video-modal.jpg)
 
 学习视频模块服务于“碎片化但高频”的视频学习场景。
 
@@ -143,9 +143,9 @@
 
 ### 3. 歌曲练习模块
 
-![歌曲练习模块](images/song-practice.png)
+![歌曲练习模块](images/song-practice.jpg)
 
-![歌曲谱面弹窗](images/song-score-modal.png)
+![歌曲谱面弹窗](images/song-score-modal.jpg)
 
 歌曲练习模块是整个平台最偏“练琴工作台”的部分。
 

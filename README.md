@@ -6,7 +6,7 @@
 
 它不是一个公开内容平台，而是一个围绕“看视频学习”和“跟谱练歌”构建的本地学习工作台。
 
-![系统教材页面](docs/images/system-courses.png)
+![系统教材页面](docs/images/system-courses.jpg)
 
 ## 项目目标
 
@@ -36,7 +36,7 @@
 
 ### 2. 学习视频
 
-![学习视频页面](docs/images/learning-videos.png)
+![学习视频页面](docs/images/learning-videos.jpg)
 
 - 扫描本地收藏视频目录
 - 使用卡片流展示视频内容
@@ -48,7 +48,7 @@
 
 ### 3. 歌曲练习
 
-![歌曲练习页面](docs/images/song-practice.png)
+![歌曲练习页面](docs/images/song-practice.jpg)
 
 - 歌曲列表与多版本管理
 - PDF / GP 谱打开与预览
