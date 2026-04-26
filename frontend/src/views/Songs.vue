@@ -1,150 +1,299 @@
 <template>
   <div class="songs-view">
     <div class="songs-layout">
-      <!-- 左侧：歌曲列表 -->
-      <div class="song-list">
-        <h2>🎵 歌曲练习</h2>
-        <div v-if="loading" class="loading">加载中...</div>
-        <div v-else-if="songs.length === 0" class="empty">
-          暂无歌曲，请先上传文件到 library/songs/
+      <aside class="song-list">
+        <div class="list-header">
+          <div>
+            <h2>歌曲练习</h2>
+            <p>围绕谱面和伴奏快速进入练习状态</p>
+          </div>
+          <button class="ghost-btn" @click="scanSongs">扫描目录</button>
         </div>
-        <div
+
+        <label class="search-box">
+          <span>快速定位</span>
+          <input v-model.trim="searchQuery" type="text" placeholder="搜索歌曲名或版本关键词" />
+        </label>
+
+        <div v-if="loading" class="state-box">加载歌曲中...</div>
+        <div v-else-if="songs.length === 0" class="state-box">
+          暂无歌曲，可先将文件放到 `library/songs/`
+        </div>
+        <div v-else-if="filteredSongs.length === 0" class="state-box">
+          没找到匹配的歌曲，换个关键词试试
+        </div>
+        <button
+          v-for="song in filteredSongs"
           v-else
-          v-for="song in songs"
           :key="song.id"
-          class="song-card"
-          :class="{ active: selectedSong && selectedSong.id === song.id }"
+          :class="['song-card', { active: selectedSong?.id === song.id }]"
           @click="selectSong(song)"
         >
-          <div class="song-title">{{ song.title }}</div>
-          <div class="song-artist">{{ song.artist }}</div>
-          <div class="song-versions">{{ song.versions.length }} 个版本</div>
-        </div>
-      </div>
+          <strong>{{ song.title }}</strong>
+          <p>{{ song.artist || '未填写歌手' }}</p>
+          <span>{{ song.versions.length }} 个版本</span>
+        </button>
+      </aside>
 
-      <!-- 右侧：歌曲详情 -->
-      <div class="song-detail" v-if="selectedSong">
-        <div class="detail-header">
-          <h3>{{ selectedSong.title }}</h3>
-          <p class="artist">{{ selectedSong.artist }}</p>
+      <section class="song-detail">
+        <div v-if="!selectedSong" class="state-box">
+          选择左侧歌曲开始练习
         </div>
-
-        <!-- 版本列表 -->
-        <div class="versions-section">
-          <h4>选择版本</h4>
-          <div
-            v-for="(version, idx) in selectedSong.versions"
-            :key="idx"
-            class="version-item"
-            :class="{ active: selectedVersion === version.name }"
-            @click="selectVersion(version)"
-          >
-            <span>{{ version.name }}</span>
-            <div class="version-files">
-              <span v-if="version.files.audio" class="file-tag audio">🔊 音频</span>
-              <span v-if="version.files.gp" class="file-tag gp">🎸 GP</span>
-              <span v-if="version.files.pdf" class="file-tag pdf">📄 PDF</span>
+        <template v-else>
+          <div class="detail-header">
+            <div>
+              <h3>{{ selectedSong.title }}</h3>
+              <p>{{ selectedSong.artist || '未填写歌手' }}</p>
+            </div>
+            <div class="detail-header-actions">
+              <span class="path-pill">{{ selectedSong.path }}</span>
+              <button class="danger-btn" :disabled="loading" @click="deleteSelectedSong">
+                {{ loading ? '处理中...' : '删除歌曲' }}
+              </button>
             </div>
           </div>
-        </div>
 
-        <!-- 播放控制 -->
-        <div class="player-section" v-if="selectedVersion && currentAudioFile">
-          <div class="player-header">
-            <span>🎧 {{ selectedVersion }}</span>
-            <button class="play-btn" @click="togglePlay">
-              {{ isPlaying ? '⏸' : '▶' }}
-            </button>
-          </div>
-
-          <!-- 进度条 -->
-          <div class="progress-bar" @click="seekAudio">
-            <div class="progress-fill" :style="{ width: progressPercent + '%' }"></div>
-            <div class="progress-time">{{ formatTime(currentTime) }} / {{ formatTime(duration) }}</div>
-          </div>
-
-          <!-- A-B 循环 -->
-          <div class="ab-controls">
-            <button @click="setLoopStart" :class="{ active: loopStart !== null }">A[{{ loopStart ? formatTime(loopStart) : '--' }}]</button>
-            <button @click="setLoopEnd" :class="{ active: loopEnd !== null }">B[{{ loopEnd ? formatTime(loopEnd) : '--' }}]</button>
-            <button @click="clearLoop" class="clear-btn">清除循环</button>
-          </div>
-
-          <!-- 速度控制 -->
-          <div class="speed-controls">
-            <span>速度:</span>
-            <button
-              v-for="s in speeds"
-              :key="s"
-              :class="{ active: playbackRate === s }"
-              @click="setSpeed(s)"
-            >{{ s }}x</button>
-          </div>
-
-          <!-- 打点标记 -->
-          <div class="markers-section">
-            <div class="markers-header">
-              <span>📍 打点标记</span>
-              <button class="add-marker-btn" @click="addMarker">+ 添加</button>
+          <div class="versions-section">
+            <div class="section-heading">
+              <h4>版本导航</h4>
+              <span class="section-copy">{{ versionGroups.length }} 个主版本</span>
             </div>
-            <div class="markers-list" v-if="markers.length">
-              <div
-                v-for="(m, idx) in markers"
-                :key="idx"
-                class="marker-item"
-                @click="seekToTime(m.time)"
+
+            <div class="group-grid">
+              <button
+                v-for="group in versionGroups"
+                :key="group.name"
+                :class="['group-item', { active: currentGroupName === group.name }]"
+                @click="selectVersionGroup(group)"
               >
-                <span class="marker-time">{{ formatTime(m.time) }}</span>
-                <span class="marker-label">{{ m.label }}</span>
-                <span class="marker-version">{{ m.version }}</span>
+                <strong>{{ group.name }}</strong>
+                <small>{{ groupSummary(group) }}</small>
+              </button>
+            </div>
+
+            <div v-if="currentVersionGroup?.segments?.length" class="segments-section">
+              <div class="section-heading">
+                <h4>练习段落</h4>
+                <span class="section-copy">
+                  {{ currentVersionGroup.segments.length }} 个段落
+                </span>
+              </div>
+
+              <div class="versions-grid">
+                <button
+                  v-if="currentVersionGroup.root"
+                  :class="['version-item', { active: selectedVersion === currentVersionGroup.root.name }]"
+                  @click="selectVersion(currentVersionGroup.root)"
+                >
+                  <span>整版资料</span>
+                  <small>{{ versionSummary(currentVersionGroup.root) }}</small>
+                </button>
+                <button
+                  v-for="version in currentVersionGroup.segments"
+                  :key="version.name"
+                  :class="['version-item', { active: selectedVersion === version.name }]"
+                  @click="selectVersion(version)"
+                >
+                  <span>{{ versionLeafLabel(version.name) }}</span>
+                  <small>{{ versionSummary(version) }}</small>
+                </button>
               </div>
             </div>
-            <div v-else class="no-markers">暂无标记</div>
-          </div>
 
-          <!-- 曲谱文件 -->
-          <div class="score-files" v-if="hasScoreFiles">
-            <h4>曲谱文件</h4>
-            <div class="score-btns">
-              <button v-if="selectedVersionFiles.gp" @click="openScore('gp')">🎸 打开 GP 谱</button>
-              <button v-if="selectedVersionFiles.pdf" @click="openScore('pdf')">📄 打开 PDF</button>
+            <div v-else class="versions-grid">
+              <button
+                v-for="version in selectedSong.versions"
+                :key="version.name"
+                :class="['version-item', { active: selectedVersion === version.name }]"
+                @click="selectVersion(version)"
+              >
+                <span>{{ version.name }}</span>
+                <small>{{ versionSummary(version) }}</small>
+              </button>
             </div>
           </div>
-        </div>
-      </div>
 
-      <div class="song-detail empty-detail" v-else>
-        <p>← 选择左侧歌曲查看详情</p>
-      </div>
+          <div class="player-section" v-if="selectedVersion">
+            <div class="player-header">
+              <span>当前版本：{{ selectedVersion }}</span>
+              <button class="play-btn" :disabled="!currentAudioFile" @click="togglePlay">
+                {{ isPlaying ? '暂停' : '播放' }}
+              </button>
+            </div>
+
+            <div class="progress-panel" @click="seekAudio">
+              <div class="progress-fill" :style="{ width: `${progressPercent}%` }"></div>
+            </div>
+            <input
+              class="seek-slider"
+              type="range"
+              min="0"
+              :max="duration || 0"
+              step="0.1"
+              :value="currentTime"
+              :disabled="!duration"
+              @input="seekAudioRange"
+            />
+            <div class="time-row">
+              <span>{{ formatTime(currentTime) }}</span>
+              <span>{{ formatTime(duration) }}</span>
+            </div>
+
+            <div class="control-row">
+              <button :class="{ active: loopStart !== null }" @click="setLoopStart">
+                A {{ loopStart === null ? '--:--' : formatTime(loopStart) }}
+              </button>
+              <button :class="{ active: loopEnd !== null }" @click="setLoopEnd">
+                B {{ loopEnd === null ? '--:--' : formatTime(loopEnd) }}
+              </button>
+              <button @click="clearLoop">清除循环</button>
+            </div>
+
+            <div class="control-row speed-row">
+              <span>速度</span>
+              <button
+                v-for="speed in speeds"
+                :key="speed"
+                :class="{ active: playbackRate === speed }"
+                @click="setSpeed(speed)"
+              >
+                {{ speed }}x
+              </button>
+            </div>
+
+            <div class="score-section">
+              <div class="score-header">
+                <h4>谱面与标记</h4>
+                <button class="ghost-btn" :disabled="!currentAudioFile" @click="addMarker">
+                  添加标记
+                </button>
+              </div>
+
+              <div class="score-actions">
+                <button v-if="selectedVersionFiles.pdf" @click="openScore('pdf')">打开 PDF</button>
+                <button v-if="selectedVersionFiles.gp" @click="openScore('gp')">打开 GP</button>
+                <a
+                  v-if="referenceFiles.video"
+                  :href="buildSongMediaUrl(referenceFiles.video)"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  打开参考视频
+                </a>
+                <a
+                  v-if="referenceFiles.image"
+                  :href="buildSongMediaUrl(referenceFiles.image)"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  打开参考图片
+                </a>
+              </div>
+
+              <div class="media-hints">
+                <span v-if="selectedVersionFiles.audio">当前版本有伴奏</span>
+                <span v-else>当前版本没有独立伴奏</span>
+                <span v-if="referenceFiles.video">同组带参考视频</span>
+                <span v-if="referenceFiles.image">同组带参考图</span>
+              </div>
+
+              <div class="markers-list" v-if="visibleMarkers.length">
+                <button
+                  v-for="(marker, index) in visibleMarkers"
+                  :key="`${marker.version}-${index}`"
+                  class="marker-item"
+                  @click="seekToTime(marker.time)"
+                >
+                  <strong>{{ formatTime(marker.time) }}</strong>
+                  <span>{{ marker.label }}</span>
+                </button>
+              </div>
+              <div v-else class="empty-copy">当前版本暂无标记</div>
+            </div>
+          </div>
+        </template>
+      </section>
     </div>
 
-    <!-- 曲谱全屏弹窗 -->
-    <div class="score-modal" v-if="showScoreModal" @click.self="closeScoreModal">
+    <div v-if="showScoreModal" class="score-modal" @click.self="closeScoreModal">
       <div class="score-modal-content">
         <div class="score-modal-header">
-          <span>{{ selectedVersion }} - {{ scoreType === 'gp' ? 'GP谱' : 'PDF' }}</span>
-          <button class="close-btn" @click="closeScoreModal">✕</button>
-        </div>
-        <div class="score-viewer" ref="scoreViewerRef">
-          <!-- GP渲染区 -->
-          <div v-if="scoreType === 'gp'" class="gp-container" ref="gpContainer"></div>
-          <!-- PDF渲染区 -->
-          <div v-if="scoreType === 'pdf'" class="pdf-container">
-            <canvas ref="pdfCanvas"></canvas>
+          <span>{{ selectedSong?.title }} / {{ selectedVersion }}</span>
+          <div class="score-modal-actions">
+            <a v-if="scoreUrl" class="ghost-link" :href="scoreUrl" target="_blank" rel="noreferrer">
+              打开原文件
+            </a>
+            <button class="ghost-btn" @click="closeScoreModal">关闭</button>
           </div>
         </div>
-        <!-- 全屏时的伴奏控制条 -->
+
+        <div class="score-viewer">
+          <div v-if="scoreNotice" class="score-notice">{{ scoreNotice }}</div>
+          <div v-if="scoreType === 'gp'" class="gp-shell">
+            <div v-if="gpLoading" class="empty-copy">正在加载 GP 谱...</div>
+            <div v-else-if="gpError" class="empty-copy">
+              {{ gpError }}
+              <a class="inline-score-link" :href="scoreUrl" target="_blank" rel="noreferrer">打开原始 GP 文件</a>
+            </div>
+            <div v-else ref="gpContainer" class="gp-container"></div>
+          </div>
+          <div v-else class="pdf-container">
+            <iframe :src="scoreUrl" title="PDF 曲谱预览"></iframe>
+          </div>
+        </div>
+
         <div class="modal-audio-controls">
-          <button @click="togglePlay">{{ isPlaying ? '⏸' : '▶' }}</button>
-          <span>{{ formatTime(currentTime) }} / {{ formatTime(duration) }}</span>
-          <button @click="setLoopStart">A</button>
-          <button @click="setLoopEnd">B</button>
-          <button
-            v-for="s in speeds"
-            :key="s"
-            :class="{ active: playbackRate === s }"
-            @click="setSpeed(s)"
-          >{{ s }}x</button>
+          <div class="modal-toolbar">
+            <div class="modal-primary-controls">
+              <button class="modal-play-btn" :disabled="!currentAudioFile" @click="togglePlay">
+                {{ isPlaying ? '暂停' : '播放' }}
+              </button>
+              <div class="modal-status-chip">
+                <span>进度</span>
+                <strong>{{ formatTime(currentTime) }} / {{ formatTime(duration) }}</strong>
+              </div>
+            </div>
+
+            <div class="modal-utility-controls">
+              <div class="modal-loop-cluster">
+                <div class="modal-status-chip">
+                  <span>A 点</span>
+                  <strong>{{ loopStart === null ? '--:--' : formatTime(loopStart) }}</strong>
+                </div>
+                <button @click="setLoopStart">设 A</button>
+                <div class="modal-status-chip">
+                  <span>B 点</span>
+                  <strong>{{ loopEnd === null ? '--:--' : formatTime(loopEnd) }}</strong>
+                </div>
+                <button @click="setLoopEnd">设 B</button>
+                <button @click="clearLoop">清除</button>
+              </div>
+
+              <div class="modal-speed-cluster">
+                <span class="speed-label">速度</span>
+                <div class="speed-options">
+                  <button
+                    v-for="speed in speeds"
+                    :key="`modal-${speed}`"
+                    :class="{ active: playbackRate === speed }"
+                    @click="setSpeed(speed)"
+                  >
+                    {{ speed }}x
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <input
+            class="modal-seek"
+            type="range"
+            min="0"
+            :max="duration || 0"
+            step="0.1"
+            :value="currentTime"
+            :disabled="!duration"
+            @input="seekAudioRange"
+          />
         </div>
       </div>
     </div>
@@ -152,521 +301,907 @@
 </template>
 
 <script>
+import seedIndex from '../../../backend/data/index.json'
+
 export default {
   name: 'SongsView',
   data() {
     return {
       songs: [],
-      selectedSong: null,
-      selectedVersion: null,
-      selectedVersionFiles: {},
       loading: false,
-      // 音频
+      selectedSong: null,
+      selectedVersion: '',
+      selectedVersionFiles: {},
+      searchQuery: '',
       audio: null,
       isPlaying: false,
       currentTime: 0,
       duration: 0,
-      playbackRate: 1.0,
-      speeds: [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
+      playbackRate: 1,
+      speeds: [0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 1.0],
       loopStart: null,
       loopEnd: null,
-      // 曲谱
       showScoreModal: false,
-      scoreType: null,
-      scoreFilePath: null,
-      markers: [],
-      // pdf.js
+      scoreType: 'pdf',
+      scoreUrl: '',
       pdfDoc: null,
-      pdfPage: null,
-      pdfScale: 1.5,
-    };
+      gpApi: null,
+      gpLoading: false,
+      gpError: '',
+      scoreNotice: '',
+    }
   },
   computed: {
     currentAudioFile() {
-      if (!this.selectedSong || !this.selectedVersion) return null;
-      const v = this.selectedSong.versions.find(v => v.name === this.selectedVersion);
-      return v ? v.files.audio : null;
+      return this.selectedVersionFiles.audio || ''
     },
-    hasScoreFiles() {
-      return this.selectedVersionFiles && (this.selectedVersionFiles.gp || this.selectedVersionFiles.pdf);
+    filteredSongs() {
+      const keyword = this.searchQuery.trim().toLowerCase()
+      if (!keyword) return this.songs
+      return this.songs.filter(song => {
+        const haystacks = [
+          song.title,
+          song.artist,
+          ...(song.versions || []),
+        ]
+        return haystacks.some(value => (value || '').toLowerCase().includes(keyword))
+      })
     },
     progressPercent() {
-      return this.duration ? (this.currentTime / this.duration) * 100 : 0;
-    }
+      if (!this.duration) return 0
+      return Math.min((this.currentTime / this.duration) * 100, 100)
+    },
+    visibleMarkers() {
+      if (!this.selectedSong || !this.selectedVersion) return []
+      return (this.selectedSong.markers || []).filter(marker => marker.version === this.selectedVersion)
+    },
+    versionGroups() {
+      if (!this.selectedSong?.versions?.length) return []
+      const groups = new Map()
+
+      this.selectedSong.versions.forEach(version => {
+        const segments = version.name.split(' / ').map(part => part.trim()).filter(Boolean)
+        const groupName = segments[0] || version.name
+
+        if (!groups.has(groupName)) {
+          groups.set(groupName, { name: groupName, root: null, segments: [] })
+        }
+
+        const group = groups.get(groupName)
+        if (segments.length <= 1 || version.name === '默认版') {
+          group.root = version
+        } else {
+          group.segments.push(version)
+        }
+      })
+
+      return Array.from(groups.values())
+    },
+    currentGroupName() {
+      if (!this.selectedVersion) return ''
+      return this.selectedVersion.split(' / ')[0]
+    },
+    currentVersionGroup() {
+      if (!this.currentGroupName) return null
+      return this.versionGroups.find(group => group.name === this.currentGroupName) || null
+    },
+    referenceFiles() {
+      const group = this.currentVersionGroup
+      return group?.root?.files || {}
+    },
   },
   async mounted() {
-    this.initAudio();
-    await this.loadSongs();
+    this.initAudio()
+    await this.loadSongs()
+  },
+  beforeUnmount() {
+    if (this.audio) {
+      this.audio.pause()
+      this.audio.src = ''
+    }
+    this.destroyGpApi()
   },
   methods: {
     initAudio() {
-      this.audio = new Audio();
+      this.audio = new Audio()
       this.audio.addEventListener('timeupdate', () => {
-        this.currentTime = this.audio.currentTime;
-        // A-B 循环
-        if (this.loopEnd !== null && this.audio.currentTime >= this.loopEnd) {
-          this.audio.currentTime = this.loopStart || 0;
+        this.currentTime = this.audio.currentTime
+        if (
+          this.loopStart !== null
+          && this.loopEnd !== null
+          && this.loopEnd > this.loopStart
+          && this.audio.currentTime >= this.loopEnd
+        ) {
+          this.audio.currentTime = this.loopStart
         }
-      });
+      })
       this.audio.addEventListener('loadedmetadata', () => {
-        this.duration = this.audio.duration;
-      });
+        this.duration = this.audio.duration || 0
+      })
+      this.audio.addEventListener('play', () => {
+        this.isPlaying = true
+      })
+      this.audio.addEventListener('pause', () => {
+        this.isPlaying = false
+      })
       this.audio.addEventListener('ended', () => {
-        this.isPlaying = false;
-      });
+        this.isPlaying = false
+      })
     },
     async loadSongs() {
-      this.loading = true;
+      this.loading = true
       try {
-        const res = await fetch('/api/songs');
-        this.songs = await res.json();
-      } catch (e) {
-        console.error('加载歌曲列表失败:', e);
+        const response = await fetch('/api/songs')
+        if (!response.ok) throw new Error('歌曲列表加载失败')
+        this.songs = await response.json()
+      } catch (error) {
+        this.songs = seedIndex.songs.map(song => ({
+          id: song.id,
+          title: song.title,
+          artist: song.artist || '',
+          versions: song.versions.map(version => version.name),
+        }))
       } finally {
-        this.loading = false;
+        if (!this.selectedSong && this.songs.length) {
+          await this.selectSong(this.songs[0])
+        }
+        this.loading = false
+      }
+    },
+    async scanSongs() {
+      this.loading = true
+      try {
+        await fetch('/api/songs/scan?persist=true')
+        await this.loadSongs()
+      } finally {
+        this.loading = false
       }
     },
     async selectSong(song) {
-      this.selectedSong = song;
-      this.selectedVersion = null;
-      this.selectedVersionFiles = {};
-      this.stopAudio();
-      // 加载完整详情
+      this.stopAudio()
       try {
-        const res = await fetch(`/api/songs/${song.id}`);
-        const full = await res.json();
-        this.selectedSong = full;
-        this.markers = full.markers || [];
-        // 自动选中第一个版本
-        if (full.versions && full.versions.length > 0) {
-          this.selectVersion(full.versions[0]);
+        const response = await fetch(`/api/songs/${song.id}`)
+        if (!response.ok) throw new Error('歌曲详情加载失败')
+        this.selectedSong = await response.json()
+      } catch {
+        this.selectedSong = seedIndex.songs.find(item => item.id === song.id) || null
+      }
+      if (!this.selectedSong) return
+      if (this.selectedSong.versions?.length) {
+        this.selectVersion(this.selectedSong.versions[0])
+      }
+    },
+    async deleteSelectedSong() {
+      if (!this.selectedSong || this.loading || this.isFilePreview()) return
+      const confirmed = window.confirm(`确定删除歌曲“${this.selectedSong.title}”吗？该歌曲目录里的谱、伴奏和参考资料会一起删除。`)
+      if (!confirmed) return
+
+      this.loading = true
+      const currentId = this.selectedSong.id
+      try {
+        const response = await fetch(`/api/songs/${currentId}`, { method: 'DELETE' })
+        const data = await response.json()
+        if (!response.ok) throw new Error(data.detail || '删除失败')
+
+        this.stopAudio()
+        this.closeScoreModal()
+        this.songs = data.songs || []
+        this.selectedSong = null
+        this.selectedVersion = ''
+        this.selectedVersionFiles = {}
+
+        const fallback = this.songs.find(song => song.id !== currentId) || this.songs[0] || null
+        if (fallback) {
+          await this.selectSong(fallback)
         }
-      } catch (e) {
-        console.error('加载歌曲详情失败:', e);
+      } catch (error) {
+        window.alert(error.message || '删除失败')
+      } finally {
+        this.loading = false
       }
     },
     selectVersion(version) {
-      this.selectedVersion = version.name;
-      this.selectedVersionFiles = version.files || {};
-      this.stopAudio();
-      if (this.selectedVersionFiles.audio) {
-        this.loadAudio();
+      this.selectedVersion = version.name
+      this.selectedVersionFiles = version.files || {}
+      this.loopStart = null
+      this.loopEnd = null
+      this.stopAudio()
+      if (this.currentAudioFile) {
+        this.audio.src = this.buildSongMediaUrl(this.currentAudioFile)
+        this.audio.load()
+        this.audio.playbackRate = this.playbackRate
       }
     },
-    loadAudio() {
-      if (!this.selectedSong || !this.selectedVersion) return;
-      const src = `/api/songs/${this.selectedSong.id}/play?version=${encodeURIComponent(this.selectedVersion)}`;
-      this.audio.src = src;
-      this.audio.load();
+    selectVersionGroup(group) {
+      if (group.segments?.length) {
+        this.selectVersion(group.segments[0])
+        return
+      }
+
+      if (group.root) {
+        this.selectVersion(group.root)
+      }
     },
-    togglePlay() {
-      if (!this.audio.src) return;
-      if (this.isPlaying) {
-        this.audio.pause();
+    async togglePlay() {
+      if (!this.currentAudioFile) return
+      if (this.audio.paused) {
+        await this.audio.play()
       } else {
-        this.audio.play();
+        this.audio.pause()
       }
-      this.isPlaying = !this.isPlaying;
     },
     stopAudio() {
+      if (!this.audio) return
+      this.audio.pause()
+      this.audio.currentTime = 0
+      this.currentTime = 0
+      this.duration = 0
+    },
+    seekAudio(event) {
+      if (!this.duration) return
+      const rect = event.currentTarget.getBoundingClientRect()
+      const percent = (event.clientX - rect.left) / rect.width
+      this.audio.currentTime = Math.max(0, Math.min(this.duration, percent * this.duration))
+    },
+    seekAudioRange(event) {
+      if (!this.audio || !this.duration) return
+      this.audio.currentTime = Math.max(0, Math.min(this.duration, Number(event.target.value)))
+    },
+    setSpeed(speed) {
+      this.playbackRate = speed
       if (this.audio) {
-        this.audio.pause();
-        this.audio.currentTime = 0;
+        this.audio.playbackRate = speed
       }
-      this.isPlaying = false;
-      this.currentTime = 0;
-    },
-    seekAudio(e) {
-      if (!this.duration) return;
-      const rect = e.currentTarget.getBoundingClientRect();
-      const percent = (e.clientX - rect.left) / rect.width;
-      this.audio.currentTime = percent * this.duration;
-    },
-    setSpeed(s) {
-      this.playbackRate = s;
-      this.audio.playbackRate = s;
     },
     setLoopStart() {
-      this.loopStart = this.audio.currentTime;
+      this.loopStart = this.clampAudioTime(this.audio.currentTime)
+      if (this.loopEnd !== null && this.loopEnd <= this.loopStart) {
+        this.loopEnd = null
+      }
     },
     setLoopEnd() {
-      this.loopEnd = this.audio.currentTime;
+      const end = this.clampAudioTime(this.audio.currentTime)
+      if (this.loopStart !== null && end <= this.loopStart) {
+        this.loopStart = Math.max(0, end - 0.5)
+      }
+      this.loopEnd = end
     },
     clearLoop() {
-      this.loopStart = null;
-      this.loopEnd = null;
+      this.loopStart = null
+      this.loopEnd = null
     },
     seekToTime(time) {
-      if (this.audio) {
-        this.audio.currentTime = time;
-        if (!this.isPlaying) {
-          this.audio.play();
-          this.isPlaying = true;
-        }
+      this.audio.currentTime = time
+      if (this.audio.paused) {
+        this.audio.play().catch(() => {})
       }
+    },
+    clampAudioTime(time) {
+      const value = Number.isFinite(time) ? time : 0
+      if (!this.duration) return Math.max(0, value)
+      return Math.max(0, Math.min(this.duration, value))
     },
     formatTime(seconds) {
-      if (!seconds || isNaN(seconds)) return '0:00';
-      const m = Math.floor(seconds / 60);
-      const s = Math.floor(seconds % 60);
-      return `${m}:${s.toString().padStart(2, '0')}`;
+      if (!Number.isFinite(seconds)) return '0:00'
+      const mins = Math.floor(seconds / 60)
+      const secs = Math.floor(seconds % 60)
+      return `${mins}:${secs.toString().padStart(2, '0')}`
+    },
+    versionSummary(version) {
+      const files = []
+      if (version.files?.audio) files.push('伴奏')
+      if (version.files?.pdf) files.push('PDF')
+      if (version.files?.gp) files.push('GP')
+      if (version.files?.video) files.push('视频')
+      if (version.files?.image) files.push('图片')
+      return files.join(' / ') || '无媒体'
+    },
+    versionLeafLabel(versionName) {
+      const parts = versionName.split(' / ')
+      return parts[parts.length - 1]
+    },
+    groupSummary(group) {
+      const parts = []
+      if (group.root) {
+        parts.push(`整版 ${this.versionSummary(group.root)}`)
+      }
+      if (group.segments.length) {
+        parts.push(`${group.segments.length} 个段落`)
+      }
+      return parts.join(' · ')
+    },
+    buildSongMediaUrl(file) {
+      const path = `${this.selectedSong.path}/${file}`
+      const cleanPath = path.split('/').map(encodeURIComponent).join('/')
+      return this.isFilePreview()
+        ? `file:///Users/claw/GuitarPlatform_v2/library/songs/${cleanPath}`
+        : `/api/songs/${this.selectedSong.id}/asset?path=${encodeURIComponent(file)}`
+    },
+    isFilePreview() {
+      return window.location.protocol === 'file:'
     },
     async addMarker() {
-      if (!this.selectedSong || !this.selectedVersion) return;
-      const label = prompt('输入标记名称（如：尾奏入口）:');
-      if (!label) return;
-      try {
-        const res = await fetch(`/api/songs/${this.selectedSong.id}/markers`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            time: this.audio.currentTime,
-            label,
-            version: this.selectedVersion
-          })
-        });
-        const data = await res.json();
-        if (data.ok) {
-          this.markers.push(data.marker);
-        }
-      } catch (e) {
-        alert('添加标记失败: ' + e.message);
-      }
+      if (!this.selectedSong || !this.selectedVersion) return
+      const label = window.prompt('输入标记名称')
+      if (!label) return
+
+      const response = await fetch(`/api/songs/${this.selectedSong.id}/markers`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          time: this.audio.currentTime,
+          label,
+          version: this.selectedVersion,
+        }),
+      })
+
+      if (!response.ok) return
+      const data = await response.json()
+      this.selectedSong.markers = [...(this.selectedSong.markers || []), data.marker]
     },
     async openScore(type) {
-      if (!this.selectedSong || !this.selectedVersion) return;
-      const version = this.selectedSong.versions.find(v => v.name === this.selectedVersion);
-      const file = version.files[type];
-      if (!file) return;
-      this.scoreType = type;
-      const basePath = `/library/${this.selectedSong.path}${this.selectedVersion}/${file}`;
-      this.scoreFilePath = basePath;
-      this.showScoreModal = true;
+      const file = this.selectedVersionFiles[type]
+      if (!file) return
+      this.gpError = ''
+      this.scoreNotice = ''
+
+      if (type === 'gp' && this.selectedVersionFiles.pdf) {
+        this.scoreType = 'pdf'
+        this.scoreUrl = this.buildSongMediaUrl(this.selectedVersionFiles.pdf)
+        this.scoreNotice = 'GP 暂时使用同版本 PDF 预览。'
+        this.showScoreModal = true
+        this.destroyGpApi()
+        return
+      }
+
+      this.scoreType = type
+      this.scoreUrl = this.buildSongMediaUrl(file)
+      this.showScoreModal = true
+
       if (type === 'pdf') {
-        await this.$nextTick();
-        this.renderPDF(basePath);
+        this.destroyGpApi()
+      } else {
+        await this.$nextTick()
+        const rendered = await this.renderGP(this.scoreUrl)
+        if (!rendered && this.selectedVersionFiles.pdf) {
+          this.scoreType = 'pdf'
+          this.scoreUrl = this.buildSongMediaUrl(this.selectedVersionFiles.pdf)
+          this.scoreNotice = 'GP 暂时无法渲染，已自动切换到同版本 PDF 预览。'
+          this.destroyGpApi()
+        }
       }
     },
     closeScoreModal() {
-      this.showScoreModal = false;
-      this.pdfDoc = null;
+      this.showScoreModal = false
+      this.scoreUrl = ''
+      this.pdfDoc = null
+      this.scoreNotice = ''
+      this.destroyGpApi()
     },
-    async renderPDF(url) {
-      // 动态加载 pdf.js
-      if (!window.pdfjsLib) {
-        const script = document.createElement('script');
-        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
-        script.onload = () => this._renderPDF(url);
-        document.head.appendChild(script);
-      } else {
-        this._renderPDF(url);
+    async renderGP(url) {
+      this.gpLoading = true
+      this.gpError = ''
+      this.destroyGpApi()
+
+      try {
+        if (this.isFilePreview()) {
+          throw new Error('静态预览模式无法直接渲染 GP 谱，请点击打开原始 GP 文件；本地服务模式会使用 alphaTab 渲染。')
+        }
+        const alphaTab = await this.ensureAlphaTab()
+        const container = this.$refs.gpContainer
+        if (!container) {
+          throw new Error('GP 容器未找到')
+        }
+
+        container.innerHTML = ''
+        this.gpApi = new alphaTab.AlphaTabApi(container, {
+          file: url,
+        })
+        return true
+      } catch (error) {
+        this.gpError = `GP 谱加载失败：${error.message}`
+        return false
+      } finally {
+        this.gpLoading = false
       }
     },
-    async _renderPDF(url) {
-      const pdfjsLib = window.pdfjsLib;
-      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-      const loadingTask = pdfjsLib.getDocument(url);
-      this.pdfDoc = await loadingTask.promise;
-      const page = await this.pdfDoc.getPage(1);
-      const viewport = page.getViewport({ scale: this.pdfScale });
-      const canvas = this.$refs.pdfCanvas;
-      const context = canvas.getContext('2d');
-      canvas.height = viewport.height;
-      canvas.width = viewport.width;
-      await page.render({ canvasContext: context, viewport }).promise;
-    }
-  }
-};
+    async ensureAlphaTab() {
+      if (window.alphaTab?.AlphaTabApi) {
+        return window.alphaTab
+      }
+
+      await new Promise((resolve, reject) => {
+        const existing = document.querySelector('script[data-alphatab="true"]')
+        if (existing) {
+          existing.addEventListener('load', () => resolve(), { once: true })
+          existing.addEventListener('error', () => reject(new Error('alphaTab 脚本加载失败')), { once: true })
+          return
+        }
+
+        const script = document.createElement('script')
+        script.src = 'https://cdn.jsdelivr.net/npm/@coderline/alphatab@latest/dist/alphaTab.js'
+        script.dataset.alphatab = 'true'
+        script.onload = () => resolve()
+        script.onerror = () => reject(new Error('alphaTab 脚本加载失败'))
+        document.head.appendChild(script)
+      })
+
+      if (!window.alphaTab?.AlphaTabApi) {
+        throw new Error('alphaTab 未正确初始化')
+      }
+
+      return window.alphaTab
+    },
+    destroyGpApi() {
+      if (this.gpApi?.destroy) {
+        this.gpApi.destroy()
+      }
+      this.gpApi = null
+      this.gpLoading = false
+      this.gpError = ''
+    },
+  },
+}
 </script>
 
 <style scoped>
 .songs-view {
-  background: #16213e;
-  border-radius: 12px;
-  padding: 24px;
-  min-height: 500px;
+  min-height: 680px;
 }
+
 .songs-layout {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 20px;
+}
+
+.song-list,
+.song-detail {
+  background: #16213e;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 20px;
+}
+
+.list-header,
+.detail-header,
+.score-header,
+.player-header,
+.section-heading {
   display: flex;
-  gap: 24px;
-  height: 100%;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: center;
 }
-.song-list {
-  width: 280px;
-  flex-shrink: 0;
+
+.detail-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
-.song-list h2 {
-  color: #e94560;
+
+.list-header {
   margin-bottom: 16px;
 }
-.song-card {
-  background: #1a1a2e;
-  border-radius: 8px;
-  padding: 12px 16px;
+
+.list-header h2,
+.detail-header h3,
+.versions-section h4,
+.score-section h4 {
+  color: #f3f4f6;
+}
+
+.list-header p,
+.detail-header p,
+.empty-copy,
+.song-card p {
+  color: #94a3b8;
+}
+
+.search-box {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 16px;
+  color: #cbd5e1;
+  font-size: 13px;
+}
+
+.search-box input {
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: #0f1730;
+  color: #f8fafc;
+  padding: 10px 12px;
+}
+
+.song-card,
+.version-item,
+.marker-item,
+.group-item {
+  width: 100%;
+  text-align: left;
+  border: 1px solid transparent;
+  border-radius: 14px;
+  background: #0f1730;
+  color: #e5e7eb;
+  padding: 14px;
   margin-bottom: 10px;
   cursor: pointer;
-  border: 2px solid transparent;
-  transition: all 0.2s;
 }
-.song-card:hover {
-  border-color: #e94560;
+
+.song-card.active,
+.version-item.active,
+.group-item.active {
+  border-color: rgba(249, 115, 22, 0.7);
+  background: linear-gradient(135deg, rgba(249, 115, 22, 0.18), rgba(255, 255, 255, 0.04));
 }
-.song-card.active {
-  border-color: #e94560;
-  background: #1f1f3a;
+
+.song-card span,
+.version-item small,
+.group-item small,
+.path-pill {
+  color: #f97316;
 }
-.song-title {
-  color: #fff;
-  font-weight: bold;
-  margin-bottom: 4px;
+
+.danger-btn {
+  border: 1px solid rgba(248, 113, 113, 0.58);
+  border-radius: 999px;
+  background: rgba(127, 29, 29, 0.28);
+  color: #fecaca;
+  padding: 8px 14px;
+  cursor: pointer;
+  white-space: nowrap;
 }
-.song-artist {
-  color: #888;
+
+.danger-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.path-pill {
+  display: inline-flex;
+  border-radius: 999px;
+  padding: 6px 12px;
+  background: #0f1730;
+  font-size: 12px;
+}
+
+.versions-section,
+.player-section,
+.score-section {
+  margin-top: 20px;
+}
+
+.versions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.group-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.group-item strong,
+.version-item span {
+  display: block;
+}
+
+.segments-section {
+  margin-top: 20px;
+}
+
+.section-copy {
+  color: #94a3b8;
   font-size: 13px;
 }
-.song-versions {
-  color: #e94560;
-  font-size: 12px;
-  margin-top: 4px;
-}
-.song-detail {
-  flex: 1;
-  background: #1a1a2e;
-  border-radius: 12px;
-  padding: 24px;
-}
-.detail-header h3 {
-  color: #fff;
-  margin: 0 0 4px;
-}
-.artist {
-  color: #888;
-  margin: 0 0 20px;
-}
-.versions-section h4,
-.score-files h4 {
-  color: #e94560;
-  margin-bottom: 12px;
-}
-.version-item {
-  background: #16213e;
-  border-radius: 8px;
-  padding: 12px 16px;
-  margin-bottom: 8px;
-  cursor: pointer;
-  border: 2px solid transparent;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.version-item:hover {
-  border-color: #e94560;
-}
-.version-item.active {
-  border-color: #e94560;
-  background: #1f1f3a;
-}
-.version-files {
-  display: flex;
-  gap: 6px;
-}
-.file-tag {
-  font-size: 11px;
-  padding: 2px 6px;
-  border-radius: 4px;
-}
-.file-tag.audio { background: #e94560; color: #fff; }
-.file-tag.gp { background: #0f3460; color: #fff; }
-.file-tag.pdf { background: #333; color: #fff; }
-.player-section {
-  margin-top: 24px;
-}
-.player-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 12px;
-  color: #fff;
-}
-.play-btn {
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  background: #e94560;
-  border: none;
-  font-size: 18px;
-  cursor: pointer;
-}
-.progress-bar {
-  height: 8px;
-  background: #333;
-  border-radius: 4px;
-  cursor: pointer;
+
+.progress-panel {
   position: relative;
-  margin-bottom: 8px;
+  height: 12px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: #0f1730;
+  margin-top: 16px;
+  cursor: pointer;
 }
+
+.seek-slider,
+.modal-seek {
+  width: 100%;
+  margin-top: 12px;
+  accent-color: #f97316;
+}
+
 .progress-fill {
   height: 100%;
-  background: #e94560;
-  border-radius: 4px;
-  transition: width 0.1s;
+  background: linear-gradient(90deg, #f97316, #fb7185);
 }
-.progress-time {
-  color: #888;
-  font-size: 12px;
-  text-align: right;
-  margin-bottom: 12px;
-}
-.ab-controls, .speed-controls {
+
+.time-row {
   display: flex;
-  gap: 8px;
-  margin-bottom: 12px;
-  flex-wrap: wrap;
-}
-.ab-controls button, .speed-controls button {
-  padding: 6px 12px;
-  border-radius: 6px;
-  border: 1px solid #444;
-  background: #222;
-  color: #aaa;
-  cursor: pointer;
+  justify-content: space-between;
+  color: #94a3b8;
   font-size: 13px;
+  margin-top: 8px;
 }
-.ab-controls button.active {
-  border-color: #e94560;
-  color: #e94560;
+
+.control-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 14px;
 }
-.ab-controls .clear-btn {
-  color: #888;
+
+.control-row button,
+.score-actions button,
+.ghost-btn,
+.play-btn,
+.modal-audio-controls button {
+  border: 1px solid rgba(249, 115, 22, 0.4);
+  background: transparent;
+  color: #f97316;
+  border-radius: 999px;
+  padding: 8px 14px;
+  cursor: pointer;
 }
-.speed-controls button.active {
-  background: #e94560;
-  border-color: #e94560;
-  color: #fff;
+
+.control-row button.active {
+  background: #f97316;
+  color: #fff7ed;
 }
-.markers-section {
-  margin-top: 16px;
+
+.score-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 12px 0;
 }
-.markers-header {
+
+.score-actions a {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid rgba(249, 115, 22, 0.4);
+  color: #f97316;
+  border-radius: 999px;
+  padding: 8px 14px;
+  text-decoration: none;
+}
+
+.media-hints {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.media-hints span {
+  border-radius: 999px;
+  background: rgba(15, 23, 48, 0.9);
+  color: #cbd5e1;
+  padding: 6px 10px;
+  font-size: 12px;
+}
+
+.markers-list {
+  display: grid;
+  gap: 10px;
+}
+
+.marker-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 8px;
-  color: #e94560;
 }
-.add-marker-btn {
-  padding: 4px 10px;
-  background: #e94560;
-  border: none;
-  border-radius: 6px;
-  color: #fff;
-  font-size: 12px;
-  cursor: pointer;
-}
-.marker-item {
-  display: flex;
-  gap: 12px;
-  padding: 6px 0;
-  border-bottom: 1px solid #2a2a4a;
-  cursor: pointer;
-  font-size: 13px;
-}
-.marker-item:hover {
-  color: #e94560;
-}
-.marker-time { color: #e94560; width: 50px; }
-.marker-label { color: #fff; flex: 1; }
-.marker-version { color: #888; font-size: 12px; }
-.no-markers { color: #666; font-size: 13px; }
-.score-btns {
-  display: flex;
-  gap: 10px;
-}
-.score-btns button {
-  padding: 10px 20px;
-  background: #e94560;
-  border: none;
-  border-radius: 8px;
-  color: #fff;
-  cursor: pointer;
-  font-size: 14px;
-}
-.score-btns button:hover {
-  opacity: 0.9;
-}
-.empty-detail {
+
+.state-box {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #666;
+  min-height: 180px;
+  border-radius: 16px;
+  background: #0f1730;
+  color: #94a3b8;
+  text-align: center;
 }
-/* 全屏曲谱弹窗 */
+
 .score-modal {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.9);
+  background: rgba(4, 8, 19, 0.82);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
   z-index: 1000;
-  display: flex;
-  flex-direction: column;
 }
+
 .score-modal-content {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
+  width: min(1100px, 100%);
+  max-height: 92vh;
+  overflow: auto;
+  background: #111827;
+  border-radius: 20px;
+  padding: 20px;
 }
+
 .score-modal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 20px;
-  background: #1a1a2e;
-  color: #fff;
+  gap: 16px;
+  color: #e5e7eb;
 }
-.close-btn {
-  background: none;
-  border: none;
-  color: #888;
-  font-size: 20px;
-  cursor: pointer;
-}
-.score-viewer {
-  flex: 1;
-  overflow: auto;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  padding: 20px;
-}
-.gp-container, .pdf-container {
-  max-width: 100%;
-}
-.pdf-container canvas {
-  max-width: 100%;
-  height: auto;
-}
-.modal-audio-controls {
-  background: #1a1a2e;
-  padding: 12px 20px;
+
+.score-modal-actions {
   display: flex;
   align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
+  gap: 10px;
 }
-.modal-audio-controls button {
+
+.ghost-link,
+.inline-score-link {
+  border: 1px solid rgba(249, 115, 22, 0.4);
+  color: #f97316;
+  border-radius: 999px;
   padding: 8px 14px;
-  background: #e94560;
-  border: none;
-  border-radius: 6px;
-  color: #fff;
-  cursor: pointer;
+  text-decoration: none;
+  font-size: 14px;
 }
-.modal-audio-controls span {
-  color: #fff;
+
+.inline-score-link {
+  display: inline-flex;
+  margin-left: 10px;
 }
-.loading, .empty {
-  color: #666;
-  text-align: center;
-  margin-top: 40px;
+
+.modal-audio-controls {
+  display: grid;
+  gap: 10px;
+  color: #e5e7eb;
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: rgba(8, 13, 28, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.modal-toolbar,
+.modal-primary-controls,
+.modal-utility-controls,
+.modal-loop-cluster {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.modal-toolbar {
+  justify-content: space-between;
+}
+
+.modal-primary-controls {
+  gap: 12px;
+}
+
+.modal-utility-controls {
+  justify-content: flex-end;
+}
+
+.modal-play-btn {
+  min-width: 74px;
+  font-weight: 700;
+}
+
+.modal-status-chip {
+  display: grid;
+  gap: 2px;
+  min-width: 92px;
+  padding: 7px 12px;
+  border-radius: 12px;
+  background: rgba(15, 23, 48, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.modal-status-chip span,
+.speed-label {
+  color: #94a3b8;
+  font-size: 11px;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.modal-status-chip strong {
+  color: #f8fafc;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.speed-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 4px;
+  border-radius: 999px;
+  background: rgba(15, 23, 48, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.modal-speed-cluster {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.modal-loop-cluster button,
+.modal-speed-cluster button {
+  padding: 7px 12px;
+  font-size: 13px;
+}
+
+.modal-speed-cluster button.active {
+  background: #f97316;
+  color: #fff7ed;
+  border-color: #f97316;
+}
+
+.control-row button:disabled,
+.score-actions button:disabled,
+.ghost-btn:disabled,
+.play-btn:disabled,
+.modal-audio-controls button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.score-viewer {
+  margin: 20px 0;
+  border-radius: 18px;
+  background: #0b1224;
+  min-height: 320px;
+  padding: 20px;
+}
+
+.gp-shell {
+  min-height: 320px;
+}
+
+.gp-container {
+  min-height: 320px;
+  overflow: auto;
+  background: #fff;
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.pdf-container {
+  display: flex;
+  justify-content: center;
+  min-height: 72vh;
+}
+
+.pdf-container iframe {
+  width: 100%;
+  min-height: 72vh;
+  border: 0;
+  border-radius: 12px;
+  background: #fff;
+}
+
+@media (max-width: 960px) {
+  .songs-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .modal-toolbar {
+    justify-content: flex-start;
+  }
+
+  .modal-utility-controls {
+    justify-content: flex-start;
+  }
 }
 </style>

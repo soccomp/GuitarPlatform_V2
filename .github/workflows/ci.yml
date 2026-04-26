@@ -20,8 +20,8 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install fastapi uvicorn httpx pydantic
-          pip install -q --check
+          pip install -r backend/requirements.txt
+          pip check
 
       - name: Python syntax check
         run: |
@@ -35,6 +35,9 @@ jobs:
           cd backend
           python -c "from routers import courses, songs, videos; print('✅ imports OK')"
 
+      - name: Backend unit tests
+        run: python -m unittest discover -s backend/tests -v
+
   # ─── Vue Frontend ───────────────────────────────────────────────────────────
   frontend:
     runs-on: ubuntu-latest
@@ -45,8 +48,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "20"
-          cache: "npm"
-          cache-dependency-path: frontend/package-lock.json
 
       - name: Install dependencies
         run: npm install --prefix frontend
