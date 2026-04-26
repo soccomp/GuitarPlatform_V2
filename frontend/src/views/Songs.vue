@@ -356,8 +356,13 @@ export default {
       this.audio = new Audio()
       this.audio.addEventListener('timeupdate', () => {
         this.currentTime = this.audio.currentTime
-        if (this.loopEnd !== null && this.audio.currentTime >= this.loopEnd) {
-          this.audio.currentTime = this.loopStart ?? 0
+        if (
+          this.loopStart !== null
+          && this.loopEnd !== null
+          && this.loopEnd > this.loopStart
+          && this.audio.currentTime >= this.loopEnd
+        ) {
+          this.audio.currentTime = this.loopStart
         }
       })
       this.audio.addEventListener('loadedmetadata', () => {
@@ -470,10 +475,17 @@ export default {
       }
     },
     setLoopStart() {
-      this.loopStart = this.audio.currentTime
+      this.loopStart = this.clampAudioTime(this.audio.currentTime)
+      if (this.loopEnd !== null && this.loopEnd <= this.loopStart) {
+        this.loopEnd = null
+      }
     },
     setLoopEnd() {
-      this.loopEnd = this.audio.currentTime
+      const end = this.clampAudioTime(this.audio.currentTime)
+      if (this.loopStart !== null && end <= this.loopStart) {
+        this.loopStart = Math.max(0, end - 0.5)
+      }
+      this.loopEnd = end
     },
     clearLoop() {
       this.loopStart = null
@@ -484,6 +496,11 @@ export default {
       if (this.audio.paused) {
         this.audio.play().catch(() => {})
       }
+    },
+    clampAudioTime(time) {
+      const value = Number.isFinite(time) ? time : 0
+      if (!this.duration) return Math.max(0, value)
+      return Math.max(0, Math.min(this.duration, value))
     },
     formatTime(seconds) {
       if (!Number.isFinite(seconds)) return '0:00'

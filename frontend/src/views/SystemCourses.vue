@@ -16,6 +16,18 @@
         />
       </label>
 
+      <div class="series-switcher">
+        <button
+          v-for="series in seriesTabs"
+          :key="series.name"
+          :class="['series-tab', { active: activeSeries === series.name }]"
+          @click="selectSeries(series.name)"
+        >
+          <strong>{{ series.name }}</strong>
+          <small>{{ series.chapterCount }} 章 · {{ series.count }} 节</small>
+        </button>
+      </div>
+
       <div class="nav-block">
         <div class="nav-block-header">
           <h3>继续学习</h3>
@@ -43,51 +55,34 @@
 
       <div class="nav-block">
         <div class="nav-block-header">
-          <h3>教材目录</h3>
+          <h3>{{ activeSeries || '教材目录' }}</h3>
           <span>{{ courseTree.length }}</span>
         </div>
         <div v-if="courseTree.length" class="course-tree">
           <details
-            v-for="series in courseTree"
-            :key="series.key"
-            class="series-node"
-            :open="selectedVideo?.group === series.label || activeFilter === series.key"
+            v-for="chapter in courseTree"
+            :key="chapter.key"
+            class="chapter-node"
+            :open="selectedVideo?.group === activeSeries && selectedVideo?.chapterLabel === chapter.label"
           >
-            <summary class="series-summary" @click="selectFilter(series.key)">
+            <summary class="chapter-summary" @click="selectFilter(chapter.key)">
               <div class="filter-main">
-                <span>{{ series.label }}</span>
-                <small>{{ series.chapters.length }} 章 · {{ series.count }} 节</small>
+                <span>{{ chapter.label }}</span>
+                <small v-if="chapter.watchedCount">{{ chapter.watchedCount }} 节已学</small>
               </div>
-              <span class="filter-count">{{ series.watchedCount }}</span>
+              <span class="filter-count">{{ chapter.count }}</span>
             </summary>
 
-            <div class="chapter-children">
-              <details
-                v-for="chapter in series.chapters"
-                :key="chapter.key"
-                class="chapter-node"
-                :open="selectedVideo?.group === series.label && selectedVideo?.chapterLabel === chapter.label"
+            <div class="course-children">
+              <button
+                v-for="course in chapter.courses"
+                :key="course.key"
+                :class="['course-leaf', { active: selectedKey === course.key }]"
+                @click="selectVideo(course)"
               >
-                <summary class="chapter-summary" @click="selectFilter(chapter.key)">
-                  <div class="filter-main">
-                    <span>{{ chapter.label }}</span>
-                    <small v-if="chapter.watchedCount">{{ chapter.watchedCount }} 节已学</small>
-                  </div>
-                  <span class="filter-count">{{ chapter.count }}</span>
-                </summary>
-
-                <div class="course-children">
-                  <button
-                    v-for="course in chapter.courses"
-                    :key="course.key"
-                    :class="['course-leaf', { active: selectedKey === course.key }]"
-                    @click="selectVideo(course)"
-                  >
-                    <span>{{ course.title }}</span>
-                    <small v-if="courseProgress(course)">{{ progressLabel(course) }}</small>
-                  </button>
-                </div>
-              </details>
+                <span>{{ course.title }}</span>
+                <small v-if="courseProgress(course)">{{ progressLabel(course) }}</small>
+              </button>
             </div>
           </details>
         </div>
@@ -314,6 +309,7 @@ const MAX_RECENT_ITEMS = 8
 const loading = ref(true)
 const error = ref('')
 const activeFilter = ref('all')
+const activeSeries = ref('')
 const searchQuery = ref('')
 const selectedKey = ref('')
 const transcript = ref('')
@@ -378,12 +374,39 @@ const chapterFilters = computed(() => {
     .sort((a, b) => `${a.series}/${a.label}`.localeCompare(`${b.series}/${b.label}`, 'zh-Hans-CN'))
 })
 
-const courseTree = computed(() => {
-  const keyword = searchQuery.value.trim().toLowerCase()
+const seriesTabs = computed(() => {
   const seriesMap = new Map()
 
   for (const item of allVideos.value) {
+    const current = seriesMap.get(item.group) || {
+      name: item.group,
+      count: 0,
+      watchedCount: 0,
+      chapters: new Set(),
+    }
+    current.count += 1
+    current.chapters.add(item.chapterLabel)
+    if (isWatched(item)) {
+      current.watchedCount += 1
+    }
+    seriesMap.set(item.group, current)
+  }
+
+  return Array.from(seriesMap.values())
+    .sort((a, b) => a.name.localeCompare(b.name, 'zh-Hans-CN'))
+    .map(series => ({
+      ...series,
+      chapterCount: series.chapters.size,
+    }))
+})
+
+const courseTree = computed(() => {
+  const keyword = searchQuery.value.trim().toLowerCase()
+  const chapterMap = new Map()
+
+  for (const item of allVideos.value) {
     if (item.type !== 'course') continue
+    if (activeSeries.value && item.group !== activeSeries.value) continue
 
     const haystacks = [
       item.title,
@@ -395,16 +418,8 @@ const courseTree = computed(() => {
     const matches = !keyword || haystacks.some(value => (value || '').toLowerCase().includes(keyword))
     if (!matches) continue
 
-    const series = seriesMap.get(item.group) || {
-      key: `series:${item.group}`,
-      label: item.group,
-      count: 0,
-      watchedCount: 0,
-      chapters: new Map(),
-    }
-
     const chapterKey = `${item.group}|||${item.chapterLabel}`
-    const chapter = series.chapters.get(chapterKey) || {
+    const chapter = chapterMap.get(chapterKey) || {
       key: `chapter:${chapterKey}`,
       label: item.chapterLabel,
       count: 0,
@@ -412,36 +427,27 @@ const courseTree = computed(() => {
       courses: [],
     }
 
-    series.count += 1
     chapter.count += 1
     if (isWatched(item)) {
-      series.watchedCount += 1
       chapter.watchedCount += 1
     }
     chapter.courses.push(item)
-    series.chapters.set(chapterKey, chapter)
-    seriesMap.set(item.group, series)
+    chapterMap.set(chapterKey, chapter)
   }
 
-  return Array.from(seriesMap.values())
+  return Array.from(chapterMap.values())
     .sort((a, b) => a.label.localeCompare(b.label, 'zh-Hans-CN'))
-    .map(series => ({
-      ...series,
-      chapters: Array.from(series.chapters.values())
-        .sort((a, b) => a.label.localeCompare(b.label, 'zh-Hans-CN'))
-        .map(chapter => ({
-          ...chapter,
-          courses: chapter.courses.sort((a, b) => compareCourseItems(a, b)),
-        })),
+    .map(chapter => ({
+      ...chapter,
+      courses: chapter.courses.sort((a, b) => compareCourseItems(a, b)),
     }))
 })
 
 const filteredVideos = computed(() => {
   let items = allVideos.value
 
-  if (activeFilter.value.startsWith('series:')) {
-    const series = activeFilter.value.slice('series:'.length)
-    items = items.filter(item => item.group === series)
+  if (activeSeries.value) {
+    items = items.filter(item => item.group === activeSeries.value)
   }
   if (activeFilter.value.startsWith('chapter:')) {
     const [series, chapter] = activeFilter.value.slice('chapter:'.length).split('|||')
@@ -520,11 +526,12 @@ const nextCourse = computed(() => {
   return currentChapterCourses.value[currentCourseIndex.value + 1] || null
 })
 
-watch([activeFilter, searchQuery], () => {
+watch([activeFilter, activeSeries, searchQuery], () => {
   persistState({
     ...recentState.value,
     ui: {
       activeFilter: activeFilter.value,
+      activeSeries: activeSeries.value,
       searchQuery: searchQuery.value,
     },
   })
@@ -554,6 +561,9 @@ async function loadData() {
     error.value = ''
   } finally {
     hydrateUiState()
+    if (!activeSeries.value && seriesTabs.value.length) {
+      activeSeries.value = seriesTabs.value[0].name
+    }
 
     if (selectedKey.value && allVideos.value.find(item => item.key === selectedKey.value)) {
       await selectVideo(allVideos.value.find(item => item.key === selectedKey.value))
@@ -566,6 +576,18 @@ async function loadData() {
   }
 }
 
+function selectSeries(seriesName) {
+  activeSeries.value = seriesName
+  activeFilter.value = 'all'
+  const current = selectedVideo.value
+  if (!current || current.group !== seriesName) {
+    const firstCourse = filteredVideos.value[0]
+    if (firstCourse) {
+      selectVideo(firstCourse)
+    }
+  }
+}
+
 function selectFilter(key) {
   activeFilter.value = key
   if (!filteredVideos.value.find(item => item.key === selectedKey.value) && filteredVideos.value.length > 0) {
@@ -574,6 +596,7 @@ function selectFilter(key) {
 }
 
 async function selectVideo(item) {
+  activeSeries.value = item.group
   selectedKey.value = item.key
   transcript.value = ''
   rememberVideo(item)
@@ -779,12 +802,14 @@ function resumePlayback() {
 }
 
 function openRecentItem(item) {
+  activeSeries.value = item.group
   activeFilter.value = `chapter:${item.group}|||${item.chapterLabel}`
   selectVideo(item)
 }
 
 function goToCourse(item) {
   if (!item) return
+  activeSeries.value = item.group
   activeFilter.value = `chapter:${item.group}|||${item.chapterLabel}`
   selectVideo(item)
 }
@@ -837,11 +862,18 @@ function hydrateUiState() {
   if (savedUi.activeFilter) {
     activeFilter.value = savedUi.activeFilter
   }
+  if (savedUi.activeSeries) {
+    activeSeries.value = savedUi.activeSeries
+  }
   if (savedUi.searchQuery) {
     searchQuery.value = savedUi.searchQuery
   }
   if (recentState.value.selectedKey) {
     selectedKey.value = recentState.value.selectedKey
+    const selected = allVideos.value.find(item => item.key === recentState.value.selectedKey)
+    if (selected) {
+      activeSeries.value = selected.group
+    }
   }
 }
 
@@ -936,6 +968,44 @@ loadData()
   margin-top: 18px;
   color: #dbe3f4;
   font-size: 13px;
+}
+
+.series-switcher {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 10px;
+  margin-top: 16px;
+  padding: 10px 0;
+  background: #16213e;
+}
+
+.series-tab {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 12px;
+  background: #0f1730;
+  color: #e5e7eb;
+  text-align: left;
+  cursor: pointer;
+}
+
+.series-tab.active {
+  border-color: rgba(249, 115, 22, 0.72);
+  background: linear-gradient(135deg, rgba(249, 115, 22, 0.18), rgba(255, 255, 255, 0.04));
+}
+
+.series-tab strong,
+.series-tab small {
+  display: block;
+}
+
+.series-tab small {
+  margin-top: 4px;
+  color: #95a2bf;
+  font-size: 11px;
 }
 
 .filter-list {

@@ -5418,7 +5418,7 @@
     {
       "id": "song_0929f3fb22",
       "title": "再见理想 各种版本",
-      "artist": "",
+      "artist": "Beyond",
       "path": "再见理想 各种版本",
       "versions": [
         {
@@ -5500,7 +5500,7 @@
     {
       "id": "song_08c70214e4",
       "title": "天马座的幻想",
-      "artist": "",
+      "artist": "MAKE-UP",
       "path": "天马座的幻想",
       "versions": [
         {
@@ -5518,7 +5518,7 @@
     {
       "id": "song_dcb446eacc",
       "title": "旧日的足迹",
-      "artist": "",
+      "artist": "Beyond",
       "path": "旧日的足迹",
       "versions": [
         {
@@ -5594,7 +5594,7 @@
     {
       "id": "song_8334ed77a5",
       "title": "早班火车",
-      "artist": "",
+      "artist": "Beyond",
       "path": "早班火车",
       "versions": [
         {
@@ -5610,7 +5610,7 @@
     {
       "id": "song_9190a9f1a5",
       "title": "权力的游戏",
-      "artist": "",
+      "artist": "Ramin Djawadi",
       "path": "权力的游戏",
       "versions": [
         {
@@ -5627,7 +5627,7 @@
     {
       "id": "song_8e8c79b7d9",
       "title": "海阔天空 各种版本",
-      "artist": "",
+      "artist": "Beyond",
       "path": "海阔天空 各种版本",
       "versions": [
         {
@@ -5744,7 +5744,7 @@
     {
       "id": "song_7070c16ec8",
       "title": "灰色轨迹",
-      "artist": "",
+      "artist": "Beyond",
       "path": "灰色轨迹",
       "versions": [
         {
@@ -5797,17 +5797,114 @@
   ],
   "videos": [
     {
-      "id": "video_demo_xhs_001",
-      "type": "collected",
-      "title": "小红书示例视频",
-      "source": "xiaohongshu",
-      "author": "示例作者",
-      "category": "扫弦",
-      "tags": [
-        "示例"
-      ],
-      "path": "xiaohongshu/demo-video.mp4",
-      "description": "用于展示收藏视频在统一学习页中的结构。"
+      "id": "video_beyond-solo-mp4-8fce5d39fd",
+      "title": "Beyond_早班火车_solo",
+      "source": "local",
+      "author": "",
+      "category": "未分类",
+      "path": "未分类/Beyond_早班火车_solo.mp4",
+      "tags": [],
+      "description": "",
+      "type": "collected"
+    },
+    {
+      "id": "video_beyond-solo-mp4-144de48ec0",
+      "title": "Beyond_海阔天空尾奏Solo教学",
+      "source": "local",
+      "author": "",
+      "category": "未分类",
+      "path": "未分类/Beyond_海阔天空尾奏Solo教学.mp4",
+      "tags": [],
+      "description": "",
+      "type": "collected"
+    },
+    {
+      "id": "video_mp4-689116e0c0",
+      "title": "和弦如何变强",
+      "source": "local",
+      "author": "",
+      "category": "未分类",
+      "path": "未分类/和弦如何变强.mp4",
+      "tags": [],
+      "description": "",
+      "type": "collected"
+    },
+    {
+      "id": "video_mp4-1f09d31ccb",
+      "title": "如何记忆指板",
+      "source": "local",
+      "author": "",
+      "category": "未分类",
+      "path": "未分类/如何记忆指板.mp4",
+      "tags": [],
+      "description": "",
+      "type": "collected"
+    },
+    {
+      "id": "video_mp4-c610416c6b",
+      "title": "手指独立性热身练习",
+      "source": "local",
+      "author": "",
+      "category": "未分类",
+      "path": "未分类/手指独立性热身练习.mp4",
+      "tags": [],
+      "description": "",
+      "type": "collected"
+    },
+    {
+      "id": "video_mp4-9da0fad79b",
+      "title": "指板攻略第三期",
+      "source": "local",
+      "author": "",
+      "category": "未分类",
+      "path": "未分类/指板攻略第三期.mp4",
+      "tags": [],
+      "description": "",
+      "type": "collected"
+    },
+    {
+      "id": "video_mp4-3d7bf70ec1",
+      "title": "指板记忆大法",
+      "source": "local",
+      "author": "",
+      "category": "未分类",
+      "path": "未分类/指板记忆大法.mp4",
+      "tags": [],
+      "description": "",
+      "type": "collected"
+    },
+    {
+      "id": "video_solo-mp4-d621e0fed1",
+      "title": "海阔天空SOLO终极教学",
+      "source": "local",
+      "author": "",
+      "category": "未分类",
+      "path": "未分类/海阔天空SOLO终极教学.mp4",
+      "tags": [],
+      "description": "",
+      "type": "collected"
+    },
+    {
+      "id": "video_mp4-bd21edde73",
+      "title": "电吉他基本功必练",
+      "source": "local",
+      "author": "",
+      "category": "未分类",
+      "path": "未分类/电吉他基本功必练.mp4",
+      "tags": [],
+      "description": "",
+      "type": "collected"
+    },
+    {
+      "id": "video_mp4-0d4a6c9409",
+      "title": "电吉他揉弦奥秘",
+      "source": "local",
+      "author": "",
+      "category": "未分类",
+      "path": "未分类/电吉他揉弦奥秘.mp4",
+      "tags": [],
+      "description": "",
+      "type": "collected"
     }
   ]
 }

@@ -1,8 +1,5 @@
-import mimetypes
-
 import httpx
-from fastapi import APIRouter, HTTPException
-from fastapi.responses import FileResponse
+from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel
 
 from config import COURSES_DIR
@@ -13,6 +10,7 @@ from services.ai_assistant import (
 )
 from services.index_store import find_course, load_index, resolve_under, save_index
 from services.indexer import scan_course_library
+from services.media_response import media_file_response
 
 
 router = APIRouter(prefix="/api/courses", tags=["courses"])
@@ -82,7 +80,7 @@ async def get_transcript(course_id: str):
 
 
 @router.get("/{course_id}/stream")
-async def stream_video(course_id: str):
+async def stream_video(course_id: str, request: Request):
     course = find_course(load_index(), course_id)
     if not course:
         raise HTTPException(status_code=404, detail="Course not found")
@@ -99,13 +97,7 @@ async def stream_video(course_id: str):
     if not full_path.exists():
         raise HTTPException(status_code=404, detail="Video file not found")
 
-    media_type, _ = mimetypes.guess_type(full_path.name)
-    return FileResponse(
-        path=full_path,
-        media_type=media_type or "application/octet-stream",
-        filename=full_path.name,
-        content_disposition_type="inline",
-    )
+    return media_file_response(full_path, request)
 
 
 @router.post("/{course_id}/ask", response_model=AskResponse)

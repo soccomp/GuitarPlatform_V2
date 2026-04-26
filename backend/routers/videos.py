@@ -1,9 +1,12 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request
 from fastapi.concurrency import run_in_threadpool
 from pydantic import BaseModel, HttpUrl
 
+from config import COLLECTED_DIR
 from services.downloader import SUPPORTED_SOURCES, VideoDownloadError, download_video
-from services.index_store import find_video, load_index
+from services.index_store import find_video, load_index, resolve_under, save_index
+from services.indexer import scan_collected_video_library
+from services.media_response import media_file_response
 
 
 router = APIRouter(prefix="/api/videos", tags=["videos"])
@@ -31,6 +34,33 @@ async def list_videos():
         }
         for video in videos
     ]
+
+
+@router.get("/scan")
+async def scan_videos(persist: bool = False):
+    videos = scan_collected_video_library()
+    if persist:
+        index = load_index()
+        index["videos"] = videos
+        save_index(index)
+    return {"videos": videos, "persisted": persist}
+
+
+@router.get("/{video_id}/stream")
+async def stream_video(video_id: str, request: Request):
+    video = find_video(load_index(), video_id)
+    if not video:
+        raise HTTPException(status_code=404, detail="Video not found")
+
+    try:
+        video_path = resolve_under(COLLECTED_DIR, video.get("path", ""))
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    if not video_path.exists():
+        raise HTTPException(status_code=404, detail="Video file not found")
+
+    return media_file_response(video_path, request)
 
 
 @router.get("/{video_id}")
@@ -61,8 +91,6 @@ async def import_video(body: VideoImportRequest):
     videos = [item for item in index.get("videos", []) if item.get("id") != video["id"]]
     videos.insert(0, video)
     index["videos"] = videos
-
-    from services.index_store import save_index
 
     save_index(index)
     return video

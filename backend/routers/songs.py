@@ -1,12 +1,10 @@
-import mimetypes
-
-from fastapi import APIRouter, HTTPException, Query
-from fastapi.responses import FileResponse
+from fastapi import APIRouter, HTTPException, Query, Request
 from pydantic import BaseModel
 
 from config import SONGS_DIR
 from services.index_store import find_song, load_index, resolve_under, save_index
 from services.indexer import scan_song_library
+from services.media_response import media_file_response
 
 
 router = APIRouter(prefix="/api/songs", tags=["songs"])
@@ -57,7 +55,7 @@ def resolve_song_version(song: dict, version: str) -> dict:
     return version_data
 
 
-def build_song_file_response(song: dict, relative_file: str):
+def build_song_file_response(song: dict, relative_file: str, request: Request):
     try:
         file_path = resolve_under(SONGS_DIR, f"{song['path']}/{relative_file}")
     except ValueError as exc:
@@ -66,17 +64,11 @@ def build_song_file_response(song: dict, relative_file: str):
     if not file_path.exists():
         raise HTTPException(status_code=404, detail="File not found")
 
-    media_type, _ = mimetypes.guess_type(file_path.name)
-    return FileResponse(
-        path=file_path,
-        media_type=media_type or "application/octet-stream",
-        filename=file_path.name,
-        content_disposition_type="inline",
-    )
+    return media_file_response(file_path, request)
 
 
 @router.get("/{song_id}/play")
-async def play_song(song_id: str, version: str = Query(..., description="版本名")):
+async def play_song(request: Request, song_id: str, version: str = Query(..., description="版本名")):
     song = find_song(load_index(), song_id)
     if not song:
         raise HTTPException(status_code=404, detail="Song not found")
@@ -87,15 +79,15 @@ async def play_song(song_id: str, version: str = Query(..., description="版本�
     if not audio_file:
         raise HTTPException(status_code=404, detail="No audio file for this version")
 
-    return build_song_file_response(song, audio_file)
+    return build_song_file_response(song, audio_file, request)
 
 
 @router.get("/{song_id}/asset")
-async def get_song_asset(song_id: str, path: str = Query(..., description="相对歌曲目录的文件路径")):
+async def get_song_asset(request: Request, song_id: str, path: str = Query(..., description="相对歌曲目录的文件路径")):
     song = find_song(load_index(), song_id)
     if not song:
         raise HTTPException(status_code=404, detail="Song not found")
-    return build_song_file_response(song, path)
+    return build_song_file_response(song, path, request)
 
 
 @router.post("/{song_id}/markers")

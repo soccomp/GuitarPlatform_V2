@@ -2,37 +2,14 @@
   <div class="learning-layout">
     <aside class="sidebar">
       <div class="sidebar-header">
-        <h2>学习视频</h2>
-        <p>收藏小红书、B站和 YouTube 视频，统一整理后再学</p>
-      </div>
-
-      <form class="import-card" @submit.prevent="importVideo">
-        <h3>导入收藏视频</h3>
-        <input
-          v-model="importForm.url"
-          type="url"
-          class="text-input"
-          placeholder="粘贴小红书 / B站 / YouTube 链接"
-        />
-        <div class="import-grid">
-          <select v-model="importForm.source" class="text-input">
-            <option value="">自动识别来源</option>
-            <option value="xiaohongshu">小红书</option>
-            <option value="bilibili">哔哩哔哩</option>
-            <option value="youtube">YouTube</option>
-          </select>
-          <input
-            v-model="importForm.category"
-            type="text"
-            class="text-input"
-            placeholder="分类（如扫弦 / 和弦）"
-          />
+        <div>
+          <h2>学习视频</h2>
+          <p>收藏视频按主题整理，统一回看和练习</p>
         </div>
-        <button class="import-btn" :disabled="importing || !importForm.url.trim()">
-          {{ importing ? '导入中...' : '导入视频' }}
+        <button class="ghost-btn" :disabled="scanning" @click="scanVideos">
+          {{ scanning ? '扫描中...' : '扫描目录' }}
         </button>
-        <p v-if="importError" class="import-error">{{ importError }}</p>
-      </form>
+      </div>
 
       <label class="search-panel">
         <span>快速定位</span>
@@ -58,111 +35,96 @@
           >
             <strong>{{ item.title }}</strong>
             <p>{{ item.subtitle }}</p>
-            <div class="resume-meta">
-              <span>{{ sourceLabel(item.source) }}</span>
-              <span>{{ item.category || '未分类' }}</span>
-            </div>
           </button>
         </div>
         <div v-else class="empty-side-copy">
           打开过的视频会出现在这里，方便你反复回看。
         </div>
       </div>
-
-      <div class="nav-block">
-        <div class="nav-block-header">
-          <h3>视频来源</h3>
-          <span>{{ sourceFilters.length }}</span>
-        </div>
-        <div class="filter-list">
-          <button
-            v-for="filter in sourceFilters"
-            :key="filter.key"
-            :class="['filter-btn', { active: activeFilter === filter.key }]"
-            @click="selectFilter(filter.key)"
-          >
-            <span>{{ filter.label }}</span>
-            <span class="filter-count">{{ filter.count }}</span>
-          </button>
-        </div>
-      </div>
     </aside>
 
     <section class="content">
-      <div class="content-grid">
-        <div class="video-list">
-          <div class="section-header">
+      <div class="video-shelf">
+        <div class="section-header">
+          <div>
             <h3>{{ currentFilterLabel }}</h3>
-            <span>{{ filteredVideos.length }} 条内容</span>
+            <p>像逛视频首页一样，直接点卡片开始学。</p>
           </div>
+          <span>{{ filteredVideos.length }} 条内容</span>
+        </div>
 
-          <div v-if="loading" class="state-box">加载视频中...</div>
-          <div v-else-if="error" class="state-box error">{{ error }}</div>
-          <div v-else-if="filteredVideos.length === 0" class="state-box">
-            当前条件下还没有收藏视频
-          </div>
+        <div v-if="loading" class="state-box">加载视频中...</div>
+        <div v-else-if="error" class="state-box error">{{ error }}</div>
+        <div v-else-if="filteredVideos.length === 0" class="state-box">
+          当前条件下还没有收藏视频
+        </div>
+        <div v-else class="video-grid">
           <button
             v-for="item in filteredVideos"
-            v-else
             :key="item.key"
             :class="['video-card', { active: selectedKey === item.key }]"
             @click="selectVideo(item)"
           >
-            <div class="video-card-top">
-              <span class="pill">{{ sourceLabel(item.source) }}</span>
-              <span class="meta">{{ item.category || '未分类' }}</span>
+            <div class="video-thumb" :style="{ '--cover-hue': coverHue(item) }">
+              <span class="play-badge">▶</span>
+              <span v-if="displayCategory(item)" class="thumb-tag">{{ displayCategory(item) }}</span>
+              <strong>{{ coverTitle(item.title) }}</strong>
             </div>
-            <strong>{{ item.title }}</strong>
-            <p>{{ item.subtitle }}</p>
-            <div class="video-card-meta">
-              <span>{{ item.author || '作者未整理' }}</span>
-              <span v-if="item.tags?.length">{{ item.tags.slice(0, 2).join(' / ') }}</span>
+            <div class="video-card-body">
+              <strong>{{ item.title }}</strong>
+              <p>{{ item.author || item.subtitle || '点击播放学习视频' }}</p>
             </div>
           </button>
         </div>
+      </div>
 
-        <div class="player-panel">
-          <div v-if="!selectedVideo" class="state-box">
-            选择左侧视频开始学习
-          </div>
-          <template v-else>
+      <teleport to="body">
+        <div
+          v-if="selectedVideo"
+          class="video-modal"
+          role="dialog"
+          aria-modal="true"
+          @click.self="closeVideo"
+        >
+          <div class="video-modal-card">
             <div class="player-header">
               <div>
-                <span class="panel-tag">{{ sourceLabel(selectedVideo.source) }}</span>
+                <span class="panel-tag">{{ displayCategory(selectedVideo) || '学习视频' }}</span>
                 <h3>{{ selectedVideo.title }}</h3>
-                <p>{{ selectedVideo.subtitle }}</p>
+                <p v-if="selectedVideo.subtitle">{{ selectedVideo.subtitle }}</p>
               </div>
+              <button class="close-btn" @click="closeVideo">关闭</button>
             </div>
 
             <div class="video-frame">
               <video
                 v-if="selectedVideo.path"
+                :key="selectedVideo.id"
                 :src="selectedVideo.url"
                 controls
                 controlsList="nodownload"
+                autoplay
               ></video>
               <div v-else class="state-box">当前视频未配置媒体路径</div>
             </div>
 
-            <div class="detail-grid single">
-              <div class="detail-card">
-                <h4>视频信息</h4>
-                <ul>
-                  <li><span>来源</span><strong>{{ sourceLabel(selectedVideo.source) }}</strong></li>
-                  <li><span>作者</span><strong>{{ selectedVideo.author || '未填写' }}</strong></li>
-                  <li><span>分类</span><strong>{{ selectedVideo.category || '未填写' }}</strong></li>
-                  <li><span>标签</span><strong>{{ selectedVideo.tags?.join(' / ') || '暂无标签' }}</strong></li>
-                </ul>
+            <div class="detail-strip">
+              <div>
+                <span>分类</span>
+                <strong>{{ displayCategory(selectedVideo) || '未填写' }}</strong>
               </div>
-
-              <div class="detail-card">
-                <h4>整理备注</h4>
-                <pre class="transcript">{{ selectedVideo.description || '当前视频还没有补充整理说明。' }}</pre>
+              <div>
+                <span>作者</span>
+                <strong>{{ selectedVideo.author || '未整理' }}</strong>
+              </div>
+              <div>
+                <span>备注</span>
+                <strong>{{ selectedVideo.description || '暂无整理备注' }}</strong>
               </div>
             </div>
-          </template>
+          </div>
         </div>
-      </div>
+      </teleport>
     </section>
   </div>
 </template>
@@ -176,16 +138,9 @@ const STORAGE_KEY = 'guitar-platform-collected-videos'
 const loading = ref(true)
 const error = ref('')
 const searchQuery = ref('')
-const activeFilter = ref('all')
 const selectedKey = ref('')
 const videos = ref([])
-const importing = ref(false)
-const importError = ref('')
-const importForm = ref({
-  url: '',
-  source: '',
-  category: '',
-})
+const scanning = ref(false)
 const recentKeys = ref(loadRecentKeys())
 
 const allVideos = computed(() =>
@@ -193,43 +148,22 @@ const allVideos = computed(() =>
     key: `video:${video.id}`,
     id: video.id,
     title: video.title,
-    subtitle: video.category || video.author || sourceLabel(video.source),
+    subtitle: video.author || '',
     source: video.source,
     author: video.author || '',
     category: video.category || '',
     tags: video.tags || [],
     path: video.path || '',
     description: video.description || '',
-    url: video.path ? mediaUrl('collected', video.path) : '',
+    url: video.path ? videoStreamUrl(video) : '',
   }))
 )
 
-const sourceFilters = computed(() => {
-  const counts = new Map()
-  for (const video of allVideos.value) {
-    counts.set(video.source, (counts.get(video.source) || 0) + 1)
-  }
-  return [
-    { key: 'all', label: '全部视频', count: allVideos.value.length },
-    ...Array.from(counts.entries()).map(([source, count]) => ({
-      key: `source:${source}`,
-      label: sourceLabel(source),
-      count,
-    })),
-  ]
-})
-
 const filteredVideos = computed(() => {
-  let items = allVideos.value
-  if (activeFilter.value.startsWith('source:')) {
-    const source = activeFilter.value.slice('source:'.length)
-    items = items.filter(item => item.source === source)
-  }
-
   const keyword = searchQuery.value.trim().toLowerCase()
-  if (!keyword) return items
+  if (!keyword) return allVideos.value
 
-  return items.filter(item =>
+  return allVideos.value.filter(item =>
     [item.title, item.subtitle, item.author, item.category, ...(item.tags || [])]
       .some(value => (value || '').toLowerCase().includes(keyword))
   )
@@ -246,8 +180,6 @@ const recentVideos = computed(() =>
 )
 
 const currentFilterLabel = computed(() => {
-  const current = sourceFilters.value.find(item => item.key === activeFilter.value)
-  if (current?.label) return current.label
   return searchQuery.value.trim() ? `搜索：${searchQuery.value.trim()}` : '全部视频'
 })
 
@@ -262,56 +194,26 @@ async function loadData() {
     videos.value = seedIndex.videos || []
     error.value = ''
   } finally {
-    if (selectedKey.value && allVideos.value.find(item => item.key === selectedKey.value)) {
-      loading.value = false
-      return
-    }
-    if (recentVideos.value.length > 0) {
-      selectedKey.value = recentVideos.value[0].key
-      loading.value = false
-      return
-    }
-    if (allVideos.value.length > 0) {
-      selectedKey.value = allVideos.value[0].key
-    }
     loading.value = false
   }
 }
 
-async function importVideo() {
-  importing.value = true
-  importError.value = ''
+async function scanVideos() {
+  scanning.value = true
+  error.value = ''
   try {
-    const response = await fetch('/api/videos/import', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        url: importForm.value.url.trim(),
-        source: importForm.value.source || null,
-        category: importForm.value.category.trim() || null,
-      }),
-    })
+    const response = await fetch('/api/videos/scan?persist=true')
     const data = await response.json()
-    if (!response.ok) throw new Error(data.detail || '导入失败')
+    if (!response.ok) throw new Error(data.detail || '扫描失败')
 
-    videos.value = [data, ...videos.value.filter(item => item.id !== data.id)]
-    importForm.value = { url: '', source: '', category: '' }
-    activeFilter.value = `source:${data.source}`
-    selectVideo({
-      key: `video:${data.id}`,
-      id: data.id,
-    })
+    videos.value = data.videos || []
+    if (allVideos.value.length > 0) {
+      selectedKey.value = ''
+    }
   } catch (err) {
-    importError.value = err.message
+    error.value = err.message
   } finally {
-    importing.value = false
-  }
-}
-
-function selectFilter(key) {
-  activeFilter.value = key
-  if (!filteredVideos.value.find(item => item.key === selectedKey.value) && filteredVideos.value.length > 0) {
-    selectVideo(filteredVideos.value[0])
+    scanning.value = false
   }
 }
 
@@ -321,6 +223,15 @@ function selectVideo(item) {
   if (typeof window !== 'undefined') {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(recentKeys.value))
   }
+}
+
+function closeVideo() {
+  selectedKey.value = ''
+}
+
+function displayCategory(item) {
+  const category = String(item?.category || '').trim()
+  return category && category !== '未分类' ? category : ''
 }
 
 function loadRecentKeys() {
@@ -335,6 +246,7 @@ function loadRecentKeys() {
 
 function sourceLabel(source) {
   const labels = {
+    local: '本地收藏',
     xiaohongshu: '小红书',
     bilibili: '哔哩哔哩',
     youtube: 'YouTube',
@@ -342,11 +254,24 @@ function sourceLabel(source) {
   return labels[source] || source || '未分类来源'
 }
 
+function coverTitle(title) {
+  return String(title || '视频').replace(/\s+/g, '').slice(0, 6)
+}
+
+function coverHue(item) {
+  const seed = String(item.title || item.id || '').split('').reduce((sum, char) => sum + char.charCodeAt(0), 0)
+  return `${seed % 360}deg`
+}
+
+function videoStreamUrl(video) {
+  return isFilePreview()
+    ? mediaUrl('collected', video.path)
+    : `/api/videos/${video.id}/stream`
+}
+
 function mediaUrl(section, path) {
   const cleanPath = String(path || '').split('/').map(encodeURIComponent).join('/')
-  return isFilePreview()
-    ? `../../library/${section}/${cleanPath}`
-    : `/library/${section}/${cleanPath}`
+  return `../../library/${section}/${cleanPath}`
 }
 
 function isFilePreview() {
@@ -365,8 +290,7 @@ loadData()
 }
 
 .sidebar,
-.video-list,
-.player-panel {
+.video-shelf {
   background: #16213e;
   border-radius: 18px;
   border: 1px solid rgba(255, 255, 255, 0.06);
@@ -380,36 +304,22 @@ loadData()
 .nav-block-header h3,
 .section-header h3,
 .player-header h3,
-.detail-card h4,
-.import-card h3 {
+.video-modal-card h3 {
   color: #f4f5f7;
 }
 
 .sidebar-header p,
 .nav-block-header span,
 .section-header span,
+.section-header p,
 .player-header p,
 .video-card p,
 .empty-side-copy {
   color: #95a2bf;
 }
 
-.import-card,
 .search-panel,
-.resume-list,
-.filter-list {
-  display: grid;
-  gap: 10px;
-}
-
-.import-card {
-  margin-top: 18px;
-  padding: 14px;
-  border-radius: 14px;
-  background: #0f1730;
-}
-
-.import-grid {
+.resume-list {
   display: grid;
   gap: 10px;
 }
@@ -424,15 +334,18 @@ loadData()
   font-size: 13px;
 }
 
+.sidebar-header,
 .nav-block-header,
 .section-header,
-.player-header,
-.video-card-top,
-.resume-meta {
+.player-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 12px;
+}
+
+.sidebar-header {
+  align-items: flex-start;
 }
 
 .text-input {
@@ -444,28 +357,22 @@ loadData()
   color: #e5e7eb;
 }
 
-.import-btn {
-  border: 0;
-  border-radius: 12px;
-  padding: 11px 14px;
-  background: linear-gradient(135deg, #f97316, #fb7185);
-  color: #fff7ed;
-  font-weight: 700;
+.ghost-btn {
+  border: 1px solid rgba(249, 115, 22, 0.5);
+  border-radius: 999px;
+  background: transparent;
+  color: #f97316;
+  padding: 7px 12px;
   cursor: pointer;
+  white-space: nowrap;
 }
 
-.import-btn:disabled {
+.ghost-btn:disabled {
   cursor: not-allowed;
   opacity: 0.6;
 }
 
-.import-error {
-  color: #fda4af;
-  font-size: 13px;
-}
-
 .resume-card,
-.filter-btn,
 .video-card {
   width: 100%;
   text-align: left;
@@ -478,43 +385,20 @@ loadData()
 }
 
 .resume-card.active,
-.filter-btn.active,
 .video-card.active {
   border-color: rgba(249, 115, 22, 0.7);
   background: linear-gradient(135deg, rgba(249, 115, 22, 0.18), rgba(255, 255, 255, 0.04));
 }
 
-.filter-count,
-.resume-meta,
-.meta,
-.video-card-meta {
-  color: #f97316;
-  font-size: 12px;
-}
-
-.content-grid {
+.content {
   display: grid;
-  grid-template-columns: 320px 1fr;
   gap: 20px;
 }
 
-.video-list,
-.player-panel {
+.video-shelf {
   padding: 20px;
 }
 
-.video-card {
-  margin-bottom: 12px;
-}
-
-.video-card-meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px 12px;
-  margin-top: 10px;
-}
-
-.pill,
 .panel-tag {
   display: inline-flex;
   align-items: center;
@@ -526,6 +410,15 @@ loadData()
   background: #f97316;
 }
 
+.close-btn {
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #f8fafc;
+  padding: 8px 14px;
+  cursor: pointer;
+}
+
 .video-frame {
   margin: 18px 0 20px;
   border-radius: 16px;
@@ -535,43 +428,140 @@ loadData()
 
 .video-frame video {
   width: 100%;
+  max-height: 68vh;
   display: block;
   background: #000;
+  object-fit: contain;
 }
 
-.detail-grid.single {
+.detail-strip {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.detail-strip div {
+  background: #0f1730;
+  border-radius: 14px;
+  padding: 12px 14px;
+  min-width: 0;
+}
+
+.detail-strip span {
+  display: block;
+  color: #95a2bf;
+  font-size: 12px;
+  margin-bottom: 4px;
+}
+
+.detail-strip strong {
+  display: block;
+  overflow: hidden;
+  color: #dbe3f4;
+  font-size: 13px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.video-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
   gap: 18px;
 }
 
-.detail-card {
-  background: #0f1730;
+.video-card {
+  overflow: hidden;
+  padding: 0;
   border-radius: 16px;
-  padding: 18px;
+  background: #0f1730;
+  transition: border-color 0.2s ease, transform 0.2s ease, background 0.2s ease;
 }
 
-.detail-card ul {
+.video-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(249, 115, 22, 0.5);
+}
+
+.video-thumb {
+  position: relative;
   display: grid;
-  gap: 12px;
-  list-style: none;
+  place-items: center;
+  min-height: 128px;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 22% 20%, rgba(255, 255, 255, 0.34), transparent 18%),
+    linear-gradient(135deg, hsl(var(--cover-hue) 70% 42%), hsl(calc(var(--cover-hue) + 42deg) 76% 26%));
 }
 
-.detail-card li {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  color: #cdd6e6;
+.video-thumb::after {
+  position: absolute;
+  inset: auto 0 0;
+  height: 56%;
+  content: '';
+  background: linear-gradient(180deg, transparent, rgba(5, 10, 24, 0.72));
 }
 
-.detail-card li span {
-  color: #95a2bf;
+.video-thumb strong {
+  position: relative;
+  z-index: 1;
+  max-width: 78%;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 24px;
+  letter-spacing: 0.08em;
 }
 
-.transcript {
-  color: #dbe3f4;
-  white-space: pre-wrap;
-  line-height: 1.6;
+.play-badge,
+.thumb-tag {
+  position: absolute;
+  z-index: 2;
+  border-radius: 999px;
+  color: #fff7ed;
+  background: rgba(15, 23, 48, 0.72);
+  backdrop-filter: blur(12px);
+}
+
+.play-badge {
+  left: 12px;
+  bottom: 12px;
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  font-size: 13px;
+}
+
+.thumb-tag {
+  right: 10px;
+  bottom: 12px;
+  max-width: 62%;
+  overflow: hidden;
+  padding: 6px 10px;
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.video-card-body {
+  display: grid;
+  gap: 8px;
+  padding: 12px 13px 14px;
+}
+
+.video-card-body strong {
+  display: -webkit-box;
+  min-height: 42px;
+  overflow: hidden;
+  color: #f4f5f7;
+  line-height: 1.45;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.video-card-body p {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .state-box {
@@ -585,11 +575,59 @@ loadData()
   text-align: center;
 }
 
+.video-modal {
+  position: fixed;
+  z-index: 1000;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 28px;
+  background: rgba(2, 6, 23, 0.76);
+  backdrop-filter: blur(14px);
+}
+
+.video-modal-card {
+  width: min(1080px, calc(100vw - 56px));
+  max-height: calc(100vh - 56px);
+  overflow: auto;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 22px;
+  padding: 22px;
+  background:
+    radial-gradient(circle at top left, rgba(249, 115, 22, 0.18), transparent 34%),
+    #16213e;
+  box-shadow: 0 26px 90px rgba(0, 0, 0, 0.42);
+}
+
+.video-modal .video-frame {
+  display: grid;
+  place-items: center;
+}
+
+.video-modal .video-frame video {
+  width: auto;
+  max-width: 100%;
+  max-height: min(68vh, 760px);
+}
+
 @media (max-width: 960px) {
   .learning-layout,
-  .content-grid,
-  .detail-grid.single {
+  .detail-strip {
     grid-template-columns: 1fr;
+  }
+
+  .video-modal {
+    padding: 12px;
+  }
+
+  .video-modal-card {
+    width: calc(100vw - 24px);
+    max-height: calc(100vh - 24px);
+    padding: 14px;
+  }
+
+  .video-modal .video-frame video {
+    max-height: 62vh;
   }
 }
 </style>

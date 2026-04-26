@@ -2,7 +2,7 @@ import hashlib
 import re
 from pathlib import Path
 
-from config import COURSES_DIR, SONGS_DIR
+from config import COLLECTED_DIR, COURSES_DIR, SONGS_DIR
 from services.index_store import clean_relative_path
 
 
@@ -11,6 +11,15 @@ SCORE_EXTENSIONS = {".gp", ".gp5", ".gpx", ".gpzip", ".pdf"}
 VIDEO_EXTENSIONS = {".mp4", ".mov", ".m4v", ".avi", ".mkv", ".webm"}
 IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".webp"}
 IGNORED_FILENAMES = {".ds_store", ".gitkeep"}
+KNOWN_SONG_ARTISTS = {
+    "再见理想": "Beyond",
+    "旧日的足迹": "Beyond",
+    "早班火车": "Beyond",
+    "海阔天空": "Beyond",
+    "灰色轨迹": "Beyond",
+    "天马座的幻想": "MAKE-UP",
+    "权力的游戏": "Ramin Djawadi",
+}
 
 
 def scan_course_library() -> list[dict]:
@@ -55,13 +64,41 @@ def scan_song_library() -> list[dict]:
     return songs
 
 
+def scan_collected_video_library() -> list[dict]:
+    if not COLLECTED_DIR.exists():
+        return []
+
+    videos = []
+    for video_file in sorted(_iter_video_files(COLLECTED_DIR)):
+        relative_path = video_file.relative_to(COLLECTED_DIR)
+        if not relative_path.parts:
+            continue
+
+        category = relative_path.parts[0] if len(relative_path.parts) > 1 else "未分类"
+        videos.append(
+            {
+                "id": build_collected_video_id(relative_path),
+                "title": video_file.stem,
+                "source": "local",
+                "author": "",
+                "category": category,
+                "path": clean_relative_path(relative_path.as_posix()),
+                "tags": [part for part in relative_path.parts[:-1] if part and part != category],
+                "description": "",
+                "type": "collected",
+            }
+        )
+
+    return videos
+
+
 def build_song_entry(song_dir: Path, artist: str | None = None) -> dict | None:
     versions = collect_versions(song_dir)
     if not versions:
         return None
 
     relative_song_dir = song_dir.relative_to(SONGS_DIR)
-    artist_name = artist or ""
+    artist_name = artist or infer_song_artist(song_dir.name)
     song_id = build_song_id(relative_song_dir)
 
     return {
@@ -117,6 +154,15 @@ def collect_media_files(song_dir: Path, version_dir: Path) -> dict:
 
 def build_song_id(relative_song_dir: Path) -> str:
     return f"song_{stable_suffix(relative_song_dir.as_posix())}"
+
+
+def build_collected_video_id(relative_video_path: Path) -> str:
+    return f"video_{stable_suffix(relative_video_path.as_posix())}"
+
+
+def infer_song_artist(title: str) -> str:
+    normalized_title = re.sub(r"\s+各种版本$", "", title).strip()
+    return KNOWN_SONG_ARTISTS.get(normalized_title, "")
 
 
 def build_course_id(relative_dir: Path, stem: str) -> str:

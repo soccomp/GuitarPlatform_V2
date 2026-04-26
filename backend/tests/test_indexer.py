@@ -17,18 +17,23 @@ class IndexerTests(unittest.TestCase):
         self.temp_dir = Path(tempfile.mkdtemp(prefix="gp-indexer-tests-"))
         self.original_courses_dir = indexer.COURSES_DIR
         self.original_songs_dir = indexer.SONGS_DIR
+        self.original_collected_dir = indexer.COLLECTED_DIR
 
         self.courses_dir = self.temp_dir / "courses"
         self.songs_dir = self.temp_dir / "songs"
+        self.collected_dir = self.temp_dir / "collected"
         self.courses_dir.mkdir()
         self.songs_dir.mkdir()
+        self.collected_dir.mkdir()
 
         indexer.COURSES_DIR = self.courses_dir
         indexer.SONGS_DIR = self.songs_dir
+        indexer.COLLECTED_DIR = self.collected_dir
 
     def tearDown(self):
         indexer.COURSES_DIR = self.original_courses_dir
         indexer.SONGS_DIR = self.original_songs_dir
+        indexer.COLLECTED_DIR = self.original_collected_dir
         shutil.rmtree(self.temp_dir)
 
     def test_scan_course_library_collects_video_transcript_and_materials(self):
@@ -92,6 +97,19 @@ class IndexerTests(unittest.TestCase):
         self.assertNotEqual(first, second)
         self.assertTrue(first)
         self.assertTrue(second)
+
+    def test_scan_collected_video_library_uses_folder_as_category(self):
+        video_dir = self.collected_dir / "未分类"
+        video_dir.mkdir()
+        (video_dir / "如何记忆指板.mp4").write_bytes(b"video")
+
+        videos = indexer.scan_collected_video_library()
+
+        self.assertEqual(len(videos), 1)
+        self.assertEqual(videos[0]["title"], "如何记忆指板")
+        self.assertEqual(videos[0]["source"], "local")
+        self.assertEqual(videos[0]["category"], "未分类")
+        self.assertEqual(videos[0]["path"], "未分类/如何记忆指板.mp4")
 
 
 if __name__ == "__main__":
