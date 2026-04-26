@@ -45,7 +45,12 @@
               <h3>{{ selectedSong.title }}</h3>
               <p>{{ selectedSong.artist || '未填写歌手' }}</p>
             </div>
-            <span class="path-pill">{{ selectedSong.path }}</span>
+            <div class="detail-header-actions">
+              <span class="path-pill">{{ selectedSong.path }}</span>
+              <button class="danger-btn" :disabled="loading" @click="deleteSelectedSong">
+                {{ loading ? '处理中...' : '删除歌曲' }}
+              </button>
+            </div>
           </div>
 
           <div class="versions-section">
@@ -119,6 +124,16 @@
             <div class="progress-panel" @click="seekAudio">
               <div class="progress-fill" :style="{ width: `${progressPercent}%` }"></div>
             </div>
+            <input
+              class="seek-slider"
+              type="range"
+              min="0"
+              :max="duration || 0"
+              step="0.1"
+              :value="currentTime"
+              :disabled="!duration"
+              @input="seekAudioRange"
+            />
             <div class="time-row">
               <span>{{ formatTime(currentTime) }}</span>
               <span>{{ formatTime(duration) }}</span>
@@ -228,11 +243,46 @@
         </div>
 
         <div class="modal-audio-controls">
-          <div class="modal-transport">
-            <button :disabled="!currentAudioFile" @click="togglePlay">{{ isPlaying ? '暂停' : '播放' }}</button>
-            <span>{{ formatTime(currentTime) }} / {{ formatTime(duration) }}</span>
-            <button @click="setLoopStart">设 A</button>
-            <button @click="setLoopEnd">设 B</button>
+          <div class="modal-toolbar">
+            <div class="modal-primary-controls">
+              <button class="modal-play-btn" :disabled="!currentAudioFile" @click="togglePlay">
+                {{ isPlaying ? '暂停' : '播放' }}
+              </button>
+              <div class="modal-status-chip">
+                <span>进度</span>
+                <strong>{{ formatTime(currentTime) }} / {{ formatTime(duration) }}</strong>
+              </div>
+            </div>
+
+            <div class="modal-utility-controls">
+              <div class="modal-loop-cluster">
+                <div class="modal-status-chip">
+                  <span>A 点</span>
+                  <strong>{{ loopStart === null ? '--:--' : formatTime(loopStart) }}</strong>
+                </div>
+                <button @click="setLoopStart">设 A</button>
+                <div class="modal-status-chip">
+                  <span>B 点</span>
+                  <strong>{{ loopEnd === null ? '--:--' : formatTime(loopEnd) }}</strong>
+                </div>
+                <button @click="setLoopEnd">设 B</button>
+                <button @click="clearLoop">清除</button>
+              </div>
+
+              <div class="modal-speed-cluster">
+                <span class="speed-label">速度</span>
+                <div class="speed-options">
+                  <button
+                    v-for="speed in speeds"
+                    :key="`modal-${speed}`"
+                    :class="{ active: playbackRate === speed }"
+                    @click="setSpeed(speed)"
+                  >
+                    {{ speed }}x
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
           <input
             class="modal-seek"
@@ -419,6 +469,35 @@ export default {
       if (!this.selectedSong) return
       if (this.selectedSong.versions?.length) {
         this.selectVersion(this.selectedSong.versions[0])
+      }
+    },
+    async deleteSelectedSong() {
+      if (!this.selectedSong || this.loading || this.isFilePreview()) return
+      const confirmed = window.confirm(`确定删除歌曲“${this.selectedSong.title}”吗？该歌曲目录里的谱、伴奏和参考资料会一起删除。`)
+      if (!confirmed) return
+
+      this.loading = true
+      const currentId = this.selectedSong.id
+      try {
+        const response = await fetch(`/api/songs/${currentId}`, { method: 'DELETE' })
+        const data = await response.json()
+        if (!response.ok) throw new Error(data.detail || '删除失败')
+
+        this.stopAudio()
+        this.closeScoreModal()
+        this.songs = data.songs || []
+        this.selectedSong = null
+        this.selectedVersion = ''
+        this.selectedVersionFiles = {}
+
+        const fallback = this.songs.find(song => song.id !== currentId) || this.songs[0] || null
+        if (fallback) {
+          await this.selectSong(fallback)
+        }
+      } catch (error) {
+        window.alert(error.message || '删除失败')
+      } finally {
+        this.loading = false
       }
     },
     selectVersion(version) {
@@ -695,6 +774,12 @@ export default {
   align-items: center;
 }
 
+.detail-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
 .list-header {
   margin-bottom: 16px;
 }
@@ -758,6 +843,21 @@ export default {
   color: #f97316;
 }
 
+.danger-btn {
+  border: 1px solid rgba(248, 113, 113, 0.58);
+  border-radius: 999px;
+  background: rgba(127, 29, 29, 0.28);
+  color: #fecaca;
+  padding: 8px 14px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.danger-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
 .path-pill {
   display: inline-flex;
   border-radius: 999px;
@@ -808,6 +908,13 @@ export default {
   background: #0f1730;
   margin-top: 16px;
   cursor: pointer;
+}
+
+.seek-slider,
+.modal-seek {
+  width: 100%;
+  margin-top: 12px;
+  accent-color: #f97316;
 }
 
 .progress-fill {
@@ -922,8 +1029,7 @@ export default {
   padding: 20px;
 }
 
-.score-modal-header,
-.modal-transport {
+.score-modal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -954,13 +1060,101 @@ export default {
 
 .modal-audio-controls {
   display: grid;
-  gap: 12px;
+  gap: 10px;
   color: #e5e7eb;
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: rgba(8, 13, 28, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
-.modal-seek {
-  width: 100%;
-  accent-color: #f97316;
+.modal-toolbar,
+.modal-primary-controls,
+.modal-utility-controls,
+.modal-loop-cluster {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.modal-toolbar {
+  justify-content: space-between;
+}
+
+.modal-primary-controls {
+  gap: 12px;
+}
+
+.modal-utility-controls {
+  justify-content: flex-end;
+}
+
+.modal-play-btn {
+  min-width: 74px;
+  font-weight: 700;
+}
+
+.modal-status-chip {
+  display: grid;
+  gap: 2px;
+  min-width: 92px;
+  padding: 7px 12px;
+  border-radius: 12px;
+  background: rgba(15, 23, 48, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.modal-status-chip span,
+.speed-label {
+  color: #94a3b8;
+  font-size: 11px;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.modal-status-chip strong {
+  color: #f8fafc;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.speed-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 4px;
+  border-radius: 999px;
+  background: rgba(15, 23, 48, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.modal-speed-cluster {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.modal-loop-cluster button,
+.modal-speed-cluster button {
+  padding: 7px 12px;
+  font-size: 13px;
+}
+
+.modal-speed-cluster button.active {
+  background: #f97316;
+  color: #fff7ed;
+  border-color: #f97316;
+}
+
+.control-row button:disabled,
+.score-actions button:disabled,
+.ghost-btn:disabled,
+.play-btn:disabled,
+.modal-audio-controls button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
 }
 
 .score-viewer {
@@ -1000,6 +1194,14 @@ export default {
 @media (max-width: 960px) {
   .songs-layout {
     grid-template-columns: 1fr;
+  }
+
+  .modal-toolbar {
+    justify-content: flex-start;
+  }
+
+  .modal-utility-controls {
+    justify-content: flex-start;
   }
 }
 </style>

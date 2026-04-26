@@ -106,13 +106,22 @@
                 <h3>{{ selectedVideo.title }}</h3>
                 <p>{{ selectedVideo.subtitle }}</p>
               </div>
-              <button
-                v-if="resumeInfo"
-                class="ghost-btn"
-                @click="resumePlayback"
-              >
-                继续看到 {{ formatTime(resumeInfo.position) }}
-              </button>
+              <div class="player-header-actions">
+                <button
+                  v-if="resumeInfo"
+                  class="ghost-btn"
+                  @click="resumePlayback"
+                >
+                  继续看到 {{ formatTime(resumeInfo.position) }}
+                </button>
+                <button
+                  class="danger-btn"
+                  :disabled="deletingCourse"
+                  @click="deleteSelectedCourse"
+                >
+                  {{ deletingCourse ? '删除中...' : '删除课时' }}
+                </button>
+              </div>
             </div>
 
             <div class="video-frame">
@@ -330,6 +339,7 @@ const practiceLevel = ref('入门')
 const practiceResult = ref(null)
 const videoPlayerRef = ref(null)
 const recentState = ref(loadPersistedState())
+const deletingCourse = ref(false)
 
 const allVideos = computed(() => {
   return courses.value.map(course => ({
@@ -576,6 +586,47 @@ async function loadData() {
   }
 }
 
+async function deleteSelectedCourse() {
+  if (!selectedVideo.value || selectedVideo.value.type !== 'course' || deletingCourse.value || isFilePreview()) {
+    return
+  }
+
+  const confirmed = window.confirm(`确定删除课时“${selectedVideo.value.title}”吗？相关笔记和随课资料也会一起删除。`)
+  if (!confirmed) return
+
+  deletingCourse.value = true
+  error.value = ''
+  const deletedKey = selectedVideo.value.key
+
+  try {
+    const response = await fetch(`/api/courses/${selectedVideo.value.id}`, {
+      method: 'DELETE',
+    })
+    const data = await response.json()
+    if (!response.ok) throw new Error(data.detail || '删除失败')
+
+    courses.value = data.courses || []
+    removeCourseState(deletedKey)
+    transcript.value = ''
+
+    if (selectedKey.value === deletedKey) {
+      selectedKey.value = ''
+      const fallback = recentHistory.value[0] || allVideos.value[0] || null
+      if (fallback) {
+        await selectVideo(fallback)
+      }
+    }
+
+    if (activeSeries.value && !seriesTabs.value.find(series => series.name === activeSeries.value)) {
+      activeSeries.value = seriesTabs.value[0]?.name || ''
+    }
+  } catch (err) {
+    error.value = err.message
+  } finally {
+    deletingCourse.value = false
+  }
+}
+
 function selectSeries(seriesName) {
   activeSeries.value = seriesName
   activeFilter.value = 'all'
@@ -772,6 +823,19 @@ function rememberVideo(item, position = null) {
     ...recentState.value,
     selectedKey: item.key,
     recent: nextRecent,
+    progress: nextProgress,
+  })
+}
+
+function removeCourseState(key) {
+  const nextProgress = { ...(recentState.value.progress || {}) }
+  delete nextProgress[key]
+
+  const nextSelectedKey = recentState.value.selectedKey === key ? '' : recentState.value.selectedKey
+  persistState({
+    ...recentState.value,
+    selectedKey: nextSelectedKey,
+    recent: (recentState.value.recent || []).filter(entry => entry.key !== key),
     progress: nextProgress,
   })
 }
@@ -1613,6 +1677,13 @@ loadData()
   margin-bottom: 12px;
 }
 
+.player-header-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
 .ghost-btn {
   border: 1px solid rgba(249, 115, 22, 0.5);
   border-radius: 999px;
@@ -1620,6 +1691,22 @@ loadData()
   color: #f97316;
   padding: 6px 12px;
   cursor: pointer;
+}
+
+.danger-btn {
+  border: 1px solid rgba(248, 113, 113, 0.58);
+  border-radius: 999px;
+  background: rgba(127, 29, 29, 0.28);
+  color: #fecaca;
+  padding: 6px 12px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.danger-btn:disabled,
+.ghost-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
 }
 
 .transcript {

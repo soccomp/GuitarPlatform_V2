@@ -7,6 +7,7 @@ from services.downloader import SUPPORTED_SOURCES, VideoDownloadError, download_
 from services.index_store import find_video, load_index, resolve_under, save_index
 from services.indexer import scan_collected_video_library
 from services.media_response import media_file_response
+from services.resource_manager import delete_video_resource
 
 
 router = APIRouter(prefix="/api/videos", tags=["videos"])
@@ -70,6 +71,23 @@ async def get_video(video_id: str):
     if not video:
         raise HTTPException(status_code=404, detail="Video not found")
     return video
+
+
+@router.delete("/{video_id}")
+async def delete_video(video_id: str):
+    index = load_index()
+    video = find_video(index, video_id)
+    if not video:
+        raise HTTPException(status_code=404, detail="Video not found")
+
+    try:
+        videos = delete_video_resource(video)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    index["videos"] = videos
+    save_index(index)
+    return {"ok": True, "deleted": {"id": video_id, "title": video.get("title", "")}, "videos": videos}
 
 
 @router.post("/import")

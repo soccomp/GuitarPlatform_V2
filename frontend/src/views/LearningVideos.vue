@@ -97,7 +97,12 @@
                 <h3>{{ selectedVideo.title }}</h3>
                 <p v-if="selectedVideo.subtitle">{{ selectedVideo.subtitle }}</p>
               </div>
-              <button class="close-btn" @click="closeVideo">关闭</button>
+              <div class="modal-actions">
+                <button class="danger-btn" :disabled="deleting" @click="deleteSelectedVideo">
+                  {{ deleting ? '删除中...' : '删除视频' }}
+                </button>
+                <button class="close-btn" @click="closeVideo">关闭</button>
+              </div>
             </div>
 
             <div class="video-frame">
@@ -145,6 +150,7 @@ const searchQuery = ref('')
 const selectedKey = ref('')
 const videos = ref([])
 const scanning = ref(false)
+const deleting = ref(false)
 const recentKeys = ref(loadRecentKeys())
 
 const allVideos = computed(() =>
@@ -220,6 +226,34 @@ async function scanVideos() {
     error.value = err.message
   } finally {
     scanning.value = false
+  }
+}
+
+async function deleteSelectedVideo() {
+  if (!selectedVideo.value || deleting.value || isFilePreview()) return
+  const confirmed = window.confirm(`确定删除视频“${selectedVideo.value.title}”吗？删除后会同时清理封面。`)
+  if (!confirmed) return
+
+  deleting.value = true
+  error.value = ''
+  try {
+    const response = await fetch(`/api/videos/${selectedVideo.value.id}`, {
+      method: 'DELETE',
+    })
+    const data = await response.json()
+    if (!response.ok) throw new Error(data.detail || '删除失败')
+
+    recentKeys.value = recentKeys.value.filter(key => key !== selectedVideo.value.key)
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(recentKeys.value))
+    }
+
+    videos.value = data.videos || []
+    selectedKey.value = ''
+  } catch (err) {
+    error.value = err.message
+  } finally {
+    deleting.value = false
   }
 }
 
@@ -423,6 +457,26 @@ loadData()
   color: #f8fafc;
   padding: 8px 14px;
   cursor: pointer;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.danger-btn {
+  border: 1px solid rgba(248, 113, 113, 0.58);
+  border-radius: 999px;
+  background: rgba(127, 29, 29, 0.28);
+  color: #fecaca;
+  padding: 8px 14px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.danger-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
 }
 
 .video-frame {

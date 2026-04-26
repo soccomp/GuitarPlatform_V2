@@ -11,6 +11,7 @@ from services.ai_assistant import (
 from services.index_store import find_course, load_index, resolve_under, save_index
 from services.indexer import scan_course_library
 from services.media_response import media_file_response
+from services.resource_manager import delete_course_resource
 
 
 router = APIRouter(prefix="/api/courses", tags=["courses"])
@@ -69,6 +70,23 @@ async def get_course(course_id: str):
     if not course:
         raise HTTPException(status_code=404, detail="Course not found")
     return course
+
+
+@router.delete("/{course_id}")
+async def delete_course(course_id: str):
+    index = load_index()
+    course = find_course(index, course_id)
+    if not course:
+        raise HTTPException(status_code=404, detail="Course not found")
+
+    try:
+        courses = delete_course_resource(course)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    index["courses"] = courses
+    save_index(index)
+    return {"ok": True, "deleted": {"id": course_id, "title": course.get("title", "")}, "courses": courses}
 
 
 @router.get("/{course_id}/transcript")

@@ -5,6 +5,7 @@ from config import SONGS_DIR
 from services.index_store import find_song, load_index, resolve_under, save_index
 from services.indexer import scan_song_library
 from services.media_response import media_file_response
+from services.resource_manager import delete_song_resource
 
 
 router = APIRouter(prefix="/api/songs", tags=["songs"])
@@ -46,6 +47,23 @@ async def get_song(song_id: str):
     if not song:
         raise HTTPException(status_code=404, detail="Song not found")
     return song
+
+
+@router.delete("/{song_id}")
+async def delete_song(song_id: str):
+    data = load_index()
+    song = find_song(data, song_id)
+    if not song:
+        raise HTTPException(status_code=404, detail="Song not found")
+
+    try:
+        songs = delete_song_resource(song)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    data["songs"] = songs
+    save_index(data)
+    return {"ok": True, "deleted": {"id": song_id, "title": song.get("title", "")}, "songs": songs}
 
 
 def resolve_song_version(song: dict, version: str) -> dict:
