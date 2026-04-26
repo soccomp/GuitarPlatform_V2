@@ -13,3 +13,4 @@ library/songs/*
 !library/songs/.gitkeep
 library/collected/*
 !library/collected/.gitkeep
+library/*.db

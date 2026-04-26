@@ -5821,6 +5821,18 @@
       "type": "collected"
     },
     {
+      "id": "video_solo-xhs-mp4-f7fe5b8daa",
+      "title": "价值一万元的Solo终极练习_xhs",
+      "source": "local",
+      "author": "",
+      "category": "未分类",
+      "path": "未分类/价值一万元的Solo终极练习_xhs.mp4",
+      "thumbnail": ".thumbnails/solo-xhs-mp4-f7fe5b8daa.jpg",
+      "tags": [],
+      "description": "",
+      "type": "collected"
+    },
+    {
       "id": "video_mp4-689116e0c0",
       "title": "和弦如何变强",
       "source": "local",
@@ -5828,6 +5840,30 @@
       "category": "未分类",
       "path": "未分类/和弦如何变强.mp4",
       "thumbnail": ".thumbnails/mp4-689116e0c0.jpg",
+      "tags": [],
+      "description": "",
+      "type": "collected"
+    },
+    {
+      "id": "video_carrying-you-sky-guitar-mp4-0e517cd6e5",
+      "title": "天空之城_Carrying_You_Sky_Guitar",
+      "source": "local",
+      "author": "",
+      "category": "未分类",
+      "path": "未分类/天空之城_Carrying_You_Sky_Guitar.mp4",
+      "thumbnail": "",
+      "tags": [],
+      "description": "",
+      "type": "collected"
+    },
+    {
+      "id": "video_youtube-mkv-a992807b6b",
+      "title": "天空之城_YouTube",
+      "source": "local",
+      "author": "",
+      "category": "未分类",
+      "path": "未分类/天空之城_YouTube.mkv",
+      "thumbnail": ".thumbnails/youtube-mkv-a992807b6b.jpg",
       "tags": [],
       "description": "",
       "type": "collected"

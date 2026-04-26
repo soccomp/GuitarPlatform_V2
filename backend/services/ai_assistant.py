@@ -4,7 +4,7 @@ from pathlib import Path
 import httpx
 
 
-MINIMAX_BASE_URL = "https://api.minimaxi.com/v1/text/chatcompletion_v2"
+DEFAULT_MINIMAX_BASE_URL = "https://api.minimaxi.com/anthropic/v1/messages"
 MINIMAX_MODEL = "MiniMax-M2.7"
 ENV_FILES = (
     Path(__file__).resolve().parents[2] / ".env",
@@ -35,10 +35,8 @@ async def ask_course_question(course_title: str, transcript: str, question: str)
 
     payload = {
         "model": MINIMAX_MODEL,
-        "messages": [
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": question},
-        ],
+        "system": system_prompt,
+        "messages": [{"role": "user", "content": question}],
         "temperature": 0.7,
         "max_tokens": 700,
     }
@@ -50,15 +48,12 @@ async def generate_practice_plan(topic: str, level: str) -> str:
 
     payload = {
         "model": MINIMAX_MODEL,
+        "system": (
+            "你叫小霞，是哥的专属吉他陪练助教。\n"
+            "请根据课程主题和难度等级生成 5 到 8 个循序渐进的练习任务，"
+            "并在最后附 2 到 3 条实用练习建议。"
+        ),
         "messages": [
-            {
-                "role": "system",
-                "content": (
-                    "你叫小霞，是哥的专属吉他陪练助教。\n"
-                    "请根据课程主题和难度等级生成 5 到 8 个循序渐进的练习任务，"
-                    "并在最后附 2 到 3 条实用练习建议。"
-                ),
-            },
             {
                 "role": "user",
                 "content": f"课程主题：{topic}\n难度等级：{level}",
@@ -77,7 +72,7 @@ async def _send_chat(payload: dict) -> str:
 
     async with httpx.AsyncClient(timeout=60.0) as client:
         response = await client.post(
-            MINIMAX_BASE_URL,
+            get_minimax_base_url(),
             headers={
                 "Authorization": f"Bearer {api_key}",
                 "Content-Type": "application/json",
@@ -87,22 +82,98 @@ async def _send_chat(payload: dict) -> str:
 
     response.raise_for_status()
     result = response.json()
+    provider_error = extract_provider_error(result)
+    if provider_error:
+        raise RuntimeError(provider_error)
+
+    content = extract_assistant_content(result)
+    if content:
+        return content
+
+    raise RuntimeError("AI provider returned no answer content")
+
+
+def extract_assistant_content(result: dict) -> str:
+    anthropic_content = result.get("content")
+    if isinstance(anthropic_content, str):
+        return anthropic_content.strip()
+    if isinstance(anthropic_content, list):
+        parts = []
+        for item in anthropic_content:
+            if isinstance(item, dict):
+                parts.append(str(item.get("text") or item.get("content") or ""))
+            else:
+                parts.append(str(item))
+        content = "\n".join(part for part in parts if part).strip()
+        if content:
+            return content
+
     choices = result.get("choices") or []
     if not choices:
-        raise RuntimeError("AI provider returned no choices")
-    return choices[0]["message"]["content"]
+        return ""
+
+    message = choices[0].get("message") or {}
+    content = message.get("content", "")
+    if isinstance(content, str):
+        return content.strip()
+    if isinstance(content, list):
+        parts = []
+        for item in content:
+            if isinstance(item, dict):
+                parts.append(str(item.get("text") or item.get("content") or ""))
+            else:
+                parts.append(str(item))
+        return "\n".join(part for part in parts if part).strip()
+    return ""
+
+
+def extract_provider_error(result: dict) -> str:
+    error = result.get("error") or {}
+    if error:
+        return (error.get("message") or error.get("type") or str(error)).strip()
+
+    base_resp = result.get("base_resp") or {}
+    status_code = base_resp.get("status_code", 0)
+    status_msg = (base_resp.get("status_msg") or "").strip()
+    if status_code and status_code != 0:
+        return status_msg or f"MiniMax returned status code {status_code}"
+
+    if result.get("input_sensitive"):
+        return "MiniMax 拒绝了这次输入：问题或课程内容触发了输入安全策略。"
+    if result.get("output_sensitive"):
+        return "MiniMax 生成结果触发了输出安全策略，没有返回可展示内容。"
+    return ""
+
+
+def get_minimax_base_url() -> str:
+    configured_url = os.environ.get("MINIMAX_BASE_URL", "").strip()
+    if configured_url:
+        return configured_url
+
+    for env_file in ENV_FILES:
+        configured_url = read_env_value(env_file, "MINIMAX_BASE_URL")
+        if configured_url:
+            return configured_url
+    return DEFAULT_MINIMAX_BASE_URL
 
 
 def get_minimax_api_key() -> str:
-    env_key = os.environ.get("MINIMAX_API_KEY", "").strip()
+    env_key = normalize_api_key(os.environ.get("MINIMAX_API_KEY", ""))
     if env_key:
         return env_key
 
     for env_file in ENV_FILES:
-        key = read_env_value(env_file, "MINIMAX_API_KEY")
+        key = normalize_api_key(read_env_value(env_file, "MINIMAX_API_KEY"))
         if key:
             return key
     return ""
+
+
+def normalize_api_key(value: str) -> str:
+    key = str(value or "").strip().strip('"').strip("'")
+    if key.lower().startswith("bearer "):
+        key = key[7:].strip()
+    return key
 
 
 def read_env_value(env_file: Path, name: str) -> str:
