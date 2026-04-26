@@ -65,10 +65,14 @@
             :class="['video-card', { active: selectedKey === item.key }]"
             @click="selectVideo(item)"
           >
-            <div class="video-thumb" :style="{ '--cover-hue': coverHue(item) }">
+            <div
+              :class="['video-thumb', { 'has-thumbnail': item.thumbnailUrl }]"
+              :style="{ '--cover-hue': coverHue(item) }"
+            >
+              <img v-if="item.thumbnailUrl" :src="item.thumbnailUrl" :alt="`${item.title} 封面`" />
               <span class="play-badge">▶</span>
               <span v-if="displayCategory(item)" class="thumb-tag">{{ displayCategory(item) }}</span>
-              <strong>{{ coverTitle(item.title) }}</strong>
+              <strong v-if="!item.thumbnailUrl">{{ coverTitle(item.title) }}</strong>
             </div>
             <div class="video-card-body">
               <strong>{{ item.title }}</strong>
@@ -155,6 +159,8 @@ const allVideos = computed(() =>
     tags: video.tags || [],
     path: video.path || '',
     description: video.description || '',
+    thumbnail: video.thumbnail || '',
+    thumbnailUrl: video.thumbnail ? mediaUrl('collected', video.thumbnail) : '',
     url: video.path ? videoStreamUrl(video) : '',
   }))
 )
@@ -494,12 +500,24 @@ loadData()
     linear-gradient(135deg, hsl(var(--cover-hue) 70% 42%), hsl(calc(var(--cover-hue) + 42deg) 76% 26%));
 }
 
+.video-thumb.has-thumbnail {
+  background: #020617;
+}
+
 .video-thumb::after {
   position: absolute;
   inset: auto 0 0;
   height: 56%;
   content: '';
   background: linear-gradient(180deg, transparent, rgba(5, 10, 24, 0.72));
+}
+
+.video-thumb img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .video-thumb strong {

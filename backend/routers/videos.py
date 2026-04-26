@@ -29,6 +29,7 @@ async def list_videos():
             "author": video.get("author", ""),
             "category": video.get("category", ""),
             "path": video.get("path", ""),
+            "thumbnail": video.get("thumbnail", ""),
             "tags": video.get("tags", []),
             "description": video.get("description", ""),
         }

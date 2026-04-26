@@ -1,5 +1,6 @@
 import hashlib
 import re
+import subprocess
 from pathlib import Path
 
 from config import COLLECTED_DIR, COURSES_DIR, SONGS_DIR
@@ -11,6 +12,7 @@ SCORE_EXTENSIONS = {".gp", ".gp5", ".gpx", ".gpzip", ".pdf"}
 VIDEO_EXTENSIONS = {".mp4", ".mov", ".m4v", ".avi", ".mkv", ".webm"}
 IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".webp"}
 IGNORED_FILENAMES = {".ds_store", ".gitkeep"}
+COLLECTED_THUMBNAILS_DIRNAME = ".thumbnails"
 KNOWN_SONG_ARTISTS = {
     "再见理想": "Beyond",
     "旧日的足迹": "Beyond",
@@ -75,6 +77,7 @@ def scan_collected_video_library() -> list[dict]:
             continue
 
         category = relative_path.parts[0] if len(relative_path.parts) > 1 else "未分类"
+        thumbnail_path = ensure_collected_video_thumbnail(video_file, relative_path)
         videos.append(
             {
                 "id": build_collected_video_id(relative_path),
@@ -83,6 +86,7 @@ def scan_collected_video_library() -> list[dict]:
                 "author": "",
                 "category": category,
                 "path": clean_relative_path(relative_path.as_posix()),
+                "thumbnail": thumbnail_path,
                 "tags": [part for part in relative_path.parts[:-1] if part and part != category],
                 "description": "",
                 "type": "collected",
@@ -158,6 +162,47 @@ def build_song_id(relative_song_dir: Path) -> str:
 
 def build_collected_video_id(relative_video_path: Path) -> str:
     return f"video_{stable_suffix(relative_video_path.as_posix())}"
+
+
+def build_collected_thumbnail_path(relative_video_path: Path) -> Path:
+    return Path(COLLECTED_THUMBNAILS_DIRNAME) / f"{stable_suffix(relative_video_path.as_posix())}.jpg"
+
+
+def ensure_collected_video_thumbnail(video_file: Path, relative_video_path: Path) -> str:
+    thumbnail_relative_path = build_collected_thumbnail_path(relative_video_path)
+    thumbnail_path = COLLECTED_DIR / thumbnail_relative_path
+    if thumbnail_path.exists():
+        return clean_relative_path(thumbnail_relative_path.as_posix())
+
+    thumbnail_path.parent.mkdir(parents=True, exist_ok=True)
+    if generate_video_thumbnail(video_file, thumbnail_path):
+        return clean_relative_path(thumbnail_relative_path.as_posix())
+
+    return ""
+
+
+def generate_video_thumbnail(video_file: Path, thumbnail_path: Path) -> bool:
+    command = [
+        "ffmpeg",
+        "-y",
+        "-ss",
+        "00:00:01",
+        "-i",
+        str(video_file),
+        "-frames:v",
+        "1",
+        "-vf",
+        "scale='min(640,iw)':-2",
+        "-q:v",
+        "4",
+        str(thumbnail_path),
+    ]
+    try:
+        subprocess.run(command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True, timeout=20)
+        return thumbnail_path.exists()
+    except (FileNotFoundError, subprocess.SubprocessError):
+        thumbnail_path.unlink(missing_ok=True)
+        return False
 
 
 def infer_song_artist(title: str) -> str:

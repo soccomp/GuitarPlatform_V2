@@ -18,6 +18,7 @@ class IndexerTests(unittest.TestCase):
         self.original_courses_dir = indexer.COURSES_DIR
         self.original_songs_dir = indexer.SONGS_DIR
         self.original_collected_dir = indexer.COLLECTED_DIR
+        self.original_generate_video_thumbnail = indexer.generate_video_thumbnail
 
         self.courses_dir = self.temp_dir / "courses"
         self.songs_dir = self.temp_dir / "songs"
@@ -34,6 +35,7 @@ class IndexerTests(unittest.TestCase):
         indexer.COURSES_DIR = self.original_courses_dir
         indexer.SONGS_DIR = self.original_songs_dir
         indexer.COLLECTED_DIR = self.original_collected_dir
+        indexer.generate_video_thumbnail = self.original_generate_video_thumbnail
         shutil.rmtree(self.temp_dir)
 
     def test_scan_course_library_collects_video_transcript_and_materials(self):
@@ -102,6 +104,7 @@ class IndexerTests(unittest.TestCase):
         video_dir = self.collected_dir / "未分类"
         video_dir.mkdir()
         (video_dir / "如何记忆指板.mp4").write_bytes(b"video")
+        indexer.generate_video_thumbnail = lambda video_file, thumbnail_path: False
 
         videos = indexer.scan_collected_video_library()
 
@@ -110,6 +113,26 @@ class IndexerTests(unittest.TestCase):
         self.assertEqual(videos[0]["source"], "local")
         self.assertEqual(videos[0]["category"], "未分类")
         self.assertEqual(videos[0]["path"], "未分类/如何记忆指板.mp4")
+        self.assertEqual(videos[0]["thumbnail"], "")
+
+    def test_scan_collected_video_library_adds_thumbnail_path(self):
+        video_dir = self.collected_dir / "技巧"
+        video_dir.mkdir()
+        video_file = video_dir / "和弦如何变强.mp4"
+        video_file.write_bytes(b"video")
+
+        def fake_thumbnail(_video_file, thumbnail_path):
+            thumbnail_path.write_bytes(b"jpg")
+            return True
+
+        indexer.generate_video_thumbnail = fake_thumbnail
+
+        videos = indexer.scan_collected_video_library()
+
+        self.assertEqual(len(videos), 1)
+        self.assertTrue(videos[0]["thumbnail"].startswith(".thumbnails/"))
+        self.assertTrue(videos[0]["thumbnail"].endswith(".jpg"))
+        self.assertTrue((self.collected_dir / videos[0]["thumbnail"]).exists())
 
 
 if __name__ == "__main__":
