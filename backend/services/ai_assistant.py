@@ -1,11 +1,15 @@
 import os
+from pathlib import Path
 
 import httpx
 
 
-MINIMAX_API_KEY = os.environ.get("MINIMAX_API_KEY", "").strip()
 MINIMAX_BASE_URL = "https://api.minimaxi.com/v1/text/chatcompletion_v2"
 MINIMAX_MODEL = "MiniMax-M2.7"
+ENV_FILES = (
+    Path(__file__).resolve().parents[2] / ".env",
+    Path(__file__).resolve().parents[1] / ".env",
+)
 
 
 class AssistantConfigurationError(RuntimeError):
@@ -13,8 +17,8 @@ class AssistantConfigurationError(RuntimeError):
 
 
 def ensure_ai_configured() -> None:
-    if not MINIMAX_API_KEY:
-        raise AssistantConfigurationError("MINIMAX_API_KEY is not configured")
+    if not get_minimax_api_key():
+        raise AssistantConfigurationError("还没有配置 MiniMax API Key。请在 backend/.env 里添加 MINIMAX_API_KEY=你的key，然后重启平台。")
 
 
 async def ask_course_question(course_title: str, transcript: str, question: str) -> str:
@@ -67,11 +71,15 @@ async def generate_practice_plan(topic: str, level: str) -> str:
 
 
 async def _send_chat(payload: dict) -> str:
+    api_key = get_minimax_api_key()
+    if not api_key:
+        raise AssistantConfigurationError("还没有配置 MiniMax API Key。请在 backend/.env 里添加 MINIMAX_API_KEY=你的key，然后重启平台。")
+
     async with httpx.AsyncClient(timeout=60.0) as client:
         response = await client.post(
             MINIMAX_BASE_URL,
             headers={
-                "Authorization": f"Bearer {MINIMAX_API_KEY}",
+                "Authorization": f"Bearer {api_key}",
                 "Content-Type": "application/json",
             },
             json=payload,
@@ -83,3 +91,30 @@ async def _send_chat(payload: dict) -> str:
     if not choices:
         raise RuntimeError("AI provider returned no choices")
     return choices[0]["message"]["content"]
+
+
+def get_minimax_api_key() -> str:
+    env_key = os.environ.get("MINIMAX_API_KEY", "").strip()
+    if env_key:
+        return env_key
+
+    for env_file in ENV_FILES:
+        key = read_env_value(env_file, "MINIMAX_API_KEY")
+        if key:
+            return key
+    return ""
+
+
+def read_env_value(env_file: Path, name: str) -> str:
+    if not env_file.exists():
+        return ""
+
+    for raw_line in env_file.read_text(encoding="utf-8").splitlines():
+        line = raw_line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, value = line.split("=", 1)
+        if key.strip() != name:
+            continue
+        return value.strip().strip('"').strip("'")
+    return ""

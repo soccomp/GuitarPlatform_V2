@@ -1,4 +1,6 @@
 .DS_Store
+.env
+backend/.env
 __pycache__/
 *.pyc
 
