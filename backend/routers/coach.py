@@ -10,6 +10,7 @@ from services.coach_sessions import (
     export_sessions_zip,
     find_session,
     list_sessions,
+    resolve_mixed_path,
     resolve_recording_path,
 )
 from services.index_store import find_song, load_index, resolve_under
@@ -27,6 +28,7 @@ def build_session_response(session: dict) -> dict:
     result.setdefault("segment", session.get("segment", ""))
     result["session_id"] = session.get("id")
     result["recording_url"] = f"/api/coach/sessions/{session['id']}/recording"
+    result["mix_url"] = f"/api/coach/sessions/{session['id']}/mix" if session.get("mixed_path") else ""
     result["reference_url"] = (
         f"/api/songs/{quote(session['song_id'])}/asset?path={quote(session['reference_asset_path'])}"
         if session.get("song_id") and session.get("reference_asset_path")
@@ -56,6 +58,7 @@ async def analyze_rhythm(
     reference_audio_bytes = None
     reference_mime_type = ""
     reference_label = ""
+    reference_path = None
 
     song = find_song(load_index(), song_id)
     if song:
@@ -70,6 +73,7 @@ async def analyze_rhythm(
                     reference_label = audio_file
             except ValueError:
                 reference_audio_bytes = None
+                reference_path = None
 
     result = await analyze_practice_audio(
         song_id=song_id,
@@ -105,6 +109,7 @@ async def analyze_rhythm(
         recorded_duration=recorded_duration,
         reference_label=reference_label,
         reference_asset_path=(audio_file or "") if song else "",
+        reference_source_path=reference_path if song and audio_file else None,
         analysis_result=result,
     )
     return build_session_response(session)
@@ -130,6 +135,25 @@ async def stream_session_recording(session_id: str, request: Request):
         raise HTTPException(status_code=404, detail="Recording file not found")
 
     return media_file_response(recording_path, request)
+
+
+@router.get("/sessions/{session_id}/mix")
+async def stream_session_mix(session_id: str, request: Request):
+    session = find_session(session_id)
+    if not session:
+        raise HTTPException(status_code=404, detail="Practice session not found")
+    if not session.get("mixed_path"):
+        raise HTTPException(status_code=404, detail="Mixed practice file not found")
+
+    try:
+        mixed_path = resolve_mixed_path(session)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    if not mixed_path.exists():
+        raise HTTPException(status_code=404, detail="Mixed practice file not found")
+
+    return media_file_response(mixed_path, request)
 
 
 @router.delete("/sessions")

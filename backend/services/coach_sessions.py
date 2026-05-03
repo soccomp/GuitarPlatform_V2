@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import io
 import json
+import shutil
+import subprocess
 import uuid
 import zipfile
 from copy import deepcopy
@@ -56,6 +58,7 @@ def normalize_session(session: dict) -> dict:
     normalized.setdefault("tempo_mode", "")
     normalized.setdefault("coach_model", "")
     normalized.setdefault("recording_path", "")
+    normalized.setdefault("mixed_path", "")
     normalized.setdefault("recording_mime_type", "audio/webm")
     normalized.setdefault("recording_duration", 0.0)
     normalized.setdefault("reference_label", "")
@@ -63,6 +66,7 @@ def normalize_session(session: dict) -> dict:
     normalized.setdefault("created_at", "")
     normalized.setdefault("analysis", {})
     normalized["recording_path"] = clean_relative_path(normalized.get("recording_path", ""))
+    normalized["mixed_path"] = clean_relative_path(normalized.get("mixed_path", ""))
     normalized["reference_asset_path"] = clean_relative_path(normalized.get("reference_asset_path", ""))
     return normalized
 
@@ -80,15 +84,23 @@ def create_session(
     recorded_duration: float,
     reference_label: str,
     reference_asset_path: str,
+    reference_source_path: Path | None,
     analysis_result: dict,
 ) -> dict:
     session_id = uuid.uuid4().hex[:12]
     timestamp = datetime.now(timezone.utc).astimezone().isoformat(timespec="seconds")
     relative_dir = Path(song_id or "unknown-song") / session_id
     relative_recording_path = relative_dir / f"practice-take.{recording_extension}"
+    relative_mixed_path = relative_dir / "practice-mix.m4a"
     absolute_recording_path = COACH_RECORDINGS_DIR / relative_recording_path
+    absolute_mixed_path = COACH_RECORDINGS_DIR / relative_mixed_path
     absolute_recording_path.parent.mkdir(parents=True, exist_ok=True)
     absolute_recording_path.write_bytes(recording_bytes)
+    mixed_created = create_mixed_practice_audio(
+        recording_path=absolute_recording_path,
+        reference_path=reference_source_path,
+        output_path=absolute_mixed_path,
+    )
 
     session = normalize_session(
         {
@@ -100,6 +112,7 @@ def create_session(
             "tempo_mode": analysis_result.get("tempo_mode", ""),
             "coach_model": coach_model,
             "recording_path": relative_recording_path.as_posix(),
+            "mixed_path": relative_mixed_path.as_posix() if mixed_created else "",
             "recording_mime_type": recording_mime_type,
             "recording_duration": recorded_duration,
             "reference_label": reference_label,
@@ -133,6 +146,41 @@ def resolve_recording_path(session: dict) -> Path:
     return candidate
 
 
+def resolve_mixed_path(session: dict) -> Path:
+    candidate = (COACH_RECORDINGS_DIR / clean_relative_path(session.get("mixed_path", ""))).resolve()
+    base = COACH_RECORDINGS_DIR.resolve()
+    if candidate != base and base not in candidate.parents:
+        raise ValueError("Mixed path escapes base directory")
+    return candidate
+
+
+def create_mixed_practice_audio(*, recording_path: Path, reference_path: Path | None, output_path: Path) -> bool:
+    ffmpeg_path = shutil.which("ffmpeg")
+    if not ffmpeg_path or not reference_path or not reference_path.exists():
+        return False
+
+    command = [
+        ffmpeg_path,
+        "-y",
+        "-i",
+        str(recording_path),
+        "-i",
+        str(reference_path),
+        "-filter_complex",
+        "[0:a]volume=1.8[a0];[1:a]volume=0.55[a1];[a0][a1]amix=inputs=2:duration=first:dropout_transition=0",
+        "-c:a",
+        "aac",
+        "-b:a",
+        "192k",
+        str(output_path),
+    ]
+    try:
+        subprocess.run(command, check=True, capture_output=True)
+        return output_path.exists()
+    except Exception:
+        return False
+
+
 def delete_sessions(session_ids: list[str]) -> dict:
     if not session_ids:
         raise HTTPException(status_code=400, detail="未提供要删除的练习记录")
@@ -150,6 +198,9 @@ def delete_sessions(session_ids: list[str]) -> dict:
             recording_path = resolve_recording_path(session)
             if recording_path.exists():
                 recording_path.unlink()
+            mixed_path = resolve_mixed_path(session)
+            if mixed_path.exists():
+                mixed_path.unlink()
             parent = recording_path.parent
             if parent.exists() and not any(parent.iterdir()):
                 parent.rmdir()
@@ -181,6 +232,14 @@ def export_sessions_zip(session_ids: list[str]) -> tuple[bytes, str]:
                     archive.write(recording_path, archive_name)
             except ValueError:
                 pass
+            mixed_name = ""
+            try:
+                mixed_path = resolve_mixed_path(session)
+                if mixed_path.exists():
+                    mixed_name = f"{session['song_title']}_{session['id']}/practice-mix.m4a"
+                    archive.write(mixed_path, mixed_name)
+            except ValueError:
+                mixed_name = ""
             metadata.append(
                 {
                     "id": session.get("id"),
@@ -192,6 +251,7 @@ def export_sessions_zip(session_ids: list[str]) -> tuple[bytes, str]:
                     "created_at": session.get("created_at"),
                     "reference_label": session.get("reference_label"),
                     "recording_file": archive_name,
+                    "mixed_file": mixed_name,
                     "analysis": session.get("analysis", {}),
                 }
             )

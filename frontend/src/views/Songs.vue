@@ -326,6 +326,11 @@
                   <h5>老师反馈</h5>
                   <p>{{ coachResult.coach_feedback }}</p>
                 </div>
+
+                <div v-if="coachResult.mix_url || coachResult.recording_url" class="coach-block">
+                  <h5>练习回放</h5>
+                  <audio controls :src="coachResult.mix_url || coachResult.recording_url"></audio>
+                </div>
               </div>
 
               <div class="coach-history">
@@ -362,12 +367,8 @@
 
                     <div class="coach-history-media">
                       <div class="coach-media-player">
-                        <span>我的录音</span>
-                        <audio controls :src="session.recording_url"></audio>
-                      </div>
-                      <div class="coach-media-player">
-                        <span>对应伴奏</span>
-                        <audio controls :src="session.reference_url" :disabled="!session.reference_url"></audio>
+                        <span>练习回放（录音 + 伴奏）</span>
+                        <audio controls :src="session.mix_url || session.recording_url"></audio>
                       </div>
                     </div>
 
@@ -868,7 +869,16 @@ export default {
       this.coachRecordingDuration = 0
 
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+        const stream = await navigator.mediaDevices.getUserMedia({
+          audio: {
+            echoCancellation: false,
+            noiseSuppression: false,
+            autoGainControl: false,
+            channelCount: 2,
+            sampleRate: 48000,
+            sampleSize: 16,
+          },
+        })
         const mimeType = this.pickRecordingMimeType()
         this.mediaStream = stream
         this.recordedChunks = []
