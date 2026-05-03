@@ -82,6 +82,7 @@ def create_session(
     recording_extension: str,
     recording_mime_type: str,
     recorded_duration: float,
+    playback_rate: float,
     reference_label: str,
     reference_asset_path: str,
     reference_source_path: Path | None,
@@ -100,6 +101,7 @@ def create_session(
         recording_path=absolute_recording_path,
         reference_path=reference_source_path,
         output_path=absolute_mixed_path,
+        playback_rate=playback_rate,
     )
 
     session = normalize_session(
@@ -154,10 +156,18 @@ def resolve_mixed_path(session: dict) -> Path:
     return candidate
 
 
-def create_mixed_practice_audio(*, recording_path: Path, reference_path: Path | None, output_path: Path) -> bool:
+def create_mixed_practice_audio(
+    *,
+    recording_path: Path,
+    reference_path: Path | None,
+    output_path: Path,
+    playback_rate: float,
+) -> bool:
     ffmpeg_path = shutil.which("ffmpeg")
     if not ffmpeg_path or not reference_path or not reference_path.exists():
         return False
+
+    reference_filter = f"[1:a]atempo={max(0.6, min(playback_rate or 1.0, 1.0)):.3f},volume=0.55[a1]"
 
     command = [
         ffmpeg_path,
@@ -167,7 +177,7 @@ def create_mixed_practice_audio(*, recording_path: Path, reference_path: Path | 
         "-i",
         str(reference_path),
         "-filter_complex",
-        "[0:a]volume=1.8[a0];[1:a]volume=0.55[a1];[a0][a1]amix=inputs=2:duration=first:dropout_transition=0",
+        f"[0:a]volume=1.8[a0];{reference_filter};[a0][a1]amix=inputs=2:duration=first:dropout_transition=0",
         "-c:a",
         "aac",
         "-b:a",

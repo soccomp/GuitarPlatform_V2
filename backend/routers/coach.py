@@ -107,6 +107,7 @@ async def analyze_rhythm(
         recording_extension=extension,
         recording_mime_type=content_type or "audio/webm",
         recorded_duration=recorded_duration,
+        playback_rate=playback_rate,
         reference_label=reference_label,
         reference_asset_path=(audio_file or "") if song else "",
         reference_source_path=reference_path if song and audio_file else None,
