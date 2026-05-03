@@ -126,6 +126,23 @@ D:\GuitarCoachNode
 - 实时摄像头复杂识别
 - 大规模批处理所有音视频
 
+当前仓库里已经包含这个服务骨架：
+
+```text
+coach_node/
+```
+
+它提供：
+
+- `GET /health`
+- `POST /api/coach/analyze-rhythm`
+
+第一版职责：
+
+- 接收 Mac 平台上传的录音
+- 调用 Ollama 生成老师式反馈
+- 返回结构化 JSON 给主平台
+
 ## 6.1 与 Scarlett 2i2 的配合方式
 
 第一版建议用户把 `Scarlett 2i2` 接在 MacBook 上，而不是接在 4080 Windows 笔记本上。
@@ -207,6 +224,50 @@ ollama list
 - Windows 节点能收到一段测试录音并返回结果
 
 如果这些都 OK，这台机器就已经具备承担第一版分析节点的基础条件。
+
+## 9.1 启动分析节点服务
+
+在 Windows 机器上进入项目目录后，可以先这样启动：
+
+```powershell
+cd D:\GuitarPlatform_V2\coach_node
+python -m venv .venv
+.\.venv\Scripts\pip install -r requirements.txt
+set OLLAMA_BASE_URL=http://127.0.0.1:11434
+set COACH_OLLAMA_MODEL=qwen3:8b
+.\.venv\Scripts\uvicorn main:app --host 0.0.0.0 --port 9000
+```
+
+启动后先验证：
+
+```powershell
+curl http://127.0.0.1:9000/health
+```
+
+如果返回 `{"ok":true,...}`，说明分析节点已经起来了。
+
+## 9.2 Mac 平台如何指向分析节点
+
+当 Windows 节点起来之后，在 MacBook 的：
+
+```text
+backend/.env
+```
+
+里加入：
+
+```env
+COACH_NODE_URL=http://192.168.x.x:9000/api/coach/analyze-rhythm
+COACH_MODEL=qwen3:8b
+COACH_NODE_TIMEOUT_SECONDS=90
+```
+
+然后重启 Mac 上的平台后端。
+
+这样平台里的 `AI 陪练` 就会：
+
+- 优先把录音发给 Windows 4080 节点
+- 如果节点不可用，再自动回退到本地 preview 反馈
 
 ## 10. 后续扩展方向
 
