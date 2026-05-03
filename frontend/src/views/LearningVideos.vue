@@ -108,13 +108,60 @@
             <div class="video-frame">
               <video
                 v-if="selectedVideo.path"
+                ref="videoPlayerRef"
                 :key="selectedVideo.id"
                 :src="selectedVideo.url"
                 controls
                 controlsList="nodownload"
                 autoplay
+                @loadedmetadata="handleVideoReady"
+                @timeupdate="handleVideoProgress"
+                @play="isPlaying = true"
+                @pause="isPlaying = false"
               ></video>
               <div v-else class="state-box">当前视频未配置媒体路径</div>
+            </div>
+
+            <div v-if="selectedVideo.path" class="practice-controls">
+              <div class="practice-topbar">
+                <button class="ghost-btn" @click="togglePlay">
+                  {{ isPlaying ? '暂停' : '播放' }}
+                </button>
+                <span>{{ formatTime(currentTime) }} / {{ formatTime(duration) }}</span>
+              </div>
+
+              <input
+                class="seek-slider"
+                type="range"
+                min="0"
+                :max="duration || 0"
+                step="0.1"
+                :value="currentTime"
+                :disabled="!duration"
+                @input="seekVideoRange"
+              />
+
+              <div class="practice-actions">
+                <button :class="{ active: loopStart !== null }" @click="setLoopStart">
+                  A {{ loopStart === null ? '--:--' : formatTime(loopStart) }}
+                </button>
+                <button :class="{ active: loopEnd !== null }" @click="setLoopEnd">
+                  B {{ loopEnd === null ? '--:--' : formatTime(loopEnd) }}
+                </button>
+                <button @click="clearLoop">清除循环</button>
+              </div>
+
+              <div class="practice-actions speed-row">
+                <span>速度</span>
+                <button
+                  v-for="speed in speeds"
+                  :key="speed"
+                  :class="{ active: playbackRate === speed }"
+                  @click="setSpeed(speed)"
+                >
+                  {{ speed }}x
+                </button>
+              </div>
             </div>
 
             <div class="detail-strip">
@@ -139,7 +186,7 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 import seedIndex from '../../../backend/data/index.json'
 
 const STORAGE_KEY = 'guitar-platform-collected-videos'
@@ -152,6 +199,14 @@ const videos = ref([])
 const scanning = ref(false)
 const deleting = ref(false)
 const recentKeys = ref(loadRecentKeys())
+const videoPlayerRef = ref(null)
+const isPlaying = ref(false)
+const currentTime = ref(0)
+const duration = ref(0)
+const playbackRate = ref(1)
+const loopStart = ref(null)
+const loopEnd = ref(null)
+const speeds = [0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 1.0]
 
 const allVideos = computed(() =>
   videos.value.map(video => ({
@@ -193,6 +248,19 @@ const recentVideos = computed(() =>
 
 const currentFilterLabel = computed(() => {
   return searchQuery.value.trim() ? `搜索：${searchQuery.value.trim()}` : '全部视频'
+})
+
+watch(selectedVideo, async video => {
+  currentTime.value = 0
+  duration.value = 0
+  isPlaying.value = false
+  loopStart.value = null
+  loopEnd.value = null
+  if (!video?.path) return
+  await nextTick()
+  if (videoPlayerRef.value) {
+    videoPlayerRef.value.playbackRate = playbackRate.value
+  }
 })
 
 async function loadData() {
@@ -267,6 +335,89 @@ function selectVideo(item) {
 
 function closeVideo() {
   selectedKey.value = ''
+  currentTime.value = 0
+  duration.value = 0
+  isPlaying.value = false
+  loopStart.value = null
+  loopEnd.value = null
+}
+
+function handleVideoReady(event) {
+  duration.value = event.target.duration || 0
+  event.target.playbackRate = playbackRate.value
+}
+
+function handleVideoProgress(event) {
+  const player = event.target
+  currentTime.value = player.currentTime || 0
+  if (
+    loopStart.value !== null
+    && loopEnd.value !== null
+    && loopEnd.value > loopStart.value
+    && player.currentTime >= loopEnd.value
+  ) {
+    player.currentTime = loopStart.value
+  }
+}
+
+async function togglePlay() {
+  const player = videoPlayerRef.value
+  if (!player) return
+  if (player.paused) {
+    await player.play()
+  } else {
+    player.pause()
+  }
+}
+
+function seekVideoRange(event) {
+  const player = videoPlayerRef.value
+  if (!player || !duration.value) return
+  player.currentTime = Math.max(0, Math.min(duration.value, Number(event.target.value)))
+}
+
+function setLoopStart() {
+  const player = videoPlayerRef.value
+  if (!player) return
+  loopStart.value = clampVideoTime(player.currentTime)
+  if (loopEnd.value !== null && loopEnd.value <= loopStart.value) {
+    loopEnd.value = null
+  }
+}
+
+function setLoopEnd() {
+  const player = videoPlayerRef.value
+  if (!player) return
+  const end = clampVideoTime(player.currentTime)
+  if (loopStart.value !== null && end <= loopStart.value) {
+    loopStart.value = Math.max(0, end - 0.5)
+  }
+  loopEnd.value = end
+}
+
+function clearLoop() {
+  loopStart.value = null
+  loopEnd.value = null
+}
+
+function setSpeed(speed) {
+  playbackRate.value = speed
+  if (videoPlayerRef.value) {
+    videoPlayerRef.value.playbackRate = speed
+  }
+}
+
+function clampVideoTime(time) {
+  const value = Number.isFinite(time) ? time : 0
+  if (!duration.value) return Math.max(0, value)
+  return Math.max(0, Math.min(duration.value, value))
+}
+
+function formatTime(seconds) {
+  if (!Number.isFinite(seconds)) return '0:00'
+  const mins = Math.floor(seconds / 60)
+  const secs = Math.floor(seconds % 60)
+  return `${mins}:${secs.toString().padStart(2, '0')}`
 }
 
 function displayCategory(item) {
@@ -498,6 +649,53 @@ loadData()
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
+}
+
+.practice-controls {
+  display: grid;
+  gap: 12px;
+  margin: -2px 0 20px;
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: #0f1730;
+}
+
+.practice-topbar,
+.practice-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.practice-topbar {
+  justify-content: space-between;
+  color: #dbe3f4;
+  font-size: 14px;
+}
+
+.seek-slider {
+  width: 100%;
+  accent-color: #f97316;
+}
+
+.practice-actions button {
+  border: 1px solid rgba(249, 115, 22, 0.4);
+  background: transparent;
+  color: #f97316;
+  border-radius: 999px;
+  padding: 8px 14px;
+  cursor: pointer;
+}
+
+.practice-actions button.active {
+  background: #f97316;
+  color: #fff7ed;
+}
+
+.speed-row span {
+  color: #95a2bf;
+  font-size: 13px;
 }
 
 .detail-strip div {
