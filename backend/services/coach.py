@@ -25,6 +25,9 @@ async def analyze_practice_audio(
     mime_type: str,
     segment_label: str = "",
     recorded_duration: float = 0.0,
+    reference_audio_bytes: bytes | None = None,
+    reference_mime_type: str = "",
+    reference_label: str = "",
 ) -> dict[str, Any]:
     if get_coach_node_url():
         try:
@@ -37,6 +40,9 @@ async def analyze_practice_audio(
                 mime_type=mime_type,
                 segment_label=segment_label,
                 recorded_duration=recorded_duration,
+                reference_audio_bytes=reference_audio_bytes,
+                reference_mime_type=reference_mime_type,
+                reference_label=reference_label,
             )
         except Exception as exc:
             preview = build_preview_rhythm_analysis(
@@ -81,6 +87,9 @@ async def send_to_coach_node(
     mime_type: str,
     segment_label: str = "",
     recorded_duration: float = 0.0,
+    reference_audio_bytes: bytes | None = None,
+    reference_mime_type: str = "",
+    reference_label: str = "",
 ) -> dict[str, Any]:
     coach_node_url = get_coach_node_url()
     if not coach_node_url:
@@ -93,6 +102,12 @@ async def send_to_coach_node(
             mime_type or "application/octet-stream",
         ),
     }
+    if reference_audio_bytes:
+        files["reference_audio"] = (
+            f"reference-track.{guess_audio_extension(reference_mime_type or mime_type)}",
+            reference_audio_bytes,
+            reference_mime_type or "application/octet-stream",
+        )
     data = {
         "song_id": song_id,
         "song_title": song_title,
@@ -100,6 +115,7 @@ async def send_to_coach_node(
         "segment_label": segment_label,
         "playback_rate": str(playback_rate),
         "recorded_duration": str(recorded_duration),
+        "reference_label": reference_label,
         "coach_model": get_coach_model(),
         "teacher_prompt": build_teacher_feedback_prompt(
             song_title=song_title,

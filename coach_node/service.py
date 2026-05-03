@@ -30,6 +30,8 @@ def build_node_preview_analysis(
     audio_size_bytes: int,
     model_name: str,
     audio_features: dict[str, Any] | None = None,
+    reference_features: dict[str, Any] | None = None,
+    reference_label: str = "",
 ) -> dict[str, Any]:
     normalized_rate = max(0.6, min(playback_rate or 1.0, 1.0))
     duration = max(0.0, recorded_duration or 0.0)
@@ -41,10 +43,14 @@ def build_node_preview_analysis(
         mime_type=mime_type,
     )
 
+    comparison = build_reference_comparison(features, reference_features or {})
     issues, advice, stability_score = build_dynamic_feedback(
         segment_name=segment_name,
         playback_rate=normalized_rate,
         audio_features=features,
+        reference_features=reference_features or {},
+        reference_comparison=comparison,
+        reference_label=reference_label,
     )
 
     return {
@@ -61,6 +67,8 @@ def build_node_preview_analysis(
         "advice": advice,
         "coach_feedback": "",
         "analysis_features": features,
+        "reference_features": reference_features or {},
+        "reference_comparison": comparison,
         "received": {
             "mime_type": mime_type or "application/octet-stream",
             "bytes": audio_size_bytes,
@@ -75,6 +83,9 @@ def build_dynamic_feedback(
     segment_name: str,
     playback_rate: float,
     audio_features: dict[str, Any],
+    reference_features: dict[str, Any],
+    reference_comparison: dict[str, Any],
+    reference_label: str,
 ) -> tuple[list[dict[str, str]], list[str], int]:
     duration = float(audio_features.get("duration", 0.0) or 0.0)
     onset_count = int(audio_features.get("onset_count", 0) or 0)
@@ -83,6 +94,11 @@ def build_dynamic_feedback(
     energy_mean = float(audio_features.get("energy_mean", 0.0) or 0.0)
     energy_variance = float(audio_features.get("energy_variance", 0.0) or 0.0)
     source = audio_features.get("source", "fallback")
+    has_reference = bool(reference_features)
+    density_delta = float(reference_comparison.get("onset_density_delta", 0.0) or 0.0)
+    duration_delta = float(reference_comparison.get("duration_delta", 0.0) or 0.0)
+    silence_delta = float(reference_comparison.get("silence_ratio_delta", 0.0) or 0.0)
+    reference_name = reference_label or "当前版本伴奏"
 
     stability_score = 82
     stability_score += int((1.0 - playback_rate) * 16)
@@ -94,6 +110,9 @@ def build_dynamic_feedback(
         stability_score -= 4
     if energy_mean < 0.03:
         stability_score -= 6
+    if has_reference:
+        stability_score -= min(8, int(abs(density_delta) * 4))
+        stability_score -= min(6, int(abs(silence_delta) * 12))
     stability_score = max(58, min(92, stability_score))
 
     issues: list[dict[str, str]] = []
@@ -153,6 +172,46 @@ def build_dynamic_feedback(
         )
         advice.append("现在不用大改动作，继续围绕主拍和切分边界做慢速循环就很有效。")
 
+    if has_reference:
+        if density_delta > 0.8:
+            issues.append(
+                {
+                    "type": "reference_density_fast",
+                    "message": f"和 {reference_name} 比，你这次起音更密，说明局部容易往前冲或塞得太满。",
+                }
+            )
+            advice.append("先把每句内部的音头放松一点，不要一紧张就把音往前赶。")
+        elif density_delta < -0.8:
+            issues.append(
+                {
+                    "type": "reference_density_sparse",
+                    "message": f"和 {reference_name} 比，你这次起音偏稀，说明句子推进感还不够，容易拖拍。",
+                }
+            )
+            advice.append("先跟着伴奏只练进入点和重拍，让句子推进起来，再去管装饰音。")
+        else:
+            issues.append(
+                {
+                    "type": "reference_density_close",
+                    "message": f"和 {reference_name} 比，起音密度已经比较接近，问题更像是主拍边界还不够稳。",
+                }
+            )
+
+        if duration_delta > 1.0:
+            issues.append(
+                {
+                    "type": "reference_duration_long",
+                    "message": f"整段时长比 {reference_name} 更长，说明你在某些连接点还是会犹豫停顿。",
+                }
+            )
+        elif duration_delta < -1.0:
+            issues.append(
+                {
+                    "type": "reference_duration_short",
+                    "message": f"整段时长比 {reference_name} 更短，说明你可能整体偏赶，没有完全等到拍点落稳。",
+                }
+            )
+
     if energy_variance > 0.2:
         issues.append(
             {
@@ -190,6 +249,8 @@ def build_ollama_messages(
     preview_analysis: dict[str, Any],
 ) -> list[dict[str, str]]:
     features = preview_analysis.get("analysis_features") or {}
+    reference_features = preview_analysis.get("reference_features") or {}
+    comparison = preview_analysis.get("reference_comparison") or {}
     feature_lines = [
         f"- 分析来源：{features.get('source', 'unknown')}",
         f"- 估计时长：{features.get('duration', 0):.2f} 秒",
@@ -199,6 +260,17 @@ def build_ollama_messages(
         f"- 平均能量：{features.get('energy_mean', 0):.3f}",
         f"- 力度波动：{features.get('energy_variance', 0):.3f}",
     ]
+    if reference_features:
+        feature_lines.extend(
+            [
+                f"- 参考时长：{reference_features.get('duration', 0):.2f} 秒",
+                f"- 参考起音密度：{reference_features.get('onset_density', 0):.2f} 次/秒",
+                f"- 参考静默比例：{reference_features.get('silence_ratio', 0):.2f}",
+                f"- 起音密度差：{comparison.get('onset_density_delta', 0):.2f}",
+                f"- 时长差：{comparison.get('duration_delta', 0):.2f} 秒",
+                f"- 静默差：{comparison.get('silence_ratio_delta', 0):.2f}",
+            ]
+        )
 
     return [
         {
@@ -263,6 +335,9 @@ async def analyze_with_ollama(
     recorded_duration: float,
     mime_type: str,
     audio_bytes: bytes,
+    reference_audio_bytes: bytes | None,
+    reference_mime_type: str,
+    reference_label: str,
     teacher_prompt: str,
     requested_model: str,
 ) -> dict[str, Any]:
@@ -271,6 +346,15 @@ async def analyze_with_ollama(
         audio_bytes=audio_bytes,
         duration_hint=recorded_duration,
         mime_type=mime_type,
+    )
+    reference_features = (
+        extract_audio_features(
+            audio_bytes=reference_audio_bytes,
+            duration_hint=recorded_duration,
+            mime_type=reference_mime_type or mime_type,
+        )
+        if reference_audio_bytes
+        else {}
     )
     preview = build_node_preview_analysis(
         song_id=song_id,
@@ -283,6 +367,8 @@ async def analyze_with_ollama(
         audio_size_bytes=len(audio_bytes),
         model_name=model_name,
         audio_features=audio_features,
+        reference_features=reference_features,
+        reference_label=reference_label,
     )
     try:
         preview["coach_feedback"] = await request_ollama_feedback(
@@ -311,10 +397,12 @@ async def analyze_with_ollama(
 
 def extract_audio_features(
     *,
-    audio_bytes: bytes,
+    audio_bytes: bytes | None,
     duration_hint: float,
     mime_type: str,
 ) -> dict[str, Any]:
+    if not audio_bytes:
+        return {}
     ffmpeg_path = shutil.which("ffmpeg")
     if not ffmpeg_path:
         return build_fallback_audio_features(
@@ -446,6 +534,28 @@ def build_fallback_audio_features(
         "silence_ratio": round(silence_ratio, 3),
         "energy_mean": round(energy_mean, 4),
         "energy_variance": round(energy_variance, 4),
+    }
+
+
+def build_reference_comparison(
+    recorded_features: dict[str, Any],
+    reference_features: dict[str, Any],
+) -> dict[str, Any]:
+    if not recorded_features or not reference_features:
+        return {}
+    return {
+        "onset_density_delta": round(
+            float(recorded_features.get("onset_density", 0.0)) - float(reference_features.get("onset_density", 0.0)),
+            3,
+        ),
+        "duration_delta": round(
+            float(recorded_features.get("duration", 0.0)) - float(reference_features.get("duration", 0.0)),
+            3,
+        ),
+        "silence_ratio_delta": round(
+            float(recorded_features.get("silence_ratio", 0.0)) - float(reference_features.get("silence_ratio", 0.0)),
+            3,
+        ),
     }
 
 

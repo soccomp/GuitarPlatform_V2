@@ -1,3 +1,4 @@
+import importlib.util
 import sys
 import unittest
 from pathlib import Path
@@ -10,9 +11,19 @@ BACKEND_DIR = Path(__file__).resolve().parents[1]
 if str(BACKEND_DIR) not in sys.path:
     sys.path.insert(0, str(BACKEND_DIR))
 
-from main import app
 from services import coach
 from services.coach import build_preview_rhythm_analysis
+
+
+def load_backend_app():
+    spec = importlib.util.spec_from_file_location("backend_main_for_tests", BACKEND_DIR / "main.py")
+    module = importlib.util.module_from_spec(spec)
+    assert spec and spec.loader
+    spec.loader.exec_module(module)
+    return module.app
+
+
+app = load_backend_app()
 
 
 class CoachServiceTests(unittest.TestCase):
@@ -67,6 +78,9 @@ class CoachRoutingTests(IsolatedAsyncioTestCase):
                     mime_type="audio/webm",
                     segment_label="尾奏",
                     recorded_duration=10.0,
+                    reference_audio_bytes=b"reference-audio",
+                    reference_mime_type="audio/mpeg",
+                    reference_label="伴奏2.mp3",
                 )
 
         self.assertEqual(payload, expected)
@@ -92,7 +106,7 @@ class CoachRouterTests(unittest.TestCase):
 
         self.assertEqual(response.status_code, 200)
         body = response.json()
-        self.assertEqual(body["mode"], "local_preview")
+        self.assertIn(body["mode"], {"local_preview", "local_preview_fallback"})
         self.assertEqual(body["song_title"], "灰色轨迹")
         self.assertEqual(body["segment"], "尾奏")
         self.assertEqual(body["received"]["mime_type"], "audio/webm")

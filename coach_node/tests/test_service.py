@@ -16,6 +16,7 @@ from service import (
     build_fallback_audio_features,
     build_node_preview_analysis,
     build_ollama_messages,
+    build_reference_comparison,
     extract_ollama_message,
 )
 
@@ -31,6 +32,15 @@ class CoachNodeServiceTests(unittest.TestCase):
             "energy_mean": 0.055,
             "energy_variance": 0.06,
         }
+        reference_features = {
+            "source": "ffmpeg",
+            "duration": 11.8,
+            "onset_count": 20,
+            "onset_density": 1.7,
+            "silence_ratio": 0.12,
+            "energy_mean": 0.049,
+            "energy_variance": 0.05,
+        }
         result = build_node_preview_analysis(
             song_id="song-1",
             song_title="灰色轨迹",
@@ -42,12 +52,15 @@ class CoachNodeServiceTests(unittest.TestCase):
             audio_size_bytes=4096,
             model_name="qwen3:8b",
             audio_features=features,
+            reference_features=reference_features,
+            reference_label="伴奏2.mp3",
         )
         self.assertEqual(result["mode"], "remote_node_preview")
         self.assertEqual(result["segment"], "尾奏")
         self.assertEqual(result["provider"], "ollama")
         self.assertTrue(result["advice"])
         self.assertEqual(result["analysis_features"]["source"], "ffmpeg")
+        self.assertTrue(result["reference_comparison"])
 
     def test_build_ollama_messages_uses_teacher_prompt(self):
         preview = build_node_preview_analysis(
@@ -80,6 +93,14 @@ class CoachNodeServiceTests(unittest.TestCase):
             "老师反馈",
         )
 
+    def test_reference_comparison_returns_deltas(self):
+        comparison = build_reference_comparison(
+            {"onset_density": 2.2, "duration": 10.5, "silence_ratio": 0.24},
+            {"onset_density": 1.8, "duration": 9.7, "silence_ratio": 0.18},
+        )
+        self.assertEqual(comparison["onset_density_delta"], 0.4)
+        self.assertEqual(comparison["duration_delta"], 0.8)
+
     def test_fallback_audio_features_vary_with_audio_bytes(self):
         first = build_fallback_audio_features(
             audio_bytes=b"first-audio",
@@ -106,6 +127,9 @@ class CoachNodeRuntimeTests(IsolatedAsyncioTestCase):
                 recorded_duration=12.0,
                 mime_type="audio/webm",
                 audio_bytes=b"123456",
+                reference_audio_bytes=b"abcdef",
+                reference_mime_type="audio/mpeg",
+                reference_label="伴奏2.mp3",
                 teacher_prompt="你是一位电吉他陪练老师。",
                 requested_model="qwen3:8b",
             )
@@ -125,10 +149,14 @@ class CoachNodeRouterTests(unittest.TestCase):
                 "segment_label": "尾奏",
                 "playback_rate": "0.8",
                 "recorded_duration": "10.0",
+                "reference_label": "伴奏2.mp3",
                 "coach_model": "qwen3:8b",
                 "teacher_prompt": "你是一位电吉他陪练老师。",
             },
-            files={"audio": ("take.webm", b"fake-audio", "audio/webm")},
+            files={
+                "audio": ("take.webm", b"fake-audio", "audio/webm"),
+                "reference_audio": ("ref.mp3", b"reference-audio", "audio/mpeg"),
+            },
         )
         self.assertEqual(response.status_code, 200)
         body = response.json()
