@@ -1,5 +1,8 @@
+from pathlib import Path
+
 import httpx
 from fastapi import APIRouter, HTTPException, Request
+from fastapi.concurrency import run_in_threadpool
 from pydantic import BaseModel
 
 from config import COURSES_DIR
@@ -8,10 +11,11 @@ from services.ai_assistant import (
     ask_course_question,
     generate_practice_plan,
 )
-from services.index_store import find_course, load_index, resolve_under, save_index
+from services.index_store import clean_relative_path, find_course, load_index, resolve_under, save_index
 from services.indexer import scan_course_library
 from services.media_response import media_file_response
 from services.resource_manager import delete_course_resource
+from services.transcriber import TranscriptionError, transcribe_media
 
 
 router = APIRouter(prefix="/api/courses", tags=["courses"])
@@ -95,6 +99,50 @@ async def get_transcript(course_id: str):
     if not course:
         raise HTTPException(status_code=404, detail="Course not found")
     return {"content": read_course_text(course.get("transcript_path", ""))}
+
+
+@router.post("/{course_id}/generate-transcript")
+async def generate_transcript(course_id: str):
+    index = load_index()
+    course = find_course(index, course_id)
+    if not course:
+        raise HTTPException(status_code=404, detail="Course not found")
+
+    video_path = course.get("video_path", "")
+    if not video_path:
+        raise HTTPException(status_code=404, detail="No video for this course")
+
+    try:
+        full_video_path = resolve_under(COURSES_DIR, video_path)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    if not full_video_path.exists():
+        raise HTTPException(status_code=404, detail="Video file not found")
+
+    transcript_relative = course.get("transcript_path", "") or clean_relative_path(
+        (Path(video_path).parent / "transcript.md").as_posix()
+    )
+
+    try:
+        full_transcript_path = resolve_under(COURSES_DIR, transcript_relative)
+        await run_in_threadpool(transcribe_media, full_video_path, full_transcript_path)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except TranscriptionError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+
+    index["courses"] = scan_course_library()
+    save_index(index)
+    updated_course = find_course(index, course_id)
+    if not updated_course:
+        raise HTTPException(status_code=500, detail="Course index refresh failed after transcript generation")
+
+    return {
+        "ok": True,
+        "course": updated_course,
+        "content": read_course_text(updated_course.get("transcript_path", "")),
+    }
 
 
 @router.get("/{course_id}/stream")

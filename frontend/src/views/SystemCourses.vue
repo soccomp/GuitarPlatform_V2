@@ -175,11 +175,26 @@
               <div class="detail-card transcript-card">
                 <div class="transcript-header">
                   <h4>课程笔记</h4>
-                  <button class="ghost-btn" @click="loadTranscript(selectedVideo.id)">
-                    刷新
-                  </button>
+                  <div class="transcript-actions">
+                    <button
+                      class="ghost-btn"
+                      :disabled="generatingTranscript"
+                      @click="loadTranscript(selectedVideo.id)"
+                    >
+                      刷新
+                    </button>
+                    <button
+                      class="assistant-btn secondary"
+                      :disabled="generatingTranscript || transcriptLoading"
+                      @click="generateTranscript"
+                    >
+                      {{ generatingTranscript ? '生成中...' : (transcript ? '重新生成 transcript' : '生成 transcript') }}
+                    </button>
+                  </div>
                 </div>
-                <div v-if="transcriptLoading" class="empty-copy">加载笔记中...</div>
+                <div v-if="transcriptLoading" class="empty-copy">
+                  {{ generatingTranscript ? 'Whisper 正在整理当前课程 transcript...' : '加载笔记中...' }}
+                </div>
                 <pre v-else class="transcript">{{ transcript || "当前课程暂无 transcript" }}</pre>
               </div>
             </div>
@@ -323,6 +338,7 @@ const searchQuery = ref('')
 const selectedKey = ref('')
 const transcript = ref('')
 const transcriptLoading = ref(false)
+const generatingTranscript = ref(false)
 const courses = ref([])
 const showQA = ref(false)
 const qaInput = ref('')
@@ -671,6 +687,31 @@ async function loadTranscript(courseId) {
   } catch (err) {
     transcript.value = `加载失败：${err.message}`
   } finally {
+    transcriptLoading.value = false
+  }
+}
+
+async function generateTranscript() {
+  if (!selectedVideo.value || selectedVideo.value.type !== 'course' || generatingTranscript.value || isFilePreview()) {
+    return
+  }
+
+  generatingTranscript.value = true
+  transcriptLoading.value = true
+  transcript.value = ''
+
+  try {
+    const response = await fetch(`/api/courses/${selectedVideo.value.id}/generate-transcript`, {
+      method: 'POST',
+    })
+    const data = await response.json()
+    if (!response.ok) throw new Error(data.detail || '生成 transcript 失败')
+
+    transcript.value = data.content || ''
+  } catch (err) {
+    transcript.value = `生成失败：${err.message}`
+  } finally {
+    generatingTranscript.value = false
     transcriptLoading.value = false
   }
 }
@@ -1675,6 +1716,13 @@ loadData()
   justify-content: space-between;
   align-items: center;
   margin-bottom: 12px;
+}
+
+.transcript-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: flex-end;
 }
 
 .player-header-actions {
