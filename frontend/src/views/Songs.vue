@@ -217,7 +217,21 @@
                   <h4>AI 陪练</h4>
                   <p class="coach-copy">先接通录音与反馈链路，后续再切到 4080 分析节点。</p>
                 </div>
-                <span class="coach-badge">推荐输入：Scarlett 2i2</span>
+                <div class="coach-header-side">
+                  <label class="coach-model-picker">
+                    <span>模型</span>
+                    <select v-model="coachModel" @change="persistCoachModel">
+                      <option
+                        v-for="model in coachModels"
+                        :key="model.value"
+                        :value="model.value"
+                      >
+                        {{ model.label }}
+                      </option>
+                    </select>
+                  </label>
+                  <span class="coach-badge">推荐输入：Scarlett 2i2</span>
+                </div>
               </div>
 
               <div class="coach-actions">
@@ -245,6 +259,7 @@
 
               <div class="media-hints">
                 <span>{{ coachStatusText }}</span>
+                <span>{{ currentCoachModelHint }}</span>
                 <span v-if="coachRecordingDuration">录音时长 {{ coachRecordingDuration.toFixed(1) }}s</span>
                 <span v-if="!recordingSupported">当前浏览器不支持录音</span>
               </div>
@@ -256,6 +271,10 @@
                   <div class="coach-metric">
                     <span>模式</span>
                     <strong>{{ coachResult.mode === 'local_preview' ? '本地预览' : coachResult.mode }}</strong>
+                  </div>
+                  <div class="coach-metric">
+                    <span>模型</span>
+                    <strong>{{ coachResult.model || coachModel }}</strong>
                   </div>
                   <div class="coach-metric">
                     <span>段落</span>
@@ -388,6 +407,12 @@
 <script>
 import seedIndex from '../../../backend/data/index.json'
 
+const COACH_MODEL_STORAGE_KEY = 'guitar-platform-coach-model'
+const COACH_MODELS = [
+  { value: 'qwen3:8b', label: 'Qwen 3 8B', hint: '更稳，更像日常陪练' },
+  { value: 'deepseek-r1:8b', label: 'DeepSeek R1 8B', hint: '推理更强，建议更展开' },
+]
+
 export default {
   name: 'SongsView',
   data() {
@@ -424,6 +449,8 @@ export default {
       coachResult: null,
       coachRecordingStartedAt: 0,
       coachRecordingDuration: 0,
+      coachModels: COACH_MODELS,
+      coachModel: this.loadCoachModel(),
     }
   },
   computed: {
@@ -483,6 +510,10 @@ export default {
     referenceFiles() {
       const group = this.currentVersionGroup
       return group?.root?.files || {}
+    },
+    currentCoachModelHint() {
+      const active = this.coachModels.find(item => item.value === this.coachModel)
+      return active ? `当前模型：${active.label} · ${active.hint}` : `当前模型：${this.coachModel}`
     },
     coachStatusText() {
       if (this.coachAnalyzing) return 'AI 陪练正在整理这次录音反馈'
@@ -816,6 +847,7 @@ export default {
         formData.append('segment_label', this.versionLeafLabel(this.selectedVersion))
         formData.append('playback_rate', String(this.playbackRate))
         formData.append('recorded_duration', String(this.coachRecordingDuration || 0))
+        formData.append('coach_model', this.coachModel)
         formData.append('audio', blob, `practice-take.${this.recordingExtension(blob.type)}`)
 
         const response = await fetch('/api/coach/analyze-rhythm', {
@@ -839,6 +871,18 @@ export default {
       this.coachError = ''
       this.coachResult = null
       this.coachRecordingDuration = 0
+    },
+    loadCoachModel() {
+      try {
+        return window.localStorage.getItem(COACH_MODEL_STORAGE_KEY) || COACH_MODELS[0].value
+      } catch {
+        return COACH_MODELS[0].value
+      }
+    },
+    persistCoachModel() {
+      try {
+        window.localStorage.setItem(COACH_MODEL_STORAGE_KEY, this.coachModel)
+      } catch {}
     },
     stopCoachStream() {
       if (!this.mediaStream) return
@@ -1222,6 +1266,35 @@ export default {
   background: rgba(249, 115, 22, 0.14);
   color: #f97316;
   font-size: 12px;
+}
+
+.coach-header-side {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.coach-model-picker {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #cbd5e1;
+  font-size: 12px;
+}
+
+.coach-model-picker span {
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.coach-model-picker select {
+  border-radius: 999px;
+  border: 1px solid rgba(249, 115, 22, 0.35);
+  background: #0f1730;
+  color: #f8fafc;
+  padding: 8px 12px;
 }
 
 .coach-actions {

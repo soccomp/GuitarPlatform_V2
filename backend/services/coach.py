@@ -28,6 +28,7 @@ async def analyze_practice_audio(
     reference_audio_bytes: bytes | None = None,
     reference_mime_type: str = "",
     reference_label: str = "",
+    coach_model: str = "",
 ) -> dict[str, Any]:
     if get_coach_node_url():
         try:
@@ -43,6 +44,7 @@ async def analyze_practice_audio(
                 reference_audio_bytes=reference_audio_bytes,
                 reference_mime_type=reference_mime_type,
                 reference_label=reference_label,
+                coach_model=coach_model,
             )
         except Exception as exc:
             preview = build_preview_rhythm_analysis(
@@ -90,6 +92,7 @@ async def send_to_coach_node(
     reference_audio_bytes: bytes | None = None,
     reference_mime_type: str = "",
     reference_label: str = "",
+    coach_model: str = "",
 ) -> dict[str, Any]:
     coach_node_url = get_coach_node_url()
     if not coach_node_url:
@@ -116,7 +119,7 @@ async def send_to_coach_node(
         "playback_rate": str(playback_rate),
         "recorded_duration": str(recorded_duration),
         "reference_label": reference_label,
-        "coach_model": get_coach_model(),
+        "coach_model": coach_model or get_coach_model(),
         "teacher_prompt": build_teacher_feedback_prompt(
             song_title=song_title,
             version=version,
@@ -156,6 +159,8 @@ def build_teacher_feedback_prompt(
         "2. 明确告诉用户下一步该怎么练，例如继续降速、只循环哪几小节、先稳主拍再提速。\n"
         "3. 不要只给数字，要把数字解释成真正的练习建议。\n"
         "4. 语气专业、直接、鼓励，但不要空泛鼓励。\n"
+        "5. 少用比喻和套话，不要重复'主拍稳定性'这类词超过两次。\n"
+        "6. 最后一句必须给出下一轮练习时最应该盯住的一个动作或节奏点。\n"
         f"当前歌曲：{song_title}\n"
         f"当前版本：{version}\n"
         f"当前段落：{segment_name}\n"

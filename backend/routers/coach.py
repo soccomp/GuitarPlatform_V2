@@ -18,6 +18,7 @@ async def analyze_rhythm(
     playback_rate: float = Form(1.0),
     segment_label: str = Form(""),
     recorded_duration: float = Form(0.0),
+    coach_model: str = Form(""),
     audio: UploadFile = File(...),
 ):
     audio_bytes = await audio.read()
@@ -54,4 +55,5 @@ async def analyze_rhythm(
         reference_audio_bytes=reference_audio_bytes,
         reference_mime_type=reference_mime_type,
         reference_label=reference_label,
+        coach_model=coach_model,
     )

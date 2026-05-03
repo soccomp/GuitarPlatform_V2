@@ -81,6 +81,7 @@ class CoachRoutingTests(IsolatedAsyncioTestCase):
                     reference_audio_bytes=b"reference-audio",
                     reference_mime_type="audio/mpeg",
                     reference_label="伴奏2.mp3",
+                    coach_model="deepseek-r1:8b",
                 )
 
         self.assertEqual(payload, expected)
