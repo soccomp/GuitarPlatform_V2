@@ -276,6 +276,21 @@ cd C:\GuitarPlatform_V2\coach_node
 
 保存后节点就会自动热重载，不需要再手工 `Ctrl + C` 重启。
 
+如果 Windows 提示“在此系统上禁止运行脚本”，说明 PowerShell 执行策略拦住了 `.ps1`。这时不要改系统策略，直接改用仓库里附带的：
+
+```text
+coach_node/start_coach_node.cmd
+```
+
+启动方式：
+
+```cmd
+cd C:\GuitarPlatform_V2\coach_node
+start_coach_node.cmd
+```
+
+`.cmd` 版本不受 PowerShell 脚本策略限制，也同样会用 `uvicorn --reload` 启动。
+
 ## 9.2 Mac 平台如何指向分析节点
 
 当 Windows 节点起来之后，在 MacBook 的：
