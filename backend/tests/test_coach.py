@@ -91,26 +91,77 @@ class CoachRoutingTests(IsolatedAsyncioTestCase):
 class CoachRouterTests(unittest.TestCase):
     def test_analyze_rhythm_accepts_uploaded_audio(self):
         client = TestClient(app)
-
-        response = client.post(
-            "/api/coach/analyze-rhythm",
-            data={
+        with mock.patch("routers.coach.create_session") as mocked_create:
+            mocked_create.return_value = {
+                "id": "session-1",
                 "song_id": "song-1",
                 "song_title": "灰色轨迹",
                 "version": "Live SOLO",
-                "playback_rate": "0.80",
-                "segment_label": "尾奏",
-                "recorded_duration": "11.5",
-            },
-            files={"audio": ("take.webm", b"fake-audio-data", "audio/webm")},
-        )
+                "segment": "尾奏",
+                "coach_model": "qwen3:8b",
+                "created_at": "2026-05-03T12:00:00+08:00",
+                "recording_duration": 11.5,
+                "analysis": {
+                    "mode": "local_preview",
+                    "song_title": "灰色轨迹",
+                    "version": "Live SOLO",
+                    "segment": "尾奏",
+                    "tempo_mode": "0.80x",
+                    "stability_score": 72,
+                    "issues": [],
+                    "advice": [],
+                    "coach_feedback": "",
+                },
+            }
+
+            response = client.post(
+                "/api/coach/analyze-rhythm",
+                data={
+                    "song_id": "song-1",
+                    "song_title": "灰色轨迹",
+                    "version": "Live SOLO",
+                    "playback_rate": "0.80",
+                    "segment_label": "尾奏",
+                    "recorded_duration": "11.5",
+                },
+                files={"audio": ("take.webm", b"fake-audio-data", "audio/webm")},
+            )
 
         self.assertEqual(response.status_code, 200)
         body = response.json()
         self.assertIn(body["mode"], {"local_preview", "local_preview_fallback"})
         self.assertEqual(body["song_title"], "灰色轨迹")
         self.assertEqual(body["segment"], "尾奏")
-        self.assertEqual(body["received"]["mime_type"], "audio/webm")
+        self.assertEqual(body["session_id"], "session-1")
+        self.assertTrue(body["recording_url"].endswith("/api/coach/sessions/session-1/recording"))
+
+    def test_list_sessions_returns_saved_results(self):
+        client = TestClient(app)
+        with mock.patch("routers.coach.list_sessions", return_value=[{
+            "id": "session-1",
+            "song_id": "song-1",
+            "song_title": "灰色轨迹",
+            "version": "Live SOLO",
+            "segment": "尾奏",
+            "coach_model": "qwen3:8b",
+            "created_at": "2026-05-03T12:00:00+08:00",
+            "recording_duration": 11.5,
+            "analysis": {"mode": "remote_node", "song_title": "灰色轨迹", "version": "Live SOLO", "segment": "尾奏"},
+        }]):
+            response = client.get("/api/coach/sessions")
+
+        self.assertEqual(response.status_code, 200)
+        body = response.json()
+        self.assertEqual(len(body), 1)
+        self.assertEqual(body[0]["session_id"], "session-1")
+
+    def test_export_sessions_returns_zip(self):
+        client = TestClient(app)
+        with mock.patch("routers.coach.export_sessions_zip", return_value=(b"zip-bytes", "coach-sessions.zip")):
+            response = client.get("/api/coach/sessions/export?ids=session-1,session-2")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.headers["content-type"], "application/zip")
 
 
 if __name__ == "__main__":

@@ -255,6 +255,20 @@
                 >
                   清空反馈
                 </button>
+                <button
+                  class="ghost-btn"
+                  :disabled="coachAnalyzing || !hasSelectedCoachSessions"
+                  @click="deleteSelectedCoachSessions"
+                >
+                  删除选中
+                </button>
+                <button
+                  class="ghost-btn"
+                  :disabled="coachAnalyzing || !hasSelectedCoachSessions"
+                  @click="exportSelectedCoachSessions"
+                >
+                  导出选中
+                </button>
               </div>
 
               <div class="media-hints">
@@ -308,44 +322,61 @@
                   </ul>
                 </div>
 
-                <div v-if="coachSegments.length" class="coach-block">
-                  <h5>问题片段</h5>
-                  <div class="coach-segments">
-                    <article
-                      v-for="segment in coachSegments"
-                      :key="segment.id"
-                      class="coach-segment-card"
-                    >
-                      <div class="coach-segment-head">
-                        <strong>{{ segment.label }}</strong>
-                        <span>{{ formatCoachSegmentTime(segment.start) }} - {{ formatCoachSegmentTime(segment.end) }}</span>
-                      </div>
-                      <p>{{ segment.problem }}</p>
-                      <p>{{ segment.advice }}</p>
-                      <p v-if="segment.reference_tip" class="coach-segment-note">{{ segment.reference_tip }}</p>
-                      <div class="coach-segment-actions">
-                        <button class="ghost-btn" :disabled="!coachRecordingUrl" @click="playCoachSegment(segment)">
-                          播放我的这段
-                        </button>
-                        <button class="ghost-btn" :disabled="!currentAudioFile" @click="playReferenceSegment(segment)">
-                          播放参考片段
-                        </button>
-                        <button
-                          class="ghost-btn"
-                          :disabled="!coachRecordingUrl || !currentAudioFile"
-                          @click="playABCompare(segment)"
-                        >
-                          A/B 对比
-                        </button>
-                      </div>
-                    </article>
-                  </div>
-                </div>
-
                 <div class="coach-block">
                   <h5>老师反馈</h5>
                   <p>{{ coachResult.coach_feedback }}</p>
                 </div>
+              </div>
+
+              <div class="coach-history">
+                <div class="score-header">
+                  <div>
+                    <h4>练习记录</h4>
+                    <p class="coach-copy">每次录完会自动保存 AI 分析、录音和对应伴奏，后面可以继续回放、删除或导出。</p>
+                  </div>
+                  <span class="coach-badge">{{ coachHistory.length }} 条记录</span>
+                </div>
+
+                <div v-if="coachHistory.length" class="coach-history-list">
+                  <article
+                    v-for="session in coachHistory"
+                    :key="session.session_id"
+                    class="coach-history-card"
+                  >
+                    <label class="coach-history-select">
+                      <input
+                        type="checkbox"
+                        :checked="selectedCoachSessionIds.includes(session.session_id)"
+                        @change="toggleCoachSessionSelection(session.session_id)"
+                      >
+                      <span>选择</span>
+                    </label>
+
+                    <div class="coach-history-head">
+                      <div>
+                        <strong>{{ session.song_title }} / {{ session.segment || session.version }}</strong>
+                        <p>{{ formatCoachTimestamp(session.created_at) }} · {{ session.tempo_mode }} · {{ session.coach_model || session.model }}</p>
+                      </div>
+                      <span class="coach-history-score">稳定度 {{ session.stability_score }}</span>
+                    </div>
+
+                    <div class="coach-history-media">
+                      <div class="coach-media-player">
+                        <span>我的录音</span>
+                        <audio controls :src="session.recording_url"></audio>
+                      </div>
+                      <div class="coach-media-player">
+                        <span>对应伴奏</span>
+                        <audio controls :src="session.reference_url" :disabled="!session.reference_url"></audio>
+                      </div>
+                    </div>
+
+                    <div class="coach-history-feedback">
+                      <p>{{ session.coach_feedback }}</p>
+                    </div>
+                  </article>
+                </div>
+                <div v-else class="empty-copy">还没有练习记录。录完一遍后会自动出现在这里。</div>
               </div>
             </div>
           </div>
@@ -487,6 +518,8 @@ export default {
       coachPlaybackAudio: null,
       coachPlaybackStopTimer: null,
       coachCompareToken: 0,
+      coachHistory: [],
+      selectedCoachSessionIds: [],
       coachModels: COACH_MODELS,
       coachModel: this.loadCoachModel(),
     }
@@ -553,8 +586,8 @@ export default {
       const active = this.coachModels.find(item => item.value === this.coachModel)
       return active ? `当前模型：${active.label} · ${active.hint}` : `当前模型：${this.coachModel}`
     },
-    coachSegments() {
-      return Array.isArray(this.coachResult?.coach_segments) ? this.coachResult.coach_segments : []
+    hasSelectedCoachSessions() {
+      return this.selectedCoachSessionIds.length > 0
     },
     coachStatusText() {
       if (this.coachAnalyzing) return 'AI 陪练正在整理这次录音反馈'
@@ -569,6 +602,7 @@ export default {
     )
     this.initAudio()
     await this.loadSongs()
+    await this.loadCoachSessions()
   },
   beforeUnmount() {
     if (this.audio) {
@@ -905,6 +939,7 @@ export default {
         }
 
         this.coachResult = data
+        this.upsertCoachSession(data)
       } catch (error) {
         this.coachError = error.message || 'AI 陪练分析失败'
       } finally {
@@ -917,6 +952,49 @@ export default {
       this.coachRecordingDuration = 0
       this.clearCoachRecordingPreview()
       this.stopCoachSegmentPlayback()
+    },
+    async loadCoachSessions() {
+      try {
+        const response = await fetch('/api/coach/sessions')
+        if (!response.ok) throw new Error('练习记录加载失败')
+        this.coachHistory = await response.json()
+      } catch {
+        this.coachHistory = []
+      }
+    },
+    upsertCoachSession(session) {
+      if (!session?.session_id) return
+      const next = [session, ...this.coachHistory.filter(item => item.session_id !== session.session_id)]
+      this.coachHistory = next
+    },
+    toggleCoachSessionSelection(sessionId) {
+      if (this.selectedCoachSessionIds.includes(sessionId)) {
+        this.selectedCoachSessionIds = this.selectedCoachSessionIds.filter(item => item !== sessionId)
+        return
+      }
+      this.selectedCoachSessionIds = [...this.selectedCoachSessionIds, sessionId]
+    },
+    async deleteSelectedCoachSessions() {
+      if (!this.selectedCoachSessionIds.length) return
+      const confirmed = window.confirm(`确定删除选中的 ${this.selectedCoachSessionIds.length} 条练习记录吗？`)
+      if (!confirmed) return
+      const response = await fetch('/api/coach/sessions', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ session_ids: this.selectedCoachSessionIds }),
+      })
+      const data = await response.json()
+      if (!response.ok) {
+        window.alert(data.detail || '删除失败')
+        return
+      }
+      this.coachHistory = data.sessions || []
+      this.selectedCoachSessionIds = []
+    },
+    exportSelectedCoachSessions() {
+      if (!this.selectedCoachSessionIds.length) return
+      const url = `/api/coach/sessions/export?ids=${encodeURIComponent(this.selectedCoachSessionIds.join(','))}`
+      window.open(url, '_blank', 'noopener')
     },
     loadCoachModel() {
       try {
@@ -1023,6 +1101,17 @@ export default {
       const mins = Math.floor(seconds / 60)
       const secs = (seconds % 60).toFixed(1).padStart(4, '0')
       return `${mins}:${secs}`
+    },
+    formatCoachTimestamp(value) {
+      if (!value) return '刚刚'
+      const date = new Date(value)
+      if (Number.isNaN(date.getTime())) return value
+      return date.toLocaleString('zh-CN', {
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+      })
     },
     async openScore(type) {
       const file = this.selectedVersionFiles[type]
@@ -1443,6 +1532,89 @@ export default {
   display: grid;
   gap: 14px;
   margin-top: 16px;
+}
+
+.coach-history {
+  display: grid;
+  gap: 14px;
+  margin-top: 18px;
+}
+
+.coach-history-list {
+  display: grid;
+  gap: 14px;
+}
+
+.coach-history-card {
+  position: relative;
+  border-radius: 18px;
+  background: #0f1730;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 16px;
+}
+
+.coach-history-select {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #cbd5e1;
+  font-size: 12px;
+}
+
+.coach-history-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.coach-history-head strong {
+  display: block;
+  color: #f8fafc;
+}
+
+.coach-history-head p {
+  margin-top: 6px;
+  color: #94a3b8;
+  font-size: 13px;
+}
+
+.coach-history-score {
+  white-space: nowrap;
+  color: #f97316;
+  font-size: 13px;
+}
+
+.coach-history-media {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.coach-media-player {
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 12px;
+}
+
+.coach-media-player span {
+  display: block;
+  color: #94a3b8;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 8px;
+}
+
+.coach-media-player audio {
+  width: 100%;
+}
+
+.coach-history-feedback {
+  margin-top: 14px;
+  color: #e5e7eb;
+  line-height: 1.6;
 }
 
 .coach-metrics {
