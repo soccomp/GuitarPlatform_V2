@@ -1,6 +1,7 @@
 import sys
 import unittest
 from pathlib import Path
+from unittest import IsolatedAsyncioTestCase, mock
 
 from fastapi.testclient import TestClient
 
@@ -10,6 +11,7 @@ if str(BACKEND_DIR) not in sys.path:
     sys.path.insert(0, str(BACKEND_DIR))
 
 from main import app
+from services import coach
 from services.coach import build_preview_rhythm_analysis
 
 
@@ -32,6 +34,43 @@ class CoachServiceTests(unittest.TestCase):
         self.assertGreaterEqual(payload["stability_score"], 62)
         self.assertEqual(payload["received"]["size_kb"], 1)
         self.assertTrue(payload["advice"])
+        self.assertIn("经验丰富", payload["teacher_prompt_preview"])
+
+
+class CoachRoutingTests(IsolatedAsyncioTestCase):
+    async def test_analyze_practice_audio_falls_back_to_preview_when_node_missing(self):
+        with mock.patch.object(coach, "get_coach_node_url", return_value=""):
+            payload = await coach.analyze_practice_audio(
+                song_id="song-1",
+                song_title="灰色轨迹",
+                version="Live SOLO",
+                playback_rate=0.8,
+                audio_bytes=b"test-audio",
+                mime_type="audio/webm",
+                segment_label="尾奏",
+                recorded_duration=10.0,
+            )
+
+        self.assertEqual(payload["mode"], "local_preview")
+        self.assertEqual(payload["segment"], "尾奏")
+
+    async def test_analyze_practice_audio_uses_remote_node_when_configured(self):
+        expected = {"mode": "remote_node", "segment": "尾奏"}
+        with mock.patch.object(coach, "get_coach_node_url", return_value="http://192.168.2.186:9000/api/coach/analyze-rhythm"):
+            with mock.patch.object(coach, "send_to_coach_node", return_value=expected) as mocked:
+                payload = await coach.analyze_practice_audio(
+                    song_id="song-1",
+                    song_title="灰色轨迹",
+                    version="Live SOLO",
+                    playback_rate=0.8,
+                    audio_bytes=b"test-audio",
+                    mime_type="audio/webm",
+                    segment_label="尾奏",
+                    recorded_duration=10.0,
+                )
+
+        self.assertEqual(payload, expected)
+        mocked.assert_awaited_once()
 
 
 class CoachRouterTests(unittest.TestCase):

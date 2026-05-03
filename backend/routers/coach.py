@@ -1,6 +1,6 @@
 from fastapi import APIRouter, File, Form, HTTPException, UploadFile
 
-from services.coach import build_preview_rhythm_analysis
+from services.coach import analyze_practice_audio
 
 
 router = APIRouter(prefix="/api/coach", tags=["coach"])
@@ -20,7 +20,7 @@ async def analyze_rhythm(
     if not audio_bytes:
         raise HTTPException(status_code=400, detail="未收到录音文件")
 
-    return build_preview_rhythm_analysis(
+    return await analyze_practice_audio(
         song_id=song_id,
         song_title=song_title,
         version=version,
