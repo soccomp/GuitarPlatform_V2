@@ -210,6 +210,91 @@
               </div>
               <div v-else class="empty-copy">当前版本暂无标记</div>
             </div>
+
+            <div class="coach-section">
+              <div class="score-header">
+                <div>
+                  <h4>AI 陪练</h4>
+                  <p class="coach-copy">先接通录音与反馈链路，后续再切到 4080 分析节点。</p>
+                </div>
+                <span class="coach-badge">推荐输入：Scarlett 2i2</span>
+              </div>
+
+              <div class="coach-actions">
+                <button
+                  class="play-btn"
+                  :disabled="coachAnalyzing || !recordingSupported"
+                  @click="isRecording ? stopCoachRecording() : startCoachRecording()"
+                >
+                  {{
+                    isRecording
+                      ? '结束并分析'
+                      : coachAnalyzing
+                        ? '分析中...'
+                        : '开始练习分析'
+                  }}
+                </button>
+                <button
+                  class="ghost-btn"
+                  :disabled="isRecording || coachAnalyzing || !coachResult"
+                  @click="resetCoachResult"
+                >
+                  清空反馈
+                </button>
+              </div>
+
+              <div class="media-hints">
+                <span>{{ coachStatusText }}</span>
+                <span v-if="coachRecordingDuration">录音时长 {{ coachRecordingDuration.toFixed(1) }}s</span>
+                <span v-if="!recordingSupported">当前浏览器不支持录音</span>
+              </div>
+
+              <div v-if="coachError" class="coach-error">{{ coachError }}</div>
+
+              <div v-if="coachResult" class="coach-result">
+                <div class="coach-metrics">
+                  <div class="coach-metric">
+                    <span>模式</span>
+                    <strong>{{ coachResult.mode === 'local_preview' ? '本地预览' : coachResult.mode }}</strong>
+                  </div>
+                  <div class="coach-metric">
+                    <span>段落</span>
+                    <strong>{{ coachResult.segment }}</strong>
+                  </div>
+                  <div class="coach-metric">
+                    <span>速度</span>
+                    <strong>{{ coachResult.tempo_mode }}</strong>
+                  </div>
+                  <div class="coach-metric">
+                    <span>稳定度</span>
+                    <strong>{{ coachResult.stability_score }}</strong>
+                  </div>
+                </div>
+
+                <div class="coach-block">
+                  <h5>问题提示</h5>
+                  <ul>
+                    <li v-for="(issue, index) in coachResult.issues" :key="`issue-${index}`">
+                      {{ issue.message }}
+                    </li>
+                  </ul>
+                </div>
+
+                <div class="coach-block">
+                  <h5>练习建议</h5>
+                  <ul>
+                    <li v-for="(tip, index) in coachResult.advice" :key="`tip-${index}`">
+                      {{ tip }}
+                    </li>
+                  </ul>
+                </div>
+
+                <div class="coach-block">
+                  <h5>老师反馈</h5>
+                  <p>{{ coachResult.coach_feedback }}</p>
+                </div>
+              </div>
+            </div>
           </div>
         </template>
       </section>
@@ -329,6 +414,16 @@ export default {
       gpLoading: false,
       gpError: '',
       scoreNotice: '',
+      recordingSupported: false,
+      mediaRecorder: null,
+      mediaStream: null,
+      recordedChunks: [],
+      isRecording: false,
+      coachAnalyzing: false,
+      coachError: '',
+      coachResult: null,
+      coachRecordingStartedAt: 0,
+      coachRecordingDuration: 0,
     }
   },
   computed: {
@@ -389,8 +484,17 @@ export default {
       const group = this.currentVersionGroup
       return group?.root?.files || {}
     },
+    coachStatusText() {
+      if (this.coachAnalyzing) return 'AI 陪练正在整理这次录音反馈'
+      if (this.isRecording) return '录音中，请完整弹完当前练习段落'
+      if (this.coachResult) return '本次反馈已生成，后续可直接替换成 4080 节点分析结果'
+      return '建议把系统默认输入切到 Scarlett 2i2，再开始录音分析'
+    },
   },
   async mounted() {
+    this.recordingSupported = Boolean(
+      window?.navigator?.mediaDevices?.getUserMedia && window.MediaRecorder,
+    )
     this.initAudio()
     await this.loadSongs()
   },
@@ -399,6 +503,10 @@ export default {
       this.audio.pause()
       this.audio.src = ''
     }
+    if (this.mediaRecorder && this.mediaRecorder.state !== 'inactive') {
+      this.mediaRecorder.stop()
+    }
+    this.stopCoachStream()
     this.destroyGpApi()
   },
   methods: {
@@ -505,6 +613,7 @@ export default {
       this.selectedVersionFiles = version.files || {}
       this.loopStart = null
       this.loopEnd = null
+      this.resetCoachResult()
       this.stopAudio()
       if (this.currentAudioFile) {
         this.audio.src = this.buildSongMediaUrl(this.currentAudioFile)
@@ -638,6 +747,112 @@ export default {
       if (!response.ok) return
       const data = await response.json()
       this.selectedSong.markers = [...(this.selectedSong.markers || []), data.marker]
+    },
+    async startCoachRecording() {
+      if (!this.recordingSupported) {
+        this.coachError = '当前浏览器不支持录音，请在 MacBook 本地浏览器中打开平台。'
+        return
+      }
+      if (!this.selectedSong || !this.selectedVersion) return
+
+      this.coachError = ''
+      this.coachResult = null
+      this.coachRecordingDuration = 0
+
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+        const mimeType = this.pickRecordingMimeType()
+        this.mediaStream = stream
+        this.recordedChunks = []
+        this.mediaRecorder = mimeType ? new MediaRecorder(stream, { mimeType }) : new MediaRecorder(stream)
+        this.mediaRecorder.addEventListener('dataavailable', event => {
+          if (event.data?.size) {
+            this.recordedChunks.push(event.data)
+          }
+        })
+        this.mediaRecorder.addEventListener('stop', () => {
+          this.finishCoachRecording().catch(error => {
+            this.coachError = error.message || '录音分析失败'
+          })
+        }, { once: true })
+        this.coachRecordingStartedAt = Date.now()
+        this.isRecording = true
+        this.mediaRecorder.start()
+      } catch (error) {
+        this.stopCoachStream()
+        this.coachError = error.message || '无法访问麦克风，请检查浏览器权限。'
+      }
+    },
+    stopCoachRecording() {
+      if (!this.mediaRecorder || this.mediaRecorder.state === 'inactive') return
+      this.mediaRecorder.stop()
+      this.isRecording = false
+      this.coachRecordingDuration = Math.max(0, (Date.now() - this.coachRecordingStartedAt) / 1000)
+      this.stopCoachStream()
+    },
+    async finishCoachRecording() {
+      const blob = new Blob(this.recordedChunks, {
+        type: this.mediaRecorder?.mimeType || 'audio/webm',
+      })
+      this.recordedChunks = []
+      this.mediaRecorder = null
+
+      if (!blob.size) {
+        this.coachError = '没有录到有效音频，请确认 Scarlett 2i2 或麦克风输入正常。'
+        return
+      }
+
+      await this.submitCoachRecording(blob)
+    },
+    async submitCoachRecording(blob) {
+      this.coachAnalyzing = true
+      this.coachError = ''
+
+      try {
+        const formData = new FormData()
+        formData.append('song_id', this.selectedSong.id)
+        formData.append('song_title', this.selectedSong.title)
+        formData.append('version', this.selectedVersion)
+        formData.append('segment_label', this.versionLeafLabel(this.selectedVersion))
+        formData.append('playback_rate', String(this.playbackRate))
+        formData.append('recorded_duration', String(this.coachRecordingDuration || 0))
+        formData.append('audio', blob, `practice-take.${this.recordingExtension(blob.type)}`)
+
+        const response = await fetch('/api/coach/analyze-rhythm', {
+          method: 'POST',
+          body: formData,
+        })
+
+        const data = await response.json()
+        if (!response.ok) {
+          throw new Error(data.detail || 'AI 陪练分析失败')
+        }
+
+        this.coachResult = data
+      } catch (error) {
+        this.coachError = error.message || 'AI 陪练分析失败'
+      } finally {
+        this.coachAnalyzing = false
+      }
+    },
+    resetCoachResult() {
+      this.coachError = ''
+      this.coachResult = null
+      this.coachRecordingDuration = 0
+    },
+    stopCoachStream() {
+      if (!this.mediaStream) return
+      this.mediaStream.getTracks().forEach(track => track.stop())
+      this.mediaStream = null
+    },
+    pickRecordingMimeType() {
+      const types = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4']
+      return types.find(type => window.MediaRecorder?.isTypeSupported?.(type)) || ''
+    },
+    recordingExtension(mimeType) {
+      if (mimeType.includes('mp4')) return 'mp4'
+      if (mimeType.includes('mpeg')) return 'mp3'
+      return 'webm'
     },
     async openScore(type) {
       const file = this.selectedVersionFiles[type]
@@ -868,7 +1083,8 @@ export default {
 
 .versions-section,
 .player-section,
-.score-section {
+.score-section,
+.coach-section {
   margin-top: 20px;
 }
 
@@ -990,6 +1206,87 @@ export default {
 .markers-list {
   display: grid;
   gap: 10px;
+}
+
+.coach-copy {
+  margin-top: 4px;
+  color: #94a3b8;
+  font-size: 14px;
+}
+
+.coach-badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 6px 12px;
+  background: rgba(249, 115, 22, 0.14);
+  color: #f97316;
+  font-size: 12px;
+}
+
+.coach-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.coach-error {
+  margin-top: 12px;
+  border-radius: 14px;
+  padding: 12px 14px;
+  background: rgba(127, 29, 29, 0.28);
+  border: 1px solid rgba(248, 113, 113, 0.38);
+  color: #fecaca;
+}
+
+.coach-result {
+  display: grid;
+  gap: 14px;
+  margin-top: 16px;
+}
+
+.coach-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 12px;
+}
+
+.coach-metric,
+.coach-block {
+  border-radius: 16px;
+  background: #0f1730;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 14px;
+}
+
+.coach-metric span,
+.coach-block h5 {
+  color: #94a3b8;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.coach-metric strong {
+  display: block;
+  margin-top: 6px;
+  color: #f8fafc;
+  font-size: 18px;
+}
+
+.coach-block h5 {
+  margin-bottom: 10px;
+}
+
+.coach-block ul {
+  padding-left: 18px;
+  color: #e5e7eb;
+}
+
+.coach-block p {
+  color: #e5e7eb;
+  line-height: 1.6;
 }
 
 .marker-item {
