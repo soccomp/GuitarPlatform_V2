@@ -1,0 +1,41 @@
+name: Bug Report
+description: 提交一个缺陷报告
+title: "[Bug] "
+labels:
+  - bug
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: 问题描述
+      description: 简洁描述发生了什么问题
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: 复现步骤
+      description: 按步骤写出如何稳定复现
+      placeholder: |
+        1. 打开...
+        2. 点击...
+        3. 出现...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: 预期结果
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: 实际结果
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: 环境信息
+      description: 设备、系统、浏览器或素材上下文

@@ -1,0 +1,33 @@
+name: Feature Request
+description: 提交一个新功能需求
+title: "[Feature] "
+labels:
+  - feature
+body:
+  - type: textarea
+    id: background
+    attributes:
+      label: 背景
+      description: 这个需求来自什么真实使用场景？
+      placeholder: 例如：在歌曲练习里，希望录一遍演奏后自动分析节奏问题。
+    validations:
+      required: true
+  - type: textarea
+    id: goal
+    attributes:
+      label: 目标
+      description: 希望最终做到什么？
+      placeholder: 例如：给出抢拍/拖拍分析和老师式反馈。
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: 范围
+      description: 第一版先做哪些，不做哪些？
+      placeholder: 例如：先做歌曲练习，不做系统教材；先做音频，不做视频。
+  - type: textarea
+    id: notes
+    attributes:
+      label: 备注
+      description: 其他补充信息
