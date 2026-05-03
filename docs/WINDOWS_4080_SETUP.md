@@ -98,7 +98,7 @@ ollama list
 建议把项目放在固定目录，例如：
 
 ```text
-D:\GuitarPlatform_V2
+C:\GuitarPlatform_V2
 ```
 
 如果只作为分析节点，也可以拆出独立的分析服务目录，例如：
@@ -230,11 +230,11 @@ ollama list
 在 Windows 机器上进入项目目录后，可以先这样启动：
 
 ```powershell
-cd D:\GuitarPlatform_V2\coach_node
+cd C:\GuitarPlatform_V2\coach_node
 python -m venv .venv
 .\.venv\Scripts\pip install -r requirements.txt
-set OLLAMA_BASE_URL=http://127.0.0.1:11434
-set COACH_OLLAMA_MODEL=qwen3:8b
+$env:OLLAMA_BASE_URL="http://127.0.0.1:11434"
+$env:COACH_OLLAMA_MODEL="qwen3:8b"
 .\.venv\Scripts\uvicorn main:app --host 0.0.0.0 --port 9000
 ```
 
@@ -245,6 +245,36 @@ curl http://127.0.0.1:9000/health
 ```
 
 如果返回 `{"ok":true,...}`，说明分析节点已经起来了。
+
+## 9.1.1 推荐改成自动热重载
+
+为了避免每次覆盖 `service.py` 后还要手工重启 `uvicorn`，仓库里已经提供：
+
+```text
+coach_node/start_coach_node.ps1
+```
+
+在 Windows 上以后建议直接运行：
+
+```powershell
+cd C:\GuitarPlatform_V2\coach_node
+.\start_coach_node.ps1
+```
+
+这个脚本会：
+
+- 自动检查 `.venv`
+- 必要时自动安装依赖
+- 自动设置 `OLLAMA_BASE_URL`
+- 自动设置 `COACH_OLLAMA_MODEL`
+- 用 `uvicorn --reload` 启动
+
+这样后面只要覆盖：
+
+- `main.py`
+- `service.py`
+
+保存后节点就会自动热重载，不需要再手工 `Ctrl + C` 重启。
 
 ## 9.2 Mac 平台如何指向分析节点
 

@@ -268,6 +268,7 @@ def build_issue_segments(
         return []
 
     segments: list[dict[str, Any]] = []
+    segment_window = min(8.0, max(4.8, duration * 0.18))
 
     if onset_times:
         if len(onset_times) >= 2:
@@ -279,12 +280,15 @@ def build_issue_segments(
             gaps.append((max(0.0, duration - previous), previous, duration))
             widest_gap, gap_start, gap_end = max(gaps, key=lambda item: item[0])
             if widest_gap >= max(1.0, duration * 0.08):
+                center = (gap_start + gap_end) / 2
+                start = max(0.0, center - (segment_window / 2))
+                end = min(duration, start + segment_window)
                 segments.append(
                     {
                         "id": "entry-gap",
                         "label": "进入点容易犹豫",
-                        "start": round(max(0.0, gap_start - 0.35), 2),
-                        "end": round(min(duration, gap_end + 0.35), 2),
+                        "start": round(start, 2),
+                        "end": round(end, 2),
                         "problem": f"{segment_name} 这一段空拍偏多，句子推进容易断开。",
                         "advice": "先只循环这一小段，跟着伴奏把第一拍和下一句开头连起来。",
                         "reference_tip": f"先对照 {reference_name} 的同位置，确认是不是进句偏晚。",
@@ -292,14 +296,13 @@ def build_issue_segments(
                 )
 
         if len(onset_times) >= 3:
-            window_size = 3.0
             densest_count = -1
             densest_start = onset_times[0]
             sparsest_count = math.inf
             sparsest_start = onset_times[0]
             for pivot in onset_times:
-                start = max(0.0, pivot - window_size / 2)
-                end = min(duration, start + window_size)
+                start = max(0.0, pivot - segment_window / 2)
+                end = min(duration, start + segment_window)
                 count = sum(1 for item in onset_times if start <= item <= end)
                 if count > densest_count:
                     densest_count = count
@@ -314,7 +317,7 @@ def build_issue_segments(
                         "id": "dense-cluster",
                         "label": "这里容易往前赶",
                         "start": round(densest_start, 2),
-                        "end": round(min(duration, densest_start + window_size), 2),
+                        "end": round(min(duration, densest_start + segment_window), 2),
                         "problem": "这一小段起音偏密，右手容易把句子塞满。",
                         "advice": "先把重拍落稳，再把切分音往后放一点，别急着追装饰音。",
                         "reference_tip": "先听自己的这段，再对照伴奏同位置，找有没有抢进。",
@@ -326,7 +329,7 @@ def build_issue_segments(
                         "id": "sparse-cluster",
                         "label": "这里推进感不够",
                         "start": round(sparsest_start, 2),
-                        "end": round(min(duration, sparsest_start + window_size), 2),
+                        "end": round(min(duration, sparsest_start + segment_window), 2),
                         "problem": "这一小段起音偏稀，句子容易松下来，重拍不够果断。",
                         "advice": "先把拨弦动作做明确，只盯每拍开头那个关键音，别让句子掉下去。",
                         "reference_tip": "对照伴奏时重点听每句开头，确认是不是晚进或拖拍。",
@@ -334,7 +337,7 @@ def build_issue_segments(
                 )
 
     if not segments or abs(duration_delta) > 1.0 or abs(silence_delta) > 0.08:
-        tail_span = min(4.0, max(2.4, duration * 0.15 if duration else 2.4))
+        tail_span = min(8.0, max(4.8, duration * 0.18 if duration else 4.8))
         tail_start = max(0.0, duration * 0.55)
         label = "整句收尾还不够稳"
         problem = "后半段的连接点容易散，主拍和收尾之间还不够连贯。"
