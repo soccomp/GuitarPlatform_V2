@@ -322,12 +322,20 @@
                       </div>
                       <p>{{ segment.problem }}</p>
                       <p>{{ segment.advice }}</p>
+                      <p v-if="segment.reference_tip" class="coach-segment-note">{{ segment.reference_tip }}</p>
                       <div class="coach-segment-actions">
                         <button class="ghost-btn" :disabled="!coachRecordingUrl" @click="playCoachSegment(segment)">
                           播放我的这段
                         </button>
                         <button class="ghost-btn" :disabled="!currentAudioFile" @click="playReferenceSegment(segment)">
-                          对照伴奏
+                          播放参考片段
+                        </button>
+                        <button
+                          class="ghost-btn"
+                          :disabled="!coachRecordingUrl || !currentAudioFile"
+                          @click="playABCompare(segment)"
+                        >
+                          A/B 对比
                         </button>
                       </div>
                     </article>
@@ -478,6 +486,7 @@ export default {
       coachRecordingUrl: '',
       coachPlaybackAudio: null,
       coachPlaybackStopTimer: null,
+      coachCompareToken: 0,
       coachModels: COACH_MODELS,
       coachModel: this.loadCoachModel(),
     }
@@ -938,6 +947,7 @@ export default {
       }
     },
     stopCoachSegmentPlayback() {
+      this.coachCompareToken += 1
       if (this.coachPlaybackStopTimer) {
         window.clearTimeout(this.coachPlaybackStopTimer)
         this.coachPlaybackStopTimer = null
@@ -945,31 +955,54 @@ export default {
       if (this.coachPlaybackAudio) {
         this.coachPlaybackAudio.pause()
       }
+      if (this.audio) {
+        this.audio.pause()
+      }
     },
     async playCoachSegment(segment) {
       if (!this.coachPlaybackAudio || !this.coachRecordingUrl) return
-      this.stopCoachSegmentPlayback()
-      const start = Math.max(0, Number(segment.start) || 0)
-      const end = Math.max(start + 0.2, Number(segment.end) || start + 0.2)
-      this.coachPlaybackAudio.currentTime = start
-      await this.coachPlaybackAudio.play()
-      this.coachPlaybackStopTimer = window.setTimeout(() => {
-        if (!this.coachPlaybackAudio) return
-        this.coachPlaybackAudio.pause()
-        this.coachPlaybackAudio.currentTime = start
-      }, Math.max(250, (end - start) * 1000))
+      const token = this.beginCoachPlayback()
+      await this.playSegmentOnAudio(this.coachPlaybackAudio, segment, token)
     },
     async playReferenceSegment(segment) {
       if (!this.audio || !this.currentAudioFile) return
+      const token = this.beginCoachPlayback()
+      await this.playSegmentOnAudio(this.audio, segment, token)
+    },
+    async playABCompare(segment) {
+      if (!this.coachPlaybackAudio || !this.coachRecordingUrl || !this.audio || !this.currentAudioFile) return
+      const token = this.beginCoachPlayback()
+      await this.playSegmentOnAudio(this.coachPlaybackAudio, segment, token)
+      if (token !== this.coachCompareToken) return
+      await this.waitCoachPlayback(220, token)
+      if (token !== this.coachCompareToken) return
+      await this.playSegmentOnAudio(this.audio, segment, token)
+    },
+    beginCoachPlayback() {
+      this.stopCoachSegmentPlayback()
+      return this.coachCompareToken
+    },
+    async playSegmentOnAudio(targetAudio, segment, token) {
+      if (!targetAudio || token !== this.coachCompareToken) return
       const start = Math.max(0, Number(segment.start) || 0)
       const end = Math.max(start + 0.2, Number(segment.end) || start + 0.2)
-      this.audio.currentTime = start
-      await this.audio.play().catch(() => {})
-      window.setTimeout(() => {
-        if (!this.audio) return
-        this.audio.pause()
-        this.audio.currentTime = start
-      }, Math.max(250, (end - start) * 1000))
+      targetAudio.currentTime = start
+      await targetAudio.play().catch(() => {})
+      if (token !== this.coachCompareToken) return
+      await this.waitCoachPlayback(Math.max(250, (end - start) * 1000), token)
+      if (token !== this.coachCompareToken) return
+      targetAudio.pause()
+      targetAudio.currentTime = start
+    },
+    waitCoachPlayback(delay, token) {
+      return new Promise(resolve => {
+        this.coachPlaybackStopTimer = window.setTimeout(() => {
+          if (token === this.coachCompareToken) {
+            this.coachPlaybackStopTimer = null
+          }
+          resolve()
+        }, delay)
+      })
     },
     stopCoachStream() {
       if (!this.mediaStream) return
@@ -1489,6 +1522,10 @@ export default {
   flex-wrap: wrap;
   gap: 10px;
   margin-top: 10px;
+}
+
+.coach-segment-note {
+  color: #fbbf24;
 }
 
 .marker-item {
