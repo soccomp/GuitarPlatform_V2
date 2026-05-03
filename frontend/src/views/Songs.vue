@@ -308,6 +308,32 @@
                   </ul>
                 </div>
 
+                <div v-if="coachSegments.length" class="coach-block">
+                  <h5>问题片段</h5>
+                  <div class="coach-segments">
+                    <article
+                      v-for="segment in coachSegments"
+                      :key="segment.id"
+                      class="coach-segment-card"
+                    >
+                      <div class="coach-segment-head">
+                        <strong>{{ segment.label }}</strong>
+                        <span>{{ formatCoachSegmentTime(segment.start) }} - {{ formatCoachSegmentTime(segment.end) }}</span>
+                      </div>
+                      <p>{{ segment.problem }}</p>
+                      <p>{{ segment.advice }}</p>
+                      <div class="coach-segment-actions">
+                        <button class="ghost-btn" :disabled="!coachRecordingUrl" @click="playCoachSegment(segment)">
+                          播放我的这段
+                        </button>
+                        <button class="ghost-btn" :disabled="!currentAudioFile" @click="playReferenceSegment(segment)">
+                          对照伴奏
+                        </button>
+                      </div>
+                    </article>
+                  </div>
+                </div>
+
                 <div class="coach-block">
                   <h5>老师反馈</h5>
                   <p>{{ coachResult.coach_feedback }}</p>
@@ -449,6 +475,9 @@ export default {
       coachResult: null,
       coachRecordingStartedAt: 0,
       coachRecordingDuration: 0,
+      coachRecordingUrl: '',
+      coachPlaybackAudio: null,
+      coachPlaybackStopTimer: null,
       coachModels: COACH_MODELS,
       coachModel: this.loadCoachModel(),
     }
@@ -515,6 +544,9 @@ export default {
       const active = this.coachModels.find(item => item.value === this.coachModel)
       return active ? `当前模型：${active.label} · ${active.hint}` : `当前模型：${this.coachModel}`
     },
+    coachSegments() {
+      return Array.isArray(this.coachResult?.coach_segments) ? this.coachResult.coach_segments : []
+    },
     coachStatusText() {
       if (this.coachAnalyzing) return 'AI 陪练正在整理这次录音反馈'
       if (this.isRecording) return '录音中，请完整弹完当前练习段落'
@@ -537,6 +569,8 @@ export default {
     if (this.mediaRecorder && this.mediaRecorder.state !== 'inactive') {
       this.mediaRecorder.stop()
     }
+    this.clearCoachRecordingPreview()
+    this.stopCoachSegmentPlayback()
     this.stopCoachStream()
     this.destroyGpApi()
   },
@@ -833,6 +867,7 @@ export default {
         return
       }
 
+      this.setCoachRecordingPreview(blob)
       await this.submitCoachRecording(blob)
     },
     async submitCoachRecording(blob) {
@@ -871,6 +906,8 @@ export default {
       this.coachError = ''
       this.coachResult = null
       this.coachRecordingDuration = 0
+      this.clearCoachRecordingPreview()
+      this.stopCoachSegmentPlayback()
     },
     loadCoachModel() {
       try {
@@ -883,6 +920,56 @@ export default {
       try {
         window.localStorage.setItem(COACH_MODEL_STORAGE_KEY, this.coachModel)
       } catch {}
+    },
+    setCoachRecordingPreview(blob) {
+      this.clearCoachRecordingPreview()
+      this.coachRecordingUrl = URL.createObjectURL(blob)
+      this.coachPlaybackAudio = new Audio(this.coachRecordingUrl)
+    },
+    clearCoachRecordingPreview() {
+      if (this.coachPlaybackAudio) {
+        this.coachPlaybackAudio.pause()
+        this.coachPlaybackAudio.src = ''
+        this.coachPlaybackAudio = null
+      }
+      if (this.coachRecordingUrl) {
+        URL.revokeObjectURL(this.coachRecordingUrl)
+        this.coachRecordingUrl = ''
+      }
+    },
+    stopCoachSegmentPlayback() {
+      if (this.coachPlaybackStopTimer) {
+        window.clearTimeout(this.coachPlaybackStopTimer)
+        this.coachPlaybackStopTimer = null
+      }
+      if (this.coachPlaybackAudio) {
+        this.coachPlaybackAudio.pause()
+      }
+    },
+    async playCoachSegment(segment) {
+      if (!this.coachPlaybackAudio || !this.coachRecordingUrl) return
+      this.stopCoachSegmentPlayback()
+      const start = Math.max(0, Number(segment.start) || 0)
+      const end = Math.max(start + 0.2, Number(segment.end) || start + 0.2)
+      this.coachPlaybackAudio.currentTime = start
+      await this.coachPlaybackAudio.play()
+      this.coachPlaybackStopTimer = window.setTimeout(() => {
+        if (!this.coachPlaybackAudio) return
+        this.coachPlaybackAudio.pause()
+        this.coachPlaybackAudio.currentTime = start
+      }, Math.max(250, (end - start) * 1000))
+    },
+    async playReferenceSegment(segment) {
+      if (!this.audio || !this.currentAudioFile) return
+      const start = Math.max(0, Number(segment.start) || 0)
+      const end = Math.max(start + 0.2, Number(segment.end) || start + 0.2)
+      this.audio.currentTime = start
+      await this.audio.play().catch(() => {})
+      window.setTimeout(() => {
+        if (!this.audio) return
+        this.audio.pause()
+        this.audio.currentTime = start
+      }, Math.max(250, (end - start) * 1000))
     },
     stopCoachStream() {
       if (!this.mediaStream) return
@@ -897,6 +984,12 @@ export default {
       if (mimeType.includes('mp4')) return 'mp4'
       if (mimeType.includes('mpeg')) return 'mp3'
       return 'webm'
+    },
+    formatCoachSegmentTime(seconds) {
+      if (!Number.isFinite(seconds)) return '0:00.0'
+      const mins = Math.floor(seconds / 60)
+      const secs = (seconds % 60).toFixed(1).padStart(4, '0')
+      return `${mins}:${secs}`
     },
     async openScore(type) {
       const file = this.selectedVersionFiles[type]
@@ -1360,6 +1453,42 @@ export default {
 .coach-block p {
   color: #e5e7eb;
   line-height: 1.6;
+}
+
+.coach-segments {
+  display: grid;
+  gap: 12px;
+}
+
+.coach-segment-card {
+  border-radius: 14px;
+  border: 1px solid rgba(249, 115, 22, 0.16);
+  background: rgba(15, 23, 48, 0.72);
+  padding: 12px;
+}
+
+.coach-segment-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.coach-segment-head strong {
+  color: #f8fafc;
+}
+
+.coach-segment-head span {
+  color: #94a3b8;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.coach-segment-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
 }
 
 .marker-item {

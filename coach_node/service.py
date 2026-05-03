@@ -52,6 +52,12 @@ def build_node_preview_analysis(
         reference_comparison=comparison,
         reference_label=reference_label,
     )
+    coach_segments = build_issue_segments(
+        segment_name=segment_name,
+        audio_features=features,
+        reference_comparison=comparison,
+        reference_label=reference_label,
+    )
 
     return {
         "mode": "remote_node_preview",
@@ -65,6 +71,7 @@ def build_node_preview_analysis(
         "stability_score": stability_score,
         "issues": issues,
         "advice": advice,
+        "coach_segments": coach_segments,
         "coach_feedback": "",
         "analysis_features": features,
         "reference_features": reference_features or {},
@@ -241,6 +248,128 @@ def build_dynamic_feedback(
     advice.append("如果你在用 Scarlett 2i2，尽量保持输入干净，后续节奏分析会更准。")
 
     return issues[:4], advice[:4], stability_score
+
+
+def build_issue_segments(
+    *,
+    segment_name: str,
+    audio_features: dict[str, Any],
+    reference_comparison: dict[str, Any],
+    reference_label: str,
+) -> list[dict[str, Any]]:
+    duration = float(audio_features.get("duration", 0.0) or 0.0)
+    onset_times = [float(item) for item in (audio_features.get("onset_times") or []) if isinstance(item, (int, float))]
+    density_delta = float(reference_comparison.get("onset_density_delta", 0.0) or 0.0)
+    duration_delta = float(reference_comparison.get("duration_delta", 0.0) or 0.0)
+    silence_delta = float(reference_comparison.get("silence_ratio_delta", 0.0) or 0.0)
+    reference_name = reference_label or "当前版本伴奏"
+
+    if duration <= 0:
+        return []
+
+    segments: list[dict[str, Any]] = []
+
+    if onset_times:
+        if len(onset_times) >= 2:
+            gaps = []
+            previous = 0.0
+            for current in onset_times:
+                gaps.append((current - previous, previous, current))
+                previous = current
+            gaps.append((max(0.0, duration - previous), previous, duration))
+            widest_gap, gap_start, gap_end = max(gaps, key=lambda item: item[0])
+            if widest_gap >= max(1.0, duration * 0.08):
+                segments.append(
+                    {
+                        "id": "entry-gap",
+                        "label": "进入点容易犹豫",
+                        "start": round(max(0.0, gap_start - 0.35), 2),
+                        "end": round(min(duration, gap_end + 0.35), 2),
+                        "problem": f"{segment_name} 这一段空拍偏多，句子推进容易断开。",
+                        "advice": "先只循环这一小段，跟着伴奏把第一拍和下一句开头连起来。",
+                        "reference_tip": f"先对照 {reference_name} 的同位置，确认是不是进句偏晚。",
+                    }
+                )
+
+        if len(onset_times) >= 3:
+            window_size = 3.0
+            densest_count = -1
+            densest_start = onset_times[0]
+            sparsest_count = math.inf
+            sparsest_start = onset_times[0]
+            for pivot in onset_times:
+                start = max(0.0, pivot - window_size / 2)
+                end = min(duration, start + window_size)
+                count = sum(1 for item in onset_times if start <= item <= end)
+                if count > densest_count:
+                    densest_count = count
+                    densest_start = start
+                if count < sparsest_count:
+                    sparsest_count = count
+                    sparsest_start = start
+
+            if density_delta > 0.8:
+                segments.append(
+                    {
+                        "id": "dense-cluster",
+                        "label": "这里容易往前赶",
+                        "start": round(densest_start, 2),
+                        "end": round(min(duration, densest_start + window_size), 2),
+                        "problem": "这一小段起音偏密，右手容易把句子塞满。",
+                        "advice": "先把重拍落稳，再把切分音往后放一点，别急着追装饰音。",
+                        "reference_tip": "先听自己的这段，再对照伴奏同位置，找有没有抢进。",
+                    }
+                )
+            elif density_delta < -0.8:
+                segments.append(
+                    {
+                        "id": "sparse-cluster",
+                        "label": "这里推进感不够",
+                        "start": round(sparsest_start, 2),
+                        "end": round(min(duration, sparsest_start + window_size), 2),
+                        "problem": "这一小段起音偏稀，句子容易松下来，重拍不够果断。",
+                        "advice": "先把拨弦动作做明确，只盯每拍开头那个关键音，别让句子掉下去。",
+                        "reference_tip": "对照伴奏时重点听每句开头，确认是不是晚进或拖拍。",
+                    }
+                )
+
+    if not segments or abs(duration_delta) > 1.0 or abs(silence_delta) > 0.08:
+        tail_span = min(4.0, max(2.4, duration * 0.15 if duration else 2.4))
+        tail_start = max(0.0, duration * 0.55)
+        label = "整句收尾还不够稳"
+        problem = "后半段的连接点容易散，主拍和收尾之间还不够连贯。"
+        advice = "先把这几秒单独循环，数拍子只盯重拍和句尾，不要一口气刷完整段。"
+        if duration_delta < -1.0:
+            label = "这里可能整体偏赶"
+            problem = "这一段比参考更短，说明你可能没等拍点完全落稳就提前进下一句。"
+            advice = "把这一段单独放慢，先等重拍踩稳再启动下一句。"
+        elif duration_delta > 1.0 or silence_delta > 0.08:
+            label = "这里容易拖住或停住"
+            problem = "这一段比参考更长，说明连接时会犹豫或停得过久。"
+            advice = "只练这一段的连接处，先把前一个音收干净，再立刻进下一拍。"
+
+        segments.append(
+            {
+                "id": "phrase-tail",
+                "label": label,
+                "start": round(tail_start, 2),
+                "end": round(min(duration, tail_start + tail_span), 2),
+                "problem": problem,
+                "advice": advice,
+                "reference_tip": f"把这段和 {reference_name} 的同位置来回对照，先听句尾有没有拖或抢。",
+            }
+        )
+
+    deduped: list[dict[str, Any]] = []
+    seen = set()
+    for segment in segments:
+        key = (segment["id"], segment["start"], segment["end"])
+        if key in seen:
+            continue
+        seen.add(key)
+        deduped.append(segment)
+
+    return deduped[:3]
 
 
 def build_ollama_messages(
@@ -458,6 +587,7 @@ def analyze_wav_features(wav_path: Path) -> dict[str, Any]:
             "silence_ratio": 1.0,
             "energy_mean": 0.0,
             "energy_variance": 0.0,
+            "onset_times": [],
         }
 
     sample_total = len(raw_frames) // 2
@@ -482,6 +612,7 @@ def analyze_wav_features(wav_path: Path) -> dict[str, Any]:
             "silence_ratio": 1.0,
             "energy_mean": 0.0,
             "energy_variance": 0.0,
+            "onset_times": [],
         }
 
     silence_threshold = max(0.018, min(0.06, (sum(energies) / len(energies)) * 0.45))
@@ -489,10 +620,12 @@ def analyze_wav_features(wav_path: Path) -> dict[str, Any]:
     silence_ratio = 1.0 - (sum(1 for flag in active_flags if flag) / len(active_flags))
 
     onset_count = 0
+    onset_times: list[float] = []
     last_energy = energies[0]
-    for energy in energies[1:]:
+    for index, energy in enumerate(energies[1:], start=1):
         if energy > max(0.08, silence_threshold * 1.8) and (energy - last_energy) > 0.05:
             onset_count += 1
+            onset_times.append(round((index * window_size) / sample_rate, 3))
         last_energy = energy
 
     duration = frame_count / sample_rate if sample_rate else 0.0
@@ -508,6 +641,7 @@ def analyze_wav_features(wav_path: Path) -> dict[str, Any]:
         "silence_ratio": round(silence_ratio, 3),
         "energy_mean": round(energy_mean, 4),
         "energy_variance": round(energy_variance, 4),
+        "onset_times": onset_times[:32],
     }
 
 
@@ -534,6 +668,7 @@ def build_fallback_audio_features(
         "silence_ratio": round(silence_ratio, 3),
         "energy_mean": round(energy_mean, 4),
         "energy_variance": round(energy_variance, 4),
+        "onset_times": [],
     }
 
 

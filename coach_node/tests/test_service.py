@@ -14,6 +14,7 @@ from main import app
 from service import (
     analyze_with_ollama,
     build_fallback_audio_features,
+    build_issue_segments,
     build_node_preview_analysis,
     build_ollama_messages,
     build_reference_comparison,
@@ -61,6 +62,7 @@ class CoachNodeServiceTests(unittest.TestCase):
         self.assertTrue(result["advice"])
         self.assertEqual(result["analysis_features"]["source"], "ffmpeg")
         self.assertTrue(result["reference_comparison"])
+        self.assertTrue(result["coach_segments"])
 
     def test_build_ollama_messages_uses_teacher_prompt(self):
         preview = build_node_preview_analysis(
@@ -113,6 +115,25 @@ class CoachNodeServiceTests(unittest.TestCase):
             mime_type="audio/webm",
         )
         self.assertNotEqual(first["onset_density"], second["onset_density"])
+
+    def test_issue_segments_include_time_ranges(self):
+        segments = build_issue_segments(
+            segment_name="尾奏",
+            audio_features={
+                "duration": 18.0,
+                "onset_times": [1.0, 2.2, 3.1, 6.8, 7.4, 12.0, 15.6],
+            },
+            reference_comparison={
+                "onset_density_delta": -1.2,
+                "duration_delta": 1.4,
+                "silence_ratio_delta": 0.12,
+            },
+            reference_label="伴奏.mp3",
+        )
+        self.assertTrue(segments)
+        self.assertIn("start", segments[0])
+        self.assertIn("end", segments[0])
+        self.assertIn("advice", segments[0])
 
 
 class CoachNodeRuntimeTests(IsolatedAsyncioTestCase):
