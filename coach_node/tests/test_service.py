@@ -13,6 +13,7 @@ if str(COACH_NODE_DIR) not in sys.path:
 from main import app
 from service import (
     analyze_with_ollama,
+    build_fallback_audio_features,
     build_node_preview_analysis,
     build_ollama_messages,
     extract_ollama_message,
@@ -21,6 +22,15 @@ from service import (
 
 class CoachNodeServiceTests(unittest.TestCase):
     def test_preview_analysis_contains_expected_shape(self):
+        features = {
+            "source": "ffmpeg",
+            "duration": 12.5,
+            "onset_count": 24,
+            "onset_density": 1.92,
+            "silence_ratio": 0.18,
+            "energy_mean": 0.055,
+            "energy_variance": 0.06,
+        }
         result = build_node_preview_analysis(
             song_id="song-1",
             song_title="灰色轨迹",
@@ -31,11 +41,13 @@ class CoachNodeServiceTests(unittest.TestCase):
             mime_type="audio/webm",
             audio_size_bytes=4096,
             model_name="qwen3:8b",
+            audio_features=features,
         )
         self.assertEqual(result["mode"], "remote_node_preview")
         self.assertEqual(result["segment"], "尾奏")
         self.assertEqual(result["provider"], "ollama")
         self.assertTrue(result["advice"])
+        self.assertEqual(result["analysis_features"]["source"], "ffmpeg")
 
     def test_build_ollama_messages_uses_teacher_prompt(self):
         preview = build_node_preview_analysis(
@@ -48,6 +60,11 @@ class CoachNodeServiceTests(unittest.TestCase):
             mime_type="audio/webm",
             audio_size_bytes=4096,
             model_name="qwen3:8b",
+            audio_features=build_fallback_audio_features(
+                audio_bytes=b"abc123",
+                duration_hint=12.5,
+                mime_type="audio/webm",
+            ),
         )
         messages = build_ollama_messages(
             teacher_prompt="你是一位电吉他陪练老师。",
@@ -55,12 +72,26 @@ class CoachNodeServiceTests(unittest.TestCase):
         )
         self.assertEqual(messages[0]["role"], "system")
         self.assertIn("电吉他陪练老师", messages[0]["content"])
+        self.assertIn("起音点数量", messages[1]["content"])
 
     def test_extract_ollama_message_reads_message_content(self):
         self.assertEqual(
             extract_ollama_message({"message": {"content": "老师反馈"}}),
             "老师反馈",
         )
+
+    def test_fallback_audio_features_vary_with_audio_bytes(self):
+        first = build_fallback_audio_features(
+            audio_bytes=b"first-audio",
+            duration_hint=10.0,
+            mime_type="audio/webm",
+        )
+        second = build_fallback_audio_features(
+            audio_bytes=b"second-audio",
+            duration_hint=10.0,
+            mime_type="audio/webm",
+        )
+        self.assertNotEqual(first["onset_density"], second["onset_density"])
 
 
 class CoachNodeRuntimeTests(IsolatedAsyncioTestCase):
