@@ -27,9 +27,12 @@
               class="recent-practice-card"
               @click="openRecentPractice(item)"
             >
-              <strong>{{ item.songTitle }}</strong>
+              <div class="recent-practice-card-head">
+                <strong>{{ item.songTitle }}</strong>
+                <span class="recent-practice-jump">继续</span>
+              </div>
               <p>{{ item.version }}</p>
-              <div class="media-hints">
+              <div class="media-hints recent-practice-meta">
                 <span>{{ item.audioLabel }}</span>
                 <span>{{ item.playbackRate.toFixed(2) }}x</span>
                 <span v-if="item.loopLabel">{{ item.loopLabel }}</span>
@@ -2720,8 +2723,15 @@ export default {
   border-radius: 12px;
   background: rgba(8, 14, 28, 0.78);
   color: #e5e7eb;
-  padding: 10px 11px;
+  padding: 10px 11px 9px;
   cursor: pointer;
+}
+
+.recent-practice-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
 }
 
 .recent-practice-card strong {
@@ -2730,10 +2740,25 @@ export default {
   line-height: 1.35;
 }
 
+.recent-practice-jump {
+  flex-shrink: 0;
+  border-radius: 999px;
+  padding: 2px 7px;
+  background: rgba(249, 115, 22, 0.14);
+  color: #fb923c;
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
 .recent-practice-card p {
   margin-top: 3px;
   color: #cbd5e1;
   font-size: 12px;
+}
+
+.recent-practice-meta {
+  margin-top: 6px;
 }
 
 .song-card,
@@ -2851,6 +2876,14 @@ export default {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 7px;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  padding: 8px;
+  border-radius: 14px;
+  background: rgba(8, 14, 28, 0.94);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(10px);
 }
 
 .practice-tab-btn {
@@ -3205,6 +3238,12 @@ export default {
 
 .score-header h4 {
   line-height: 1.2;
+}
+
+.score-header p {
+  margin-top: 2px;
+  font-size: 12px;
+  line-height: 1.45;
 }
 
 .media-hints {

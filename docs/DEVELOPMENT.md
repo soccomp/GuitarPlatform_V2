@@ -155,3 +155,5 @@ python3 -m py_compile backend/main.py backend/routers/courses.py backend/routers
   说明如何生成不带资源的 Mac 分享包，以及对方收到后如何安装本地服务并启动平台。
 - `docs/CHANGELOG.md`
   记录当前正式版与开发中的阶段性版本进展，最新一轮开发汇总见 `v1.2.0-dev`。
+- `docs/PR_DESCRIPTION_FEAT_AI_COACH_WORKFLOW.md`
+  提供这轮 `feat/ai-coach-workflow` 分支的 PR 说明草稿，可直接整理后贴到 GitHub。
