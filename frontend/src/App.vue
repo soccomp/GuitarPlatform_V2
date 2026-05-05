@@ -2,7 +2,7 @@
   <div class="app">
     <header class="header">
       <div class="header-main">
-        <h1>🎸 吉他学习平台 v2</h1>
+        <h1>吉他学习平台</h1>
       </div>
       <div class="header-tools">
         <div v-if="coachStatus" class="global-coach-status">
@@ -135,16 +135,16 @@ body {
 .app {
   max-width: 1280px;
   margin: 0 auto;
-  padding: 18px 16px 28px;
+  padding: 14px 14px 24px;
 }
 
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 16px;
-  margin-bottom: 20px;
-  padding: 8px 0;
+  gap: 12px;
+  margin-bottom: 14px;
+  padding: 4px 0;
 }
 
 .header-main {
@@ -158,13 +158,13 @@ body {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 10px;
+  gap: 8px;
   min-width: 0;
   flex: 1 1 auto;
 }
 
 .header h1 {
-  font-size: 26px;
+  font-size: 22px;
   color: #fff7ed;
   letter-spacing: 0.01em;
 }
@@ -172,10 +172,10 @@ body {
 .global-coach-status {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
-  min-height: 28px;
+  gap: 6px;
+  min-height: 26px;
   max-width: 100%;
-  padding: 4px 8px;
+  padding: 3px 7px;
   border-radius: 999px;
   background: rgba(8, 14, 28, 0.72);
   border: 1px solid rgba(255, 255, 255, 0.05);
@@ -207,7 +207,7 @@ body {
 .global-coach-status strong {
   flex: 0 0 auto;
   color: #f8fafc;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
 }
 
@@ -218,8 +218,8 @@ body {
   border-radius: 999px;
   background: rgba(15, 23, 48, 0.86);
   color: #cbd5e1;
-  padding: 3px 7px;
-  font-size: 10px;
+  padding: 2px 6px;
+  font-size: 9.5px;
   line-height: 1;
 }
 
@@ -237,15 +237,15 @@ body {
   border: 1px solid rgba(249, 115, 22, 0.2);
   background: rgba(15, 23, 48, 0.95);
   color: #fff7ed;
-  padding: 3px 8px;
-  font-size: 10px;
+  padding: 2px 7px;
+  font-size: 9.5px;
   line-height: 1.2;
   flex: 0 0 auto;
 }
 
 .nav {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   flex-wrap: wrap;
   flex: 0 0 auto;
 }
@@ -255,8 +255,8 @@ body {
   color: #d1d5db;
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 999px;
-  padding: 9px 16px;
-  font-size: 14px;
+  padding: 8px 13px;
+  font-size: 13px;
   cursor: pointer;
   transition: all 0.2s;
 }

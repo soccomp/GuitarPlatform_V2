@@ -4,7 +4,7 @@
       <div class="sidebar-header">
         <div>
           <h2>学习视频</h2>
-          <p>收藏视频按主题整理，统一回看和练习。</p>
+          <p>按主题整理，直接回看。</p>
         </div>
         <div class="sidebar-actions">
           <button class="ghost-btn" :disabled="rebuildingIntelligence" @click="rebuildIntelligence">
@@ -63,7 +63,7 @@
             @click="generatePendingTranscripts"
           >
             <strong>{{ batchGeneratingTranscript ? '批量生成中...' : '批量补 transcript' }}</strong>
-            <p>先为最需要整理的几条学习视频补文字内容。</p>
+            <p>优先补最值得整理的几条。</p>
           </button>
         </div>
         <div v-if="intelligenceSummary?.prioritized_items?.length" class="priority-list">
@@ -86,7 +86,7 @@
         <div class="section-header">
           <div>
             <h3>{{ currentFilterLabel }}</h3>
-            <p>直接点卡片开始看，少跳转、少打断。</p>
+            <p>点卡片直接看。</p>
           </div>
           <span>{{ filteredVideos.length }} 条内容</span>
         </div>
@@ -236,17 +236,17 @@
 
                 <div class="intelligence-grid intelligence-grid-single">
                   <div class="meta-editor-card intelligence-card">
-                    <div class="meta-editor-header">
+                  <div class="meta-editor-header">
                       <h4>内容摘要</h4>
-                      <span>{{ selectedVideo.summary ? '会参与推荐' : '补 transcript 后会更准' }}</span>
+                      <span>{{ selectedVideo.summary ? '参与推荐' : '补 transcript 后更准' }}</span>
                     </div>
                     <p class="intelligence-copy">{{ selectedVideo.summary || selectedVideo.description || '当前还没有整理出内容摘要。' }}</p>
                   </div>
 
                   <div class="meta-editor-card intelligence-card">
-                    <div class="meta-editor-header">
+                  <div class="meta-editor-header">
                       <h4>适合怎么用</h4>
-                      <span>{{ selectedVideo.recommendedFor ? '会参与学习教练推荐' : '当前先按标题和标签理解' }}</span>
+                      <span>{{ selectedVideo.recommendedFor ? '参与学习教练推荐' : '当前先按标题和标签理解' }}</span>
                     </div>
                     <p class="intelligence-copy">{{ selectedVideo.recommendedFor || '适合先作为参考视频收藏，后面补 transcript 后会更适合做智能推荐。' }}</p>
                   </div>
@@ -275,6 +275,29 @@
                       </span>
                     </div>
                     <p v-else class="intelligence-copy">当前还没有标签。</p>
+                  </div>
+
+                  <div v-if="selectedVideo" class="meta-editor-card intelligence-card">
+                    <div class="meta-editor-header">
+                      <h4>关联歌曲练习</h4>
+                      <span>{{ relatedSongs.length ? '直接回到要练的歌' : '当前还没有明显命中的歌曲' }}</span>
+                    </div>
+                    <div v-if="relatedSongsLoading" class="empty-copy compact-empty">正在整理这条视频更适合回到哪些歌验证...</div>
+                    <div v-else-if="relatedSongs.length" class="linked-song-list">
+                      <article
+                        v-for="song in relatedSongs"
+                        :key="`video-song-${song.id}`"
+                        class="linked-song-card"
+                      >
+                        <div class="linked-song-copy">
+                          <strong>{{ song.title }}</strong>
+                          <p>{{ song.artist || '歌曲练习' }}</p>
+                          <span>{{ song.reason }}</span>
+                        </div>
+                        <button class="ghost-btn" @click="openRelatedSong(song.id)">去练这首歌</button>
+                      </article>
+                    </div>
+                    <p v-else class="intelligence-copy">后面补完更多 transcript、标签和摘要后，这里的回跳会更准。</p>
                   </div>
 
                   <div v-if="selectedVideo.transcriptAvailable || selectedVideo.transcriptPreview" class="meta-editor-card intelligence-card">
@@ -353,6 +376,8 @@ const batchGeneratingTranscript = ref(false)
 const deleting = ref(false)
 const savingMeta = ref(false)
 const intelligenceSummary = ref(null)
+const relatedSongs = ref([])
+const relatedSongsLoading = ref(false)
 const recentKeys = ref(loadRecentKeys())
 const playCounts = ref(loadPlayCounts())
 const videoPlayerRef = ref(null)
@@ -439,9 +464,11 @@ watch(() => selectedKey.value, async () => {
   isPlaying.value = false
   loopStart.value = null
   loopEnd.value = null
+  relatedSongs.value = []
   if (!video?.path) return
   bumpPlayCount(video.id)
   syncMetaDraft(video)
+  await loadRelatedSongs(video.id)
   await nextTick()
   if (videoPlayerRef.value) {
     videoPlayerRef.value.playbackRate = playbackRate.value
@@ -612,6 +639,24 @@ function closeVideo() {
   loopStart.value = null
   loopEnd.value = null
   isEditingMeta.value = false
+  relatedSongs.value = []
+}
+
+async function loadRelatedSongs(videoId) {
+  if (!videoId) {
+    relatedSongs.value = []
+    return
+  }
+  relatedSongsLoading.value = true
+  try {
+    const response = await fetch(`/api/videos/${videoId}/related-songs`)
+    if (!response.ok) throw new Error('关联歌曲加载失败')
+    relatedSongs.value = await response.json()
+  } catch {
+    relatedSongs.value = []
+  } finally {
+    relatedSongsLoading.value = false
+  }
 }
 
 function syncMetaDraft(video) {
@@ -826,6 +871,12 @@ function mediaUrl(section, path) {
   return `../../library/${section}/${cleanPath}`
 }
 
+function openRelatedSong(songId) {
+  if (!songId || typeof window === 'undefined') return
+  window.localStorage.setItem('guitar-platform-pending-song-id', songId)
+  window.dispatchEvent(new CustomEvent('guitar-platform-navigate', { detail: { tab: 'songs' } }))
+}
+
 function isFilePreview() {
   return typeof window !== 'undefined' && window.location.protocol === 'file:'
 }
@@ -838,15 +889,15 @@ onMounted(() => {
 <style scoped>
 .learning-layout {
   display: grid;
-  grid-template-columns: 272px 1fr;
-  gap: 12px;
+  grid-template-columns: 252px 1fr;
+  gap: 10px;
   min-height: 680px;
 }
 
 .sidebar,
 .video-shelf {
   background: #16213e;
-  border-radius: 18px;
+  border-radius: 16px;
   border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
@@ -855,11 +906,11 @@ onMounted(() => {
   top: 12px;
   max-height: calc(100vh - 40px);
   overflow: auto;
-  padding: 14px;
+  padding: 12px;
 }
 
 .sidebar-header h2 {
-  font-size: 18px;
+  font-size: 17px;
   line-height: 1.2;
 }
 
@@ -907,12 +958,12 @@ onMounted(() => {
 .search-panel,
 .resume-list {
   display: grid;
-  gap: 10px;
+  gap: 8px;
 }
 
 .search-panel,
 .nav-block {
-  margin-top: 16px;
+  margin-top: 14px;
 }
 
 .search-panel {
@@ -936,7 +987,7 @@ onMounted(() => {
 
 .sidebar-actions {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   flex-wrap: wrap;
   justify-content: flex-end;
 }
@@ -975,6 +1026,47 @@ onMounted(() => {
   line-height: 1.55;
 }
 
+.linked-song-list {
+  display: grid;
+  gap: 8px;
+}
+
+.linked-song-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+  padding: 9px 10px;
+  border-radius: 11px;
+  background: rgba(8, 14, 28, 0.76);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.linked-song-copy {
+  min-width: 0;
+}
+
+.linked-song-copy strong {
+  display: block;
+  color: #f8fafc;
+  font-size: 12.5px;
+  line-height: 1.35;
+}
+
+.linked-song-copy p {
+  margin-top: 2px;
+  color: #cbd5e1;
+  font-size: 11.5px;
+}
+
+.linked-song-copy span {
+  display: block;
+  margin-top: 4px;
+  color: #94a3b8;
+  font-size: 11px;
+  line-height: 1.45;
+}
+
 .text-input {
   width: 100%;
   border: 1px solid rgba(255, 255, 255, 0.08);
@@ -989,7 +1081,7 @@ onMounted(() => {
   border-radius: 999px;
   background: transparent;
   color: #f97316;
-  padding: 7px 12px;
+  padding: 6px 11px;
   cursor: pointer;
   white-space: nowrap;
 }
@@ -1005,7 +1097,7 @@ onMounted(() => {
   text-align: left;
   border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 10px;
-  padding: 9px 11px;
+  padding: 8px 10px;
   background: #0f1730;
   color: #d9dfeb;
   cursor: pointer;
@@ -1023,13 +1115,13 @@ onMounted(() => {
 }
 
 .video-shelf {
-  padding: 14px;
+  padding: 12px;
 }
 
 .video-modal-layout {
   display: grid;
-  grid-template-columns: minmax(0, 1.25fr) minmax(280px, 0.82fr);
-  gap: 14px;
+  grid-template-columns: minmax(0, 1.18fr) minmax(260px, 0.82fr);
+  gap: 12px;
   align-items: start;
 }
 
@@ -1044,7 +1136,7 @@ onMounted(() => {
 }
 
 .section-header h3 {
-  font-size: 20px;
+  font-size: 18px;
 }
 
 .section-header p {
@@ -1092,8 +1184,8 @@ onMounted(() => {
 }
 
 .video-frame {
-  margin: 18px 0 20px;
-  border-radius: 16px;
+  margin: 14px 0 16px;
+  border-radius: 14px;
   overflow: hidden;
   background: #0a1022;
 }
@@ -1109,7 +1201,7 @@ onMounted(() => {
 .detail-strip {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
+  gap: 8px;
 }
 
 .detail-strip-stack {
@@ -1118,10 +1210,10 @@ onMounted(() => {
 
 .practice-controls {
   display: grid;
-  gap: 10px;
-  margin: -2px 0 16px;
-  padding: 12px 14px;
-  border-radius: 14px;
+  gap: 8px;
+  margin: -2px 0 14px;
+  padding: 10px 12px;
+  border-radius: 12px;
   background: #0f1730;
 }
 
@@ -1149,7 +1241,7 @@ onMounted(() => {
   background: transparent;
   color: #f97316;
   border-radius: 999px;
-  padding: 8px 14px;
+  padding: 7px 12px;
   cursor: pointer;
 }
 
@@ -1165,8 +1257,8 @@ onMounted(() => {
 
 .detail-strip div {
   background: #0f1730;
-  border-radius: 12px;
-  padding: 10px 12px;
+  border-radius: 10px;
+  padding: 9px 10px;
   min-width: 0;
 }
 
@@ -1188,19 +1280,19 @@ onMounted(() => {
 }
 
 .meta-editor-card {
-  margin-top: 14px;
-  padding: 14px;
-  border-radius: 14px;
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: 12px;
   background: #0f1730;
   display: grid;
-  gap: 10px;
+  gap: 8px;
 }
 
 .intelligence-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
-  margin-top: 14px;
+  gap: 10px;
+  margin-top: 12px;
 }
 
 .intelligence-grid-single {
@@ -1291,14 +1383,14 @@ onMounted(() => {
 
 .video-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(172px, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(164px, 1fr));
+  gap: 10px;
 }
 
 .video-card {
   overflow: hidden;
   padding: 0;
-  border-radius: 16px;
+  border-radius: 14px;
   background: #0f1730;
   transition: border-color 0.2s ease, transform 0.2s ease, background 0.2s ease;
 }
@@ -1312,7 +1404,7 @@ onMounted(() => {
   position: relative;
   display: grid;
   place-items: center;
-  min-height: 108px;
+  min-height: 102px;
   overflow: hidden;
   background:
     radial-gradient(circle at 22% 20%, rgba(255, 255, 255, 0.34), transparent 18%),
@@ -1382,7 +1474,7 @@ onMounted(() => {
 .video-card-body {
   display: grid;
   gap: 5px;
-  padding: 10px 11px 11px;
+  padding: 9px 10px 10px;
 }
 
 .video-card-body strong {
@@ -1440,8 +1532,8 @@ onMounted(() => {
   max-height: calc(100vh - 56px);
   overflow: auto;
   border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 20px;
-  padding: 16px;
+  border-radius: 18px;
+  padding: 14px;
   background:
     radial-gradient(circle at top left, rgba(249, 115, 22, 0.18), transparent 34%),
     #16213e;

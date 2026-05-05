@@ -5,7 +5,7 @@
         <div class="list-header">
           <div>
             <h2>歌曲练习</h2>
-            <p>围绕谱面和伴奏快速进入练习状态</p>
+            <p>选歌后直接开练</p>
           </div>
           <button class="ghost-btn" @click="scanSongs">扫描目录</button>
         </div>
@@ -18,7 +18,7 @@
         <div v-if="recentPracticeLinks.length" class="recent-practice-block">
           <div class="section-heading">
             <h4>最近练习</h4>
-            <span class="section-copy">最近 3 个</span>
+            <span class="section-copy">最近 3 条</span>
           </div>
           <div class="recent-practice-list">
             <button
@@ -349,7 +349,7 @@
                   <div class="score-header">
                     <div>
                       <h4>相关学习视频</h4>
-                      <p class="coach-copy">自动关联学习视频里和这首歌相关的弹唱、教学或 solo 参考。</p>
+                      <p class="coach-copy">自动关联这首歌的弹唱、教学和 solo 参考。</p>
                     </div>
                     <span class="coach-badge">{{ relatedVideos.length }} 个视频</span>
                   </div>
@@ -395,16 +395,16 @@
                     学习教练
                   </button>
                   <button
-                    :class="['practice-tab-btn', { active: practiceSideTab === 'ai' }]"
-                    @click="setPracticeSideTab('ai')"
-                  >
-                    AI陪练
-                  </button>
-                  <button
                     :class="['practice-tab-btn', { active: practiceSideTab === 'history' }]"
                     @click="setPracticeSideTab('history')"
                   >
                     练习记录
+                  </button>
+                  <button
+                    :class="['practice-tab-btn', { active: practiceSideTab === 'ai' }]"
+                    @click="setPracticeSideTab('ai')"
+                  >
+                    实验陪练
                   </button>
                 </div>
 
@@ -412,7 +412,7 @@
                   <div class="score-header">
                     <div>
                       <h4>今天练了什么</h4>
-                      <p class="coach-copy">今天完整练过的歌，随时回到上一轮。</p>
+                      <p class="coach-copy">今天练过的歌，随时接着练。</p>
                     </div>
                     <span class="coach-badge">{{ todayPracticeSummary.length }} 首</span>
                   </div>
@@ -442,7 +442,7 @@
                   <div class="score-header">
                     <div>
                       <h4>下一步该练什么</h4>
-                      <p class="coach-copy">围绕当前这首歌，直接给出下一步动作、课程和视频。</p>
+                      <p class="coach-copy">先看结论，再决定补哪节课、哪条视频。</p>
                     </div>
                     <span class="coach-badge">学习教练</span>
                   </div>
@@ -592,8 +592,8 @@
                 <div v-if="practiceSideTab === 'ai'" class="coach-section">
                   <div class="score-header">
                     <div>
-                      <h4>AI 陪练</h4>
-                      <p class="coach-copy">录一遍，自动生成反馈和练习回放。</p>
+                      <h4>实验陪练</h4>
+                      <p class="coach-copy">先用于录制、回听和试验性反馈，不作为主学习入口。</p>
                     </div>
                     <div class="coach-header-side">
                       <span class="coach-badge">推荐输入：Scarlett 2i2</span>
@@ -618,6 +618,11 @@
                   </div>
 
                   <div v-if="coachError" class="coach-error">{{ coachError }}</div>
+
+                  <div class="coach-block coach-block-compact">
+                    <h5>当前定位</h5>
+                    <p>这块现在主要用于保存录制回放和做实验性分析。真正有长期价值的 AI 主线，已经转到课程/视频内容理解、知识整理和“下一步该练什么”。</p>
+                  </div>
 
                   <div v-if="pendingCoachTake" class="coach-result pending-coach-result">
                     <div class="coach-block pending-coach-head">
@@ -735,7 +740,7 @@
                   <div class="score-header">
                     <div>
                       <h4>练习记录</h4>
-                      <p class="coach-copy">保留每次回放和反馈，方便回听、删除或导出。</p>
+                      <p class="coach-copy">回放、删除和导出都在这里。</p>
                       <p v-if="lastSavedCoachSessionId" class="coach-copy coach-copy-success">刚刚保存了一条新的练习记录。</p>
                     </div>
                     <span class="coach-badge">{{ visibleCoachHistory.length }} 条记录</span>
@@ -928,6 +933,7 @@ import seedIndex from '../../../backend/data/index.json'
 const COACH_MODEL_STORAGE_KEY = 'guitar-platform-coach-model'
 const PENDING_COURSE_ID_KEY = 'guitar-platform-pending-course-id'
 const PENDING_VIDEO_ID_KEY = 'guitar-platform-pending-video-id'
+const PENDING_SONG_ID_KEY = 'guitar-platform-pending-song-id'
 const LEARNING_PLAN_PROGRESS_KEY = 'guitar-platform-learning-plan-progress'
 const LEARNING_ROUND_HISTORY_KEY = 'guitar-platform-learning-round-history'
 const PRACTICE_SIDE_TAB_STORAGE_KEY = 'guitar-platform-practice-side-tab'
@@ -1320,6 +1326,15 @@ export default {
           versions: song.versions.map(version => version.name),
         }))
       } finally {
+        const pendingSongId = this.consumePendingSongId()
+        if (pendingSongId) {
+          const pendingSong = this.songs.find(item => item.id === pendingSongId)
+          if (pendingSong) {
+            await this.selectSong(pendingSong)
+            this.loading = false
+            return
+          }
+        }
         if (!this.selectedSong && this.songs.length) {
           await this.selectSong(this.songs[0])
         }
@@ -1741,7 +1756,21 @@ export default {
       if (tab === 'learning' && payload.videoId) {
         window.localStorage.setItem(PENDING_VIDEO_ID_KEY, payload.videoId)
       }
+      if (tab === 'songs' && payload.songId) {
+        window.localStorage.setItem(PENDING_SONG_ID_KEY, payload.songId)
+      }
       window.dispatchEvent(new CustomEvent('guitar-platform-navigate', { detail: { tab } }))
+    },
+    consumePendingSongId() {
+      try {
+        const pending = window.localStorage.getItem(PENDING_SONG_ID_KEY) || ''
+        if (pending) {
+          window.localStorage.removeItem(PENDING_SONG_ID_KEY)
+        }
+        return pending
+      } catch {
+        return ''
+      }
     },
     loadLearningPlanProgress() {
       try {
@@ -2534,16 +2563,16 @@ export default {
 
 .songs-layout {
   display: grid;
-  grid-template-columns: 248px minmax(0, 1fr);
-  gap: 12px;
+  grid-template-columns: 236px minmax(0, 1fr);
+  gap: 10px;
 }
 
 .song-list,
 .song-detail {
   background: #16213e;
-  border-radius: 16px;
+  border-radius: 15px;
   border: 1px solid rgba(255, 255, 255, 0.06);
-  padding: 14px;
+  padding: 12px;
 }
 
 .song-list {
@@ -2575,7 +2604,7 @@ export default {
 .player-header-actions {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   flex-wrap: wrap;
   justify-content: flex-end;
 }
@@ -2602,8 +2631,8 @@ export default {
 .playback-mode-group {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 5px;
+  gap: 5px;
+  padding: 4px;
   border-radius: 999px;
   background: rgba(8, 14, 28, 0.92);
   border: 1px solid rgba(255, 255, 255, 0.06);
@@ -2625,10 +2654,10 @@ export default {
 .playback-mode-option span {
   display: inline-flex;
   align-items: center;
-  padding: 7px 11px;
+  padding: 6px 10px;
   border-radius: 999px;
   color: #94a3b8;
-  font-size: 12px;
+  font-size: 11.5px;
   line-height: 1;
   transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
 }
@@ -2643,10 +2672,10 @@ export default {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 8px;
-  margin: 2px 0 6px;
+  gap: 7px;
+  margin: 0 0 4px;
   color: #94a3b8;
-  font-size: 12px;
+  font-size: 11.5px;
 }
 
 .sync-offset-picker {
@@ -2672,7 +2701,7 @@ export default {
 }
 
 .list-header {
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
 .list-header h2,
@@ -2691,24 +2720,24 @@ export default {
 
 .search-box {
   display: grid;
-  gap: 8px;
-  margin-bottom: 12px;
+  gap: 7px;
+  margin-bottom: 10px;
   color: #cbd5e1;
-  font-size: 13px;
+  font-size: 12.5px;
 }
 
 .search-box input {
-  border-radius: 12px;
+  border-radius: 11px;
   border: 1px solid rgba(255, 255, 255, 0.12);
   background: #0f1730;
   color: #f8fafc;
-  padding: 10px 12px;
+  padding: 9px 11px;
 }
 
 .recent-practice-block {
   display: grid;
-  gap: 10px;
-  margin-bottom: 12px;
+  gap: 8px;
+  margin-bottom: 10px;
 }
 
 .recent-practice-list {
@@ -2720,10 +2749,10 @@ export default {
   width: 100%;
   text-align: left;
   border: 1px solid rgba(90, 174, 255, 0.22);
-  border-radius: 12px;
+  border-radius: 11px;
   background: rgba(8, 14, 28, 0.78);
   color: #e5e7eb;
-  padding: 10px 11px 9px;
+  padding: 9px 10px 8px;
   cursor: pointer;
 }
 
@@ -2736,7 +2765,7 @@ export default {
 
 .recent-practice-card strong {
   display: block;
-  font-size: 13px;
+  font-size: 12.5px;
   line-height: 1.35;
 }
 
@@ -2752,9 +2781,9 @@ export default {
 }
 
 .recent-practice-card p {
-  margin-top: 3px;
+  margin-top: 2px;
   color: #cbd5e1;
-  font-size: 12px;
+  font-size: 11.5px;
 }
 
 .recent-practice-meta {
@@ -2768,10 +2797,10 @@ export default {
   width: 100%;
   text-align: left;
   border: 1px solid transparent;
-  border-radius: 11px;
+  border-radius: 10px;
   background: #0f1730;
   color: #e5e7eb;
-  padding: 9px 10px;
+  padding: 8px 9px;
   margin-bottom: 6px;
   cursor: pointer;
 }
@@ -2779,14 +2808,14 @@ export default {
 .song-card strong,
 .group-item strong,
 .version-item span {
-  font-size: 13px;
+  font-size: 12.5px;
   line-height: 1.35;
 }
 
 .song-card p,
 .group-item small,
 .version-item small {
-  font-size: 11px;
+  font-size: 10.5px;
   line-height: 1.35;
 }
 
@@ -2835,23 +2864,23 @@ export default {
 .player-section,
 .score-section,
 .coach-section {
-  margin-top: 16px;
-  border-radius: 16px;
+  margin-top: 14px;
+  border-radius: 13px;
   border: 1px solid rgba(255, 255, 255, 0.06);
   background: rgba(15, 23, 48, 0.56);
-  padding: 12px;
+  padding: 9px;
 }
 
 .support-grid {
   display: grid;
   grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
-  gap: 10px;
+  gap: 9px;
 }
 
 .practice-shell {
   display: grid;
   grid-template-columns: minmax(0, 1.5fr) minmax(300px, 0.74fr);
-  gap: 12px;
+  gap: 10px;
   align-items: start;
 }
 
@@ -2862,25 +2891,25 @@ export default {
 
 .practice-main {
   display: grid;
-  gap: 10px;
+  gap: 8px;
 }
 
 .practice-side {
   position: sticky;
   top: 16px;
   display: grid;
-  gap: 10px;
+  gap: 8px;
 }
 
 .practice-side-tabs {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 7px;
+  gap: 6px;
   position: sticky;
   top: 0;
   z-index: 2;
-  padding: 8px;
-  border-radius: 14px;
+  padding: 7px;
+  border-radius: 13px;
   background: rgba(8, 14, 28, 0.94);
   border: 1px solid rgba(255, 255, 255, 0.06);
   backdrop-filter: blur(10px);
@@ -2890,9 +2919,9 @@ export default {
   border: 1px solid rgba(255, 255, 255, 0.08);
   background: rgba(15, 23, 48, 0.9);
   color: #cbd5e1;
-  border-radius: 12px;
-  padding: 9px 10px;
-  font-size: 12px;
+  border-radius: 11px;
+  padding: 8px 9px;
+  font-size: 11.5px;
   font-weight: 600;
   cursor: pointer;
 }
@@ -2905,16 +2934,16 @@ export default {
 
 .versions-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(132px, 1fr));
-  gap: 7px;
-  margin-top: 8px;
+  grid-template-columns: repeat(auto-fit, minmax(114px, 1fr));
+  gap: 5px;
+  margin-top: 5px;
 }
 
 .group-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 7px;
-  margin-top: 8px;
+  grid-template-columns: repeat(auto-fit, minmax(116px, 1fr));
+  gap: 5px;
+  margin-top: 5px;
 }
 
 .group-item strong,
@@ -2923,29 +2952,29 @@ export default {
 }
 
 .segments-section {
-  margin-top: 16px;
+  margin-top: 14px;
 }
 
 .section-copy {
   color: #94a3b8;
-  font-size: 12px;
+  font-size: 11.5px;
 }
 
 .detail-header h3 {
-  font-size: 28px;
+  font-size: 24px;
   line-height: 1.1;
 }
 
 .detail-header p {
-  margin-top: 4px;
-  font-size: 14px;
+  margin-top: 3px;
+  font-size: 13px;
 }
 
 .transport-bar {
   display: grid;
-  gap: 8px;
-  padding: 10px 11px;
-  border-radius: 14px;
+  gap: 5px;
+  padding: 7px 9px;
+  border-radius: 12px;
   background: rgba(15, 23, 48, 0.88);
   border: 1px solid rgba(255, 255, 255, 0.06);
 }
@@ -2965,21 +2994,21 @@ export default {
   display: flex;
   justify-content: space-between;
   color: #94a3b8;
-  font-size: 12px;
+  font-size: 11.5px;
   margin-top: 0;
 }
 
 .transport-meta {
   display: grid;
-  grid-template-columns: minmax(0, 0.42fr) minmax(0, 1fr);
+  grid-template-columns: minmax(104px, 0.36fr) minmax(0, 1fr);
   align-items: center;
-  gap: 10px;
+  gap: 7px;
 }
 
 .control-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 7px;
+  gap: 5px;
   margin-top: 0;
 }
 
@@ -2992,17 +3021,17 @@ export default {
   background: transparent;
   color: #f97316;
   border-radius: 999px;
-  padding: 6px 11px;
-  font-size: 12px;
+  padding: 5px 9px;
+  font-size: 11px;
   cursor: pointer;
 }
 
 .play-btn {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  min-height: 38px;
-  padding-inline: 14px;
+  gap: 7px;
+  min-height: 34px;
+  padding-inline: 11px;
   font-weight: 600;
 }
 
@@ -3042,7 +3071,7 @@ export default {
 
 .audio-options {
   display: grid;
-  gap: 8px;
+  gap: 7px;
   margin: 8px 0 4px;
 }
 
@@ -3064,8 +3093,8 @@ export default {
   background: rgba(15, 23, 48, 0.7);
   color: #cbd5e1;
   border-radius: 999px;
-  padding: 6px 10px;
-  font-size: 12px;
+  padding: 5px 9px;
+  font-size: 11.5px;
   cursor: pointer;
 }
 
@@ -3081,7 +3110,7 @@ export default {
 
 .loop-snippet-panel {
   display: grid;
-  gap: 8px;
+  gap: 7px;
   margin-top: 2px;
   padding-top: 8px;
   border-top: 1px solid rgba(255, 255, 255, 0.06);
@@ -3096,13 +3125,13 @@ export default {
 
 .loop-snippet-head strong {
   color: #f8fafc;
-  font-size: 13px;
+  font-size: 12.5px;
 }
 
 .loop-snippet-head p {
-  margin-top: 3px;
+  margin-top: 2px;
   color: #94a3b8;
-  font-size: 12px;
+  font-size: 11.5px;
 }
 
 .loop-snippet-current {
@@ -3112,17 +3141,17 @@ export default {
 .loop-snippet-form {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
-  gap: 8px;
+  gap: 7px;
 }
 
 .loop-snippet-form input {
   width: 100%;
-  border-radius: 12px;
+  border-radius: 11px;
   border: 1px solid rgba(148, 163, 184, 0.18);
   background: rgba(15, 23, 48, 0.82);
   color: #f8fafc;
-  padding: 9px 11px;
-  font-size: 13px;
+  padding: 8px 10px;
+  font-size: 12.5px;
 }
 
 .loop-snippet-list {
@@ -3213,7 +3242,7 @@ export default {
 .score-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 7px;
   margin: 4px 0 2px;
 }
 
@@ -3223,8 +3252,8 @@ export default {
   border: 1px solid rgba(249, 115, 22, 0.4);
   color: #f97316;
   border-radius: 999px;
-  padding: 6px 11px;
-  font-size: 12px;
+  padding: 5px 10px;
+  font-size: 11.5px;
   text-decoration: none;
 }
 
@@ -3276,16 +3305,16 @@ export default {
 .related-video-list {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 8px;
+  gap: 7px;
 }
 
 .related-video-card {
   display: grid;
-  grid-template-columns: 84px minmax(0, 1fr) auto;
+  grid-template-columns: 76px minmax(0, 1fr) auto;
   align-items: center;
-  gap: 8px;
-  padding: 9px;
-  border-radius: 12px;
+  gap: 7px;
+  padding: 8px;
+  border-radius: 11px;
   background: #0f1730;
   border: 1px solid rgba(255, 255, 255, 0.06);
 }
@@ -3294,8 +3323,8 @@ export default {
   position: relative;
   display: grid;
   place-items: center;
-  min-height: 72px;
-  border-radius: 10px;
+  min-height: 66px;
+  border-radius: 9px;
   overflow: hidden;
   background: linear-gradient(135deg, rgba(249, 115, 22, 0.32), rgba(15, 23, 48, 0.92));
 }
@@ -3321,14 +3350,14 @@ export default {
 .related-video-main strong {
   display: block;
   color: #f8fafc;
-  font-size: 12px;
+  font-size: 11.5px;
   line-height: 1.4;
 }
 
 .related-video-main p {
-  margin-top: 4px;
+  margin-top: 3px;
   color: #94a3b8;
-  font-size: 11px;
+  font-size: 10.5px;
   line-height: 1.4;
 }
 
@@ -3339,11 +3368,11 @@ export default {
 }
 
 .coach-copy {
-  margin-top: 3px;
+  margin-top: 2px;
   color: #94a3b8;
-  font-size: 12px;
+  font-size: 11.5px;
   line-height: 1.5;
-  max-width: 46ch;
+  max-width: 40ch;
 }
 
 .coach-copy-success {
@@ -3354,10 +3383,10 @@ export default {
   display: inline-flex;
   align-items: center;
   border-radius: 999px;
-  padding: 5px 10px;
+  padding: 4px 8px;
   background: rgba(249, 115, 22, 0.14);
   color: #f97316;
-  font-size: 11px;
+  font-size: 10.5px;
 }
 
 .coach-header-side {
@@ -3370,8 +3399,8 @@ export default {
 .coach-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 10px;
+  gap: 7px;
+  margin-top: 8px;
 }
 
 .pending-actions {
@@ -3395,17 +3424,17 @@ export default {
 .coach-result {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
-  margin-top: 10px;
+  gap: 8px;
+  margin-top: 8px;
 }
 
 .coach-focus-card {
   grid-column: 1 / -1;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
-  padding: 11px 12px;
-  border-radius: 14px;
+  gap: 8px;
+  padding: 10px 11px;
+  border-radius: 13px;
   background: linear-gradient(135deg, rgba(249, 115, 22, 0.16), rgba(8, 14, 28, 0.88));
   border: 1px solid rgba(249, 115, 22, 0.18);
 }
@@ -3416,9 +3445,9 @@ export default {
 
 .coach-focus-label {
   display: inline-block;
-  margin-bottom: 6px;
+  margin-bottom: 5px;
   color: #fdba74;
-  font-size: 11px;
+  font-size: 10.5px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
@@ -3426,7 +3455,7 @@ export default {
 .coach-focus-block strong,
 .coach-focus-block p {
   color: #fff7ed;
-  font-size: 13px;
+  font-size: 12.5px;
   line-height: 1.55;
 }
 
@@ -3441,24 +3470,24 @@ export default {
 
 .coach-history {
   display: grid;
-  gap: 10px;
-  margin-top: 10px;
+  gap: 8px;
+  margin-top: 8px;
 }
 
 .coach-history-list {
   display: grid;
-  gap: 8px;
-  max-height: 620px;
+  gap: 5px;
+  max-height: 520px;
   overflow: auto;
   padding-right: 4px;
 }
 
 .coach-history-card {
   position: relative;
-  border-radius: 14px;
+  border-radius: 11px;
   background: #0f1730;
   border: 1px solid rgba(255, 255, 255, 0.06);
-  padding: 10px 11px 10px 18px;
+  padding: 8px 9px 8px 14px;
 }
 
 .coach-history-card.fresh {
@@ -3487,26 +3516,28 @@ export default {
 .coach-history-head {
   display: flex;
   justify-content: space-between;
-  gap: 12px;
-  margin-top: 8px;
+  gap: 8px;
+  margin-top: 5px;
 }
 
 .coach-history-head strong {
   display: block;
   color: #f8fafc;
+  font-size: 12px;
+  line-height: 1.4;
 }
 
 .coach-history-head p {
-  margin-top: 3px;
+  margin-top: 2px;
   color: #94a3b8;
-  font-size: 12px;
+  font-size: 10.5px;
   line-height: 1.45;
 }
 
 .coach-history-score {
   white-space: nowrap;
   color: #f97316;
-  font-size: 13px;
+  font-size: 10.5px;
 }
 
 .coach-history-media {

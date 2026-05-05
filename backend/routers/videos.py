@@ -13,6 +13,7 @@ from services.resource_manager import delete_video_resource
 from services.video_intelligence import merge_video_intelligence, read_video_transcript_text
 from services.transcriber import TranscriptionError, transcribe_media
 from services.content_backlog import build_video_intelligence_summary
+from services.content_relationships import build_related_songs_for_video
 
 
 router = APIRouter(prefix="/api/videos", tags=["videos"])
@@ -201,7 +202,18 @@ async def get_video(video_id: str):
     video = find_video(index, video_id)
     if not video:
         raise HTTPException(status_code=404, detail="Video not found")
-    return video
+    enriched = dict(video)
+    enriched["related_songs"] = build_related_songs_for_video(video, index)
+    return enriched
+
+
+@router.get("/{video_id}/related-songs")
+async def get_video_related_songs(video_id: str):
+    index = maybe_persist_enriched_videos(load_index())
+    video = find_video(index, video_id)
+    if not video:
+        raise HTTPException(status_code=404, detail="Video not found")
+    return build_related_songs_for_video(video, index)
 
 
 @router.post("/{video_id}/generate-transcript")

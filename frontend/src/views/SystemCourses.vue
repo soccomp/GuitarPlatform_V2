@@ -4,7 +4,7 @@
       <div class="sidebar-header">
         <div>
           <h2>系统教材</h2>
-          <p>按树状章节快速定位，直接点到具体课时。</p>
+          <p>按章节快速定位，直接开课。</p>
         </div>
         <button class="ghost-btn" :disabled="rebuildingIntelligence" @click="rebuildIntelligence">
           {{ rebuildingIntelligence ? '整理中...' : '刷新内容理解' }}
@@ -17,7 +17,7 @@
           v-model.trim="searchQuery"
           type="text"
           class="text-input"
-          placeholder="搜索课程标题、章节或视频来源"
+          placeholder="搜索课程、章节或关键词"
         />
       </label>
 
@@ -54,7 +54,7 @@
           </button>
         </div>
         <div v-else class="empty-side-copy">
-          开始看一节课程后，这里会记住最近打开和上次播放位置。
+          开始看课后，这里会记住上次位置。
         </div>
       </div>
 
@@ -66,7 +66,7 @@
         <div class="resume-list">
           <div class="resume-card info-card">
             <strong>总计 {{ allVideos.length }} 节</strong>
-            <p>已有 transcript {{ transcriptReadyCount }} 节，待补 {{ transcriptPendingCount }} 节。</p>
+            <p>已整理 {{ transcriptReadyCount }} 节，待补 {{ transcriptPendingCount }} 节。</p>
           </div>
         </div>
         <div v-if="intelligenceSummary?.prioritized_items?.length" class="priority-list">
@@ -197,7 +197,7 @@
                   <h4>课程摘要</h4>
                   <p>{{ selectedVideo.summary || selectedVideo.subtitle || '当前还没有课程摘要。' }}</p>
                   <div class="detail-hints">
-                    <span>{{ selectedVideo.recommendedFor || '后面会结合课程文字内容继续优化推荐。' }}</span>
+                    <span>{{ selectedVideo.recommendedFor || '补完文字内容后，这里会更准。' }}</span>
                   </div>
                 </div>
 
@@ -235,7 +235,7 @@
                 <div v-if="hasMaterials(selectedVideo)" class="materials-card">
                   <div class="materials-header">
                     <h4>随课资料</h4>
-                    <span>直接打开当前课程的谱面与伴奏</span>
+                    <span>直接打开谱面和伴奏</span>
                   </div>
 
                   <div class="materials-grid">
@@ -298,7 +298,7 @@
 
                 <div class="detail-card detail-card-wide">
                   <h4>适合怎么用</h4>
-                  <p>{{ selectedVideo.recommendedFor || '当前还没有足够信息，后面补 transcript 后会更适合做学习教练推荐。' }}</p>
+                  <p>{{ selectedVideo.recommendedFor || '当前信息还不够，补 transcript 后会更准。' }}</p>
                 </div>
 
                 <div class="detail-card detail-card-wide">
@@ -309,6 +309,26 @@
                     </li>
                   </ul>
                   <p v-else>当前还没有提炼出关键点。</p>
+                </div>
+
+                <div v-if="selectedVideo.type === 'course'" class="detail-card detail-card-wide">
+                  <h4>适合回到这些歌验证</h4>
+                  <div v-if="relatedSongsLoading" class="empty-copy">正在整理这节课更适合回到哪些歌验证...</div>
+                  <div v-else-if="relatedSongs.length" class="linked-song-list">
+                    <article
+                      v-for="song in relatedSongs"
+                      :key="`course-song-${song.id}`"
+                      class="linked-song-card"
+                    >
+                      <div class="linked-song-copy">
+                        <strong>{{ song.title }}</strong>
+                        <p>{{ song.artist || '歌曲练习' }}</p>
+                        <span>{{ song.reason }}</span>
+                      </div>
+                      <button class="ghost-btn" @click="openRelatedSong(song.id)">去练这首歌</button>
+                    </article>
+                  </div>
+                  <p v-else class="empty-copy">这节课当前还没有明确命中的歌曲，后面补完 transcript 和标签后会更准。</p>
                 </div>
 
                 <div class="assistant-section">
@@ -324,7 +344,7 @@
                   <div v-if="showQA" class="assistant-card">
                     <div class="assistant-header">
                       <h4>小霞问答</h4>
-                      <span>基于当前课程 transcript 回答</span>
+                      <span>基于当前课程内容回答</span>
                     </div>
 
                     <div class="qa-messages" ref="qaMessagesRef">
@@ -422,6 +442,8 @@ const practiceResult = ref(null)
 const videoPlayerRef = ref(null)
 const recentState = ref(loadPersistedState())
 const deletingCourse = ref(false)
+const relatedSongs = ref([])
+const relatedSongsLoading = ref(false)
 
 const allVideos = computed(() => {
   return courses.value.map(course => ({
@@ -779,10 +801,12 @@ async function selectVideo(item) {
   activeSeries.value = item.group
   selectedKey.value = item.key
   transcript.value = ''
+  relatedSongs.value = []
   rememberVideo(item)
   resetAssistantState(item.type)
   if (item.type === 'course') {
     await loadTranscript(item.id)
+    await loadRelatedSongs(item.id)
   }
 }
 
@@ -855,6 +879,23 @@ async function openPriorityCourse(courseId) {
   const target = allVideos.value.find(item => item.id === courseId)
   if (!target) return
   await selectVideo(target)
+}
+
+async function loadRelatedSongs(courseId) {
+  if (!courseId || isFilePreview()) {
+    relatedSongs.value = []
+    return
+  }
+  relatedSongsLoading.value = true
+  try {
+    const response = await fetch(`/api/courses/${courseId}/related-songs`)
+    if (!response.ok) throw new Error('关联歌曲加载失败')
+    relatedSongs.value = await response.json()
+  } catch {
+    relatedSongs.value = []
+  } finally {
+    relatedSongsLoading.value = false
+  }
 }
 
 async function sendQuestion() {
@@ -954,6 +995,12 @@ function sourceLabel(source) {
     youtube: 'YouTube',
   }
   return labels[source] || source || '未分类来源'
+}
+
+function openRelatedSong(songId) {
+  if (!songId || typeof window === 'undefined') return
+  window.localStorage.setItem('guitar-platform-pending-song-id', songId)
+  window.dispatchEvent(new CustomEvent('guitar-platform-navigate', { detail: { tab: 'songs' } }))
 }
 
 function hasMaterials(video) {
@@ -1189,8 +1236,8 @@ onMounted(() => {
 <style scoped>
 .learning-layout {
   display: grid;
-  grid-template-columns: 296px 1fr;
-  gap: 12px;
+  grid-template-columns: 268px 1fr;
+  gap: 10px;
   min-height: 680px;
 }
 
@@ -1198,7 +1245,7 @@ onMounted(() => {
 .video-list,
 .player-panel {
   background: #16213e;
-  border-radius: 18px;
+  border-radius: 16px;
   border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
@@ -1207,16 +1254,16 @@ onMounted(() => {
   top: 12px;
   max-height: calc(100vh - 40px);
   overflow: auto;
-  padding: 14px;
+  padding: 12px;
 }
 
 .sidebar-header h2 {
-  font-size: 18px;
+  font-size: 17px;
   line-height: 1.2;
 }
 
 .sidebar-header p {
-  font-size: 12px;
+  font-size: 11.5px;
   line-height: 1.45;
 }
 
@@ -1240,9 +1287,9 @@ onMounted(() => {
 .search-panel {
   display: grid;
   gap: 8px;
-  margin-top: 14px;
+  margin-top: 12px;
   color: #dbe3f4;
-  font-size: 13px;
+  font-size: 12.5px;
 }
 
 .series-switcher {
@@ -1250,17 +1297,17 @@ onMounted(() => {
   top: 0;
   z-index: 2;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 7px;
-  margin-top: 14px;
-  padding: 8px 0;
+  grid-template-columns: repeat(auto-fit, minmax(128px, 1fr));
+  gap: 6px;
+  margin-top: 12px;
+  padding: 6px 0;
   background: #16213e;
 }
 
 .series-tab {
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 10px;
-  padding: 9px 10px;
+  border-radius: 9px;
+  padding: 8px 9px;
   background: #0f1730;
   color: #e5e7eb;
   text-align: left;
@@ -1278,9 +1325,9 @@ onMounted(() => {
 }
 
 .series-tab small {
-  margin-top: 4px;
+  margin-top: 3px;
   color: #95a2bf;
-  font-size: 11px;
+  font-size: 10.5px;
 }
 
 .filter-list {
@@ -1297,8 +1344,8 @@ onMounted(() => {
 
 .course-tree {
   display: grid;
-  gap: 8px;
-  max-height: 460px;
+  gap: 6px;
+  max-height: 420px;
   overflow: auto;
   padding-right: 4px;
 }
@@ -1324,7 +1371,7 @@ onMounted(() => {
   gap: 12px;
   list-style: none;
   cursor: pointer;
-  padding: 12px 14px;
+  padding: 10px 12px;
 }
 
 .series-summary {
@@ -1344,16 +1391,16 @@ onMounted(() => {
 
 .course-children {
   display: grid;
-  gap: 8px;
-  padding: 0 12px 12px;
+  gap: 6px;
+  padding: 0 10px 10px;
 }
 
 .course-leaf {
   width: 100%;
   text-align: left;
   border: 1px solid transparent;
-  border-radius: 10px;
-  padding: 10px 12px;
+  border-radius: 9px;
+  padding: 8px 10px;
   background: rgba(255, 255, 255, 0.03);
   color: #e5e7eb;
   cursor: pointer;
@@ -1370,18 +1417,18 @@ onMounted(() => {
 }
 
 .course-leaf small {
-  margin-top: 4px;
+  margin-top: 3px;
   color: #95a2bf;
-  font-size: 11px;
+  font-size: 10.5px;
 }
 
 .resume-list {
   display: grid;
-  gap: 10px;
+  gap: 8px;
 }
 
 .nav-block {
-  margin-top: 16px;
+  margin-top: 14px;
 }
 
 .nav-block-header {
@@ -1481,14 +1528,14 @@ onMounted(() => {
 .content-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 20px;
+  gap: 16px;
 }
 
 .detail-layout {
   display: grid;
-  grid-template-columns: minmax(0, 1.2fr) minmax(300px, 0.8fr);
-  gap: 14px;
-  margin-top: 14px;
+  grid-template-columns: minmax(0, 1.15fr) minmax(280px, 0.85fr);
+  gap: 12px;
+  margin-top: 12px;
   align-items: start;
 }
 
@@ -1499,14 +1546,14 @@ onMounted(() => {
 
 .detail-main {
   display: grid;
-  gap: 14px;
+  gap: 12px;
 }
 
 .detail-side {
   position: sticky;
   top: 16px;
   display: grid;
-  gap: 14px;
+  gap: 12px;
 }
 
 .video-list {
@@ -1541,8 +1588,8 @@ onMounted(() => {
   width: 100%;
   text-align: left;
   border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 12px;
-  padding: 12px;
+  border-radius: 11px;
+  padding: 10px 11px;
   background: #0f1730;
   color: #eef1f6;
   cursor: pointer;
@@ -1555,7 +1602,7 @@ onMounted(() => {
 .resume-card p,
 .empty-side-copy {
   color: #95a2bf;
-  font-size: 13px;
+  font-size: 12px;
 }
 
 .resume-meta,
@@ -1573,13 +1620,14 @@ onMounted(() => {
 }
 
 .resume-strip {
-  margin: -6px 0 18px;
+  margin: -4px 0 14px;
+  font-size: 11.5px;
 }
 
 .course-nav-card {
-  margin-bottom: 18px;
-  padding: 14px 16px;
-  border-radius: 16px;
+  margin-bottom: 14px;
+  padding: 12px 14px;
+  border-radius: 14px;
   background: #0f1730;
 }
 
@@ -1665,12 +1713,12 @@ onMounted(() => {
 }
 
 .player-panel {
-  padding: 14px;
+  padding: 12px;
 }
 
 .video-frame {
-  margin: 18px 0 20px;
-  border-radius: 16px;
+  margin: 14px 0 16px;
+  border-radius: 14px;
   overflow: hidden;
   background: #0a1022;
 }
@@ -1695,10 +1743,10 @@ onMounted(() => {
 }
 
 .materials-card {
-  margin-top: 14px;
+  margin-top: 12px;
   background: #0f1730;
-  border-radius: 14px;
-  padding: 14px;
+  border-radius: 12px;
+  padding: 12px;
 }
 
 .materials-header {
@@ -1720,15 +1768,15 @@ onMounted(() => {
 
 .materials-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 14px;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 10px;
 }
 
 .material-group {
   display: grid;
-  gap: 8px;
-  padding: 14px;
-  border-radius: 14px;
+  gap: 6px;
+  padding: 12px;
+  border-radius: 12px;
   background: rgba(255, 255, 255, 0.03);
 }
 
@@ -1751,7 +1799,7 @@ onMounted(() => {
 
 .assistant-section {
   display: grid;
-  gap: 14px;
+  gap: 12px;
   margin-top: 0;
 }
 
@@ -1784,8 +1832,8 @@ onMounted(() => {
 
 .assistant-card {
   background: #0f1730;
-  border-radius: 14px;
-  padding: 14px;
+  border-radius: 12px;
+  padding: 12px;
 }
 
 .assistant-header {
@@ -1884,14 +1932,14 @@ onMounted(() => {
 
 .detail-card {
   background: #0f1730;
-  border-radius: 14px;
-  padding: 14px;
+  border-radius: 12px;
+  padding: 12px;
 }
 
 .detail-card p {
   color: #d9dfeb;
   line-height: 1.6;
-  font-size: 13px;
+  font-size: 12.5px;
 }
 
 .detail-card ul {
@@ -1917,8 +1965,8 @@ onMounted(() => {
 
 .priority-list {
   display: grid;
-  gap: 10px;
-  margin-top: 14px;
+  gap: 8px;
+  margin-top: 12px;
 }
 
 .priority-title {
@@ -1949,6 +1997,47 @@ onMounted(() => {
   line-height: 1.55;
 }
 
+.linked-song-list {
+  display: grid;
+  gap: 8px;
+}
+
+.linked-song-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 10px;
+  border-radius: 11px;
+  background: rgba(8, 14, 28, 0.76);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.linked-song-copy {
+  min-width: 0;
+}
+
+.linked-song-copy strong {
+  display: block;
+  color: #f8fafc;
+  font-size: 12.5px;
+  line-height: 1.35;
+}
+
+.linked-song-copy p {
+  margin-top: 2px;
+  color: #cbd5e1;
+  font-size: 11.5px;
+}
+
+.linked-song-copy span {
+  display: block;
+  margin-top: 4px;
+  color: #94a3b8;
+  font-size: 11px;
+  line-height: 1.45;
+}
+
 .detail-hints {
   margin-top: 10px;
 }
@@ -1968,7 +2057,7 @@ onMounted(() => {
 }
 
 .transcript-preview-card {
-  margin-top: 18px;
+  margin-top: 14px;
 }
 
 .transcript-card {
@@ -1979,7 +2068,7 @@ onMounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
 .transcript-actions {
@@ -2001,7 +2090,7 @@ onMounted(() => {
   border-radius: 999px;
   background: transparent;
   color: #f97316;
-  padding: 6px 12px;
+  padding: 5px 11px;
   cursor: pointer;
 }
 
@@ -2010,7 +2099,7 @@ onMounted(() => {
   border-radius: 999px;
   background: rgba(127, 29, 29, 0.28);
   color: #fecaca;
-  padding: 6px 12px;
+  padding: 5px 11px;
   cursor: pointer;
   white-space: nowrap;
 }
@@ -2024,10 +2113,10 @@ onMounted(() => {
 .transcript {
   white-space: pre-wrap;
   word-break: break-word;
-  font-size: 13px;
+  font-size: 12.5px;
   line-height: 1.65;
   color: #d9dfeb;
-  max-height: 420px;
+  max-height: 360px;
   overflow: auto;
   padding-right: 4px;
 }
@@ -2036,8 +2125,8 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 140px;
-  border-radius: 14px;
+  min-height: 120px;
+  border-radius: 12px;
   background: #0f1730;
   color: #95a2bf;
   text-align: center;

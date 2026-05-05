@@ -18,6 +18,7 @@ from services.resource_manager import delete_course_resource
 from services.transcriber import TranscriptionError, transcribe_media
 from services.course_intelligence import build_course_intelligence
 from services.content_backlog import build_course_intelligence_summary
+from services.content_relationships import build_related_songs_for_course
 
 
 router = APIRouter(prefix="/api/courses", tags=["courses"])
@@ -114,7 +115,18 @@ async def get_course(course_id: str):
     course = find_course(index, course_id)
     if not course:
         raise HTTPException(status_code=404, detail="Course not found")
-    return course
+    enriched = dict(course)
+    enriched["related_songs"] = build_related_songs_for_course(course, index)
+    return enriched
+
+
+@router.get("/{course_id}/related-songs")
+async def get_course_related_songs(course_id: str):
+    index = maybe_persist_enriched_courses(load_index())
+    course = find_course(index, course_id)
+    if not course:
+        raise HTTPException(status_code=404, detail="Course not found")
+    return build_related_songs_for_course(course, index)
 
 
 @router.delete("/{course_id}")
