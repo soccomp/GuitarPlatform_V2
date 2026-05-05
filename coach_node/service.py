@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import json
 import math
 import os
 from pathlib import Path
@@ -455,6 +456,71 @@ def extract_ollama_message(payload: dict[str, Any]) -> str:
     message = payload.get("message") or {}
     content = message.get("content") or ""
     return str(content).strip()
+
+
+def extract_json_object(text: str) -> dict[str, Any]:
+    cleaned = str(text or "").strip()
+    if not cleaned:
+        return {}
+    try:
+        return json.loads(cleaned)
+    except json.JSONDecodeError:
+        pass
+    start = cleaned.find("{")
+    end = cleaned.rfind("}")
+    if start >= 0 and end > start:
+        try:
+            return json.loads(cleaned[start : end + 1])
+        except json.JSONDecodeError:
+            return {}
+    return {}
+
+
+async def build_content_intelligence_with_ollama(
+    *,
+    content_type: str,
+    title: str,
+    subtitle: str,
+    description: str,
+    tags: list[str],
+    transcript_preview: str,
+    transcript_text: str,
+    requested_model: str,
+    system_prompt: str,
+) -> dict[str, Any]:
+    model_name = (requested_model or os.environ.get("COACH_OLLAMA_MODEL") or DEFAULT_MODEL).strip()
+    base_url = os.environ.get("OLLAMA_BASE_URL", DEFAULT_OLLAMA_BASE_URL).rstrip("/")
+    payload = {
+        "model": model_name,
+        "messages": [
+            {"role": "system", "content": system_prompt},
+            {
+                "role": "user",
+                "content": (
+                    f"内容类型：{content_type}\n"
+                    f"标题：{title}\n"
+                    f"副标题：{subtitle}\n"
+                    f"备注：{description}\n"
+                    f"已有标签：{', '.join(tags)}\n"
+                    f"文字内容预览：{transcript_preview}\n"
+                    f"完整文字内容：{transcript_text[:6000]}"
+                ),
+            },
+        ],
+        "stream": False,
+        "format": "json",
+    }
+
+    async with httpx.AsyncClient(timeout=90.0) as client:
+        response = await client.post(f"{base_url}/api/chat", json=payload)
+    response.raise_for_status()
+    raw = extract_ollama_message(response.json())
+    return {
+        "provider": "ollama",
+        "model": model_name,
+        "intelligence": extract_json_object(raw),
+        "raw": raw,
+    }
 
 
 async def analyze_with_ollama(

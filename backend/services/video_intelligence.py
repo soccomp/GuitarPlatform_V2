@@ -103,6 +103,14 @@ def merge_video_intelligence(video: dict, transcript_text: str = "") -> dict:
     merged = dict(video)
     intelligence = build_video_intelligence(merged, transcript_text=transcript_text)
     merged.update(intelligence)
+    if video.get("intelligence_source") == "ai":
+        merged["summary"] = str(video.get("summary", "")).strip() or merged.get("summary", "")
+        merged["learning_focus"] = str(video.get("learning_focus", "")).strip() or merged.get("learning_focus", "")
+        merged["recommended_for"] = str(video.get("recommended_for", "")).strip() or merged.get("recommended_for", "")
+        if video.get("key_points"):
+            merged["key_points"] = list(video.get("key_points") or [])[:3]
+        merged["tags"] = _merge_tags(list(video.get("tags") or []), list(merged.get("tags") or []))
+        merged["intelligence_source"] = "ai"
     return merged
 
 
@@ -128,6 +136,18 @@ def _clean_tags(values: list[str]) -> list[str]:
         seen.add(tag)
         cleaned.append(tag)
     return cleaned
+
+
+def _merge_tags(primary: list[str], secondary: list[str]) -> list[str]:
+    result = []
+    seen = set()
+    for raw in [*primary, *secondary]:
+        tag = str(raw or "").strip()
+        if not tag or tag in seen:
+            continue
+        seen.add(tag)
+        result.append(tag)
+    return result[:8]
 
 
 def _build_transcript_preview(text: str, limit: int = 180) -> str:

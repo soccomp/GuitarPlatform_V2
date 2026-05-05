@@ -1,9 +1,22 @@
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
+from pydantic import BaseModel
 
-from service import analyze_with_ollama
+from service import analyze_with_ollama, build_content_intelligence_with_ollama
 
 
 app = FastAPI(title="Guitar Coach Node")
+
+
+class ContentIntelligenceRequest(BaseModel):
+    content_type: str
+    title: str
+    subtitle: str = ""
+    description: str = ""
+    tags: list[str] = []
+    transcript_preview: str = ""
+    transcript_text: str = ""
+    coach_model: str = "qwen3:8b"
+    system_prompt: str = ""
 
 
 @app.get("/health")
@@ -44,4 +57,19 @@ async def analyze_rhythm(
         reference_label=reference_label,
         teacher_prompt=teacher_prompt,
         requested_model=coach_model,
+    )
+
+
+@app.post("/api/coach/content-intelligence")
+async def build_content_intelligence(body: ContentIntelligenceRequest):
+    return await build_content_intelligence_with_ollama(
+        content_type=body.content_type,
+        title=body.title,
+        subtitle=body.subtitle,
+        description=body.description,
+        tags=body.tags,
+        transcript_preview=body.transcript_preview,
+        transcript_text=body.transcript_text,
+        requested_model=body.coach_model,
+        system_prompt=body.system_prompt,
     )

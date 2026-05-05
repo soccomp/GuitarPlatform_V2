@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, HTTPException, Query, Request
 from fastapi.concurrency import run_in_threadpool
 from pydantic import BaseModel, HttpUrl
 
@@ -14,6 +14,7 @@ from services.video_intelligence import merge_video_intelligence, read_video_tra
 from services.transcriber import TranscriptionError, transcribe_media
 from services.content_backlog import build_video_intelligence_summary
 from services.content_relationships import build_related_songs_for_video
+from services.content_intelligence_ai import build_ai_content_intelligence, CoachNodeError
 
 
 router = APIRouter(prefix="/api/videos", tags=["videos"])
@@ -35,6 +36,7 @@ class VideoUpdateRequest(BaseModel):
 
 class BatchTranscriptRequest(BaseModel):
     limit: int = 3
+    coach_model: str | None = None
 
 
 EDITABLE_VIDEO_FIELDS = ("title", "author", "category", "description", "tags")
@@ -53,6 +55,30 @@ def merge_video_metadata(scanned: dict, existing: dict | None) -> dict:
 def enrich_video(video: dict) -> dict:
     transcript_text = read_video_transcript_text(video.get("transcript_path", ""), COLLECTED_DIR)
     return merge_video_intelligence(video, transcript_text=transcript_text)
+
+
+async def enrich_video_with_ai(video: dict, coach_model: str = "") -> dict:
+    transcript_text = read_video_transcript_text(video.get("transcript_path", ""), COLLECTED_DIR)
+    enriched = merge_video_intelligence(video, transcript_text=transcript_text)
+    if not transcript_text and not enriched.get("description"):
+        return enriched
+
+    try:
+        ai_fields = await build_ai_content_intelligence(
+            content_type="video",
+            title=enriched.get("title", ""),
+            subtitle=enriched.get("author", "") or enriched.get("category", ""),
+            description=enriched.get("description", ""),
+            tags=list(enriched.get("tags") or []),
+            transcript_preview=enriched.get("transcript_preview", ""),
+            transcript_text=transcript_text,
+            coach_model=coach_model,
+        )
+    except CoachNodeError:
+        return enriched
+
+    enriched.update({key: value for key, value in ai_fields.items() if value})
+    return enriched
 
 
 def maybe_persist_enriched_videos(index: dict) -> dict:
@@ -112,8 +138,13 @@ async def scan_videos(persist: bool = False):
 
 
 @router.post("/rebuild-intelligence")
-async def rebuild_video_intelligence():
-    index = maybe_persist_enriched_videos(load_index())
+async def rebuild_video_intelligence(body: BatchTranscriptRequest | None = None):
+    index = load_index()
+    enriched_videos = []
+    for video in index.get("videos", []):
+        enriched_videos.append(await enrich_video_with_ai(video, coach_model=(body.coach_model if body else "") or ""))
+    index["videos"] = enriched_videos
+    index = save_index(index)
     return {
         "ok": True,
         "count": len(index.get("videos", [])),
@@ -132,7 +163,15 @@ async def generate_video_transcripts(body: BatchTranscriptRequest):
     limit = max(1, min(body.limit, 20))
     index = load_index()
     videos = index.get("videos", [])
-    pending = [video for video in videos if not (video.get("transcript_path") or "").strip()][:limit]
+    summary = build_video_intelligence_summary(index)
+    prioritized_ids = summary.get("prioritized_ids") or []
+    pending_pool = [video for video in videos if not (video.get("transcript_path") or "").strip()]
+    pending_order = {video.get("id", ""): position for position, video in enumerate(pending_pool)}
+    ordered_pending = sorted(
+        pending_pool,
+        key=lambda item: prioritized_ids.index(item.get("id")) if item.get("id") in prioritized_ids else len(prioritized_ids) + pending_order.get(item.get("id", ""), 0),
+    )
+    pending = ordered_pending[:limit]
 
     generated_ids: list[str] = []
     failures: list[dict] = []
@@ -148,7 +187,11 @@ async def generate_video_transcripts(body: BatchTranscriptRequest):
         failures.append({"id": video.get("id", ""), "title": video.get("title", ""), "error": str(exc)})
 
     index["videos"] = scan_collected_video_library()
-    index = maybe_persist_enriched_videos(index)
+    enriched_videos = []
+    for video in index.get("videos", []):
+        enriched_videos.append(await enrich_video_with_ai(video, coach_model=body.coach_model or ""))
+    index["videos"] = enriched_videos
+    index = save_index(index)
     return {
         "ok": True,
         "generated_count": len(generated_ids),
@@ -217,7 +260,7 @@ async def get_video_related_songs(video_id: str):
 
 
 @router.post("/{video_id}/generate-transcript")
-async def generate_video_transcript(video_id: str):
+async def generate_video_transcript(video_id: str, coach_model: str = Query("")):
     index = load_index()
     video = find_video(index, video_id)
     if not video:
@@ -234,7 +277,14 @@ async def generate_video_transcript(video_id: str):
         raise HTTPException(status_code=503, detail=str(exc)) from exc
 
     index["videos"] = scan_collected_video_library()
-    index = maybe_persist_enriched_videos(index)
+    refreshed = []
+    for item in index.get("videos", []):
+        if item.get("id") == video_id:
+            refreshed.append(await enrich_video_with_ai(item, coach_model=coach_model))
+        else:
+            refreshed.append(enrich_video(item))
+    index["videos"] = refreshed
+    index = save_index(index)
     updated = find_video(index, video_id)
     if not updated:
         raise HTTPException(status_code=500, detail="Video index refresh failed after transcript generation")

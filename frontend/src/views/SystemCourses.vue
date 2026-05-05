@@ -68,6 +68,14 @@
             <strong>总计 {{ allVideos.length }} 节</strong>
             <p>已整理 {{ transcriptReadyCount }} 节，待补 {{ transcriptPendingCount }} 节。</p>
           </div>
+          <button
+            class="resume-card action-card"
+            :disabled="batchGeneratingTranscript || transcriptPendingCount === 0"
+            @click="generatePendingTranscripts"
+          >
+            <strong>{{ batchGeneratingTranscript ? '批量生成中...' : '批量补 transcript' }}</strong>
+            <p>优先补最值得先进入知识库的课程。</p>
+          </button>
         </div>
         <div v-if="intelligenceSummary?.prioritized_items?.length" class="priority-list">
           <div class="priority-title">优先补这几节</div>
@@ -413,6 +421,7 @@ import seedIndex from '../../../backend/data/index.json'
 const STORAGE_KEY = 'guitar-platform-learning-state'
 const MAX_RECENT_ITEMS = 8
 const PENDING_COURSE_ID_KEY = 'guitar-platform-pending-course-id'
+const COACH_MODEL_STORAGE_KEY = 'guitar-platform-coach-model'
 
 const loading = ref(true)
 const error = ref('')
@@ -424,6 +433,7 @@ const transcript = ref('')
 const transcriptLoading = ref(false)
 const generatingTranscript = ref(false)
 const rebuildingIntelligence = ref(false)
+const batchGeneratingTranscript = ref(false)
 const courses = ref([])
 const intelligenceSummary = ref(null)
 const showQA = ref(false)
@@ -838,7 +848,7 @@ async function generateTranscript() {
   transcript.value = ''
 
   try {
-    const response = await fetch(`/api/courses/${selectedVideo.value.id}/generate-transcript`, {
+    const response = await fetch(`/api/courses/${selectedVideo.value.id}/generate-transcript?coach_model=${encodeURIComponent(currentCoachModel())}`, {
       method: 'POST',
     })
     const data = await response.json()
@@ -857,12 +867,39 @@ async function generateTranscript() {
   }
 }
 
+async function generatePendingTranscripts() {
+  if (batchGeneratingTranscript.value || transcriptPendingCount.value === 0) return
+
+  batchGeneratingTranscript.value = true
+  error.value = ''
+  try {
+    const response = await fetch('/api/courses/generate-transcripts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ limit: 3, coach_model: currentCoachModel() }),
+    })
+    const data = await response.json()
+    if (!response.ok) throw new Error(data.detail || '批量生成 transcript 失败')
+    courses.value = data.courses || courses.value
+    await loadIntelligenceSummary()
+    if (data.failures?.length) {
+      error.value = `有 ${data.failures.length} 节课程生成失败，请稍后重试。`
+    }
+  } catch (err) {
+    error.value = err.message
+  } finally {
+    batchGeneratingTranscript.value = false
+  }
+}
+
 async function rebuildIntelligence() {
   rebuildingIntelligence.value = true
   error.value = ''
   try {
     const response = await fetch('/api/courses/rebuild-intelligence', {
       method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ coach_model: currentCoachModel() }),
     })
     const data = await response.json()
     if (!response.ok) throw new Error(data.detail || '刷新内容理解失败')
@@ -873,6 +910,11 @@ async function rebuildIntelligence() {
   } finally {
     rebuildingIntelligence.value = false
   }
+}
+
+function currentCoachModel() {
+  if (typeof window === 'undefined') return 'deepseek-r1:8b'
+  return window.localStorage.getItem(COACH_MODEL_STORAGE_KEY) || 'deepseek-r1:8b'
 }
 
 async function openPriorityCourse(courseId) {

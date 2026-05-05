@@ -449,6 +449,13 @@
 
                   <div v-if="learningRecommendationsLoading" class="empty-copy">正在整理当前歌曲的下一步建议...</div>
                   <div v-else-if="learningRecommendations" class="coach-result">
+                    <div v-if="learningRecommendations.coach_brief" class="coach-focus-card coach-focus-card-compact">
+                      <div class="coach-focus-block">
+                        <span class="coach-focus-label">学习教练判断</span>
+                        <strong>{{ learningRecommendations.coach_brief }}</strong>
+                      </div>
+                    </div>
+
                     <div class="coach-metric coach-metric-primary">
                       <span>当前重点</span>
                       <strong>{{ learningRecommendations.focus_topic }}</strong>

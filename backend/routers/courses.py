@@ -1,7 +1,7 @@
 from pathlib import Path
 
 import httpx
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, HTTPException, Query, Request
 from fastapi.concurrency import run_in_threadpool
 from pydantic import BaseModel
 
@@ -19,6 +19,7 @@ from services.transcriber import TranscriptionError, transcribe_media
 from services.course_intelligence import build_course_intelligence
 from services.content_backlog import build_course_intelligence_summary
 from services.content_relationships import build_related_songs_for_course
+from services.content_intelligence_ai import build_ai_content_intelligence, CoachNodeError
 
 
 router = APIRouter(prefix="/api/courses", tags=["courses"])
@@ -26,6 +27,30 @@ router = APIRouter(prefix="/api/courses", tags=["courses"])
 
 def enrich_course(course: dict) -> dict:
     return build_course_intelligence(course, read_course_text(course.get("transcript_path", "")))
+
+
+async def enrich_course_with_ai(course: dict, coach_model: str = "") -> dict:
+    transcript_text = read_course_text(course.get("transcript_path", ""))
+    enriched = build_course_intelligence(course, transcript_text)
+    if not transcript_text and not enriched.get("description"):
+        return enriched
+
+    try:
+        ai_fields = await build_ai_content_intelligence(
+            content_type="course",
+            title=enriched.get("title", ""),
+            subtitle=f"{enriched.get('series', '')} / {enriched.get('level', '')}".strip(" /"),
+            description=enriched.get("description", ""),
+            tags=list(enriched.get("tags") or []),
+            transcript_preview=enriched.get("transcript_preview", ""),
+            transcript_text=transcript_text,
+            coach_model=coach_model,
+        )
+    except CoachNodeError:
+        return enriched
+
+    enriched.update({key: value for key, value in ai_fields.items() if value})
+    return enriched
 
 
 def maybe_persist_enriched_courses(index: dict) -> dict:
@@ -55,6 +80,11 @@ class PracticeRequest(BaseModel):
 class PracticeResponse(BaseModel):
     tasks: list[str]
     tips: str
+
+
+class BatchTranscriptRequest(BaseModel):
+    limit: int = 3
+    coach_model: str | None = None
 
 
 @router.get("")
@@ -100,11 +130,66 @@ async def get_course_intelligence_summary():
 
 
 @router.post("/rebuild-intelligence")
-async def rebuild_course_intelligence():
-    index = maybe_persist_enriched_courses(load_index())
+async def rebuild_course_intelligence(body: BatchTranscriptRequest | None = None):
+    index = load_index()
+    enriched_courses = []
+    for course in index.get("courses", []):
+        enriched_courses.append(await enrich_course_with_ai(course, coach_model=(body.coach_model if body else "") or ""))
+    index["courses"] = enriched_courses
+    index = save_index(index)
     return {
         "ok": True,
         "count": len(index.get("courses", [])),
+        "courses": index.get("courses", []),
+    }
+
+
+@router.post("/generate-transcripts")
+async def generate_course_transcripts(body: BatchTranscriptRequest):
+    limit = max(1, min(body.limit, 20))
+    index = load_index()
+    courses = index.get("courses", [])
+    summary = build_course_intelligence_summary(index)
+    prioritized_ids = summary.get("prioritized_ids") or []
+    pending_pool = [course for course in courses if not (course.get("transcript_path") or "").strip()]
+    pending_order = {course.get("id", ""): position for position, course in enumerate(pending_pool)}
+    ordered_pending = sorted(
+        pending_pool,
+        key=lambda item: prioritized_ids.index(item.get("id")) if item.get("id") in prioritized_ids else len(prioritized_ids) + pending_order.get(item.get("id", ""), 0),
+    )
+    pending = ordered_pending[:limit]
+
+    generated_ids: list[str] = []
+    failures: list[dict] = []
+
+    for course in pending:
+        video_path = course.get("video_path", "")
+        if not video_path:
+            failures.append({"id": course.get("id", ""), "title": course.get("title", ""), "error": "No video for this course"})
+            continue
+
+        try:
+            full_video_path = resolve_under(COURSES_DIR, video_path)
+            transcript_relative = course.get("transcript_path", "") or clean_relative_path(
+                (Path(video_path).parent / "transcript.md").as_posix()
+            )
+            full_transcript_path = resolve_under(COURSES_DIR, transcript_relative)
+            await run_in_threadpool(transcribe_media, full_video_path, full_transcript_path)
+            generated_ids.append(course.get("id", ""))
+        except (ValueError, TranscriptionError) as exc:
+            failures.append({"id": course.get("id", ""), "title": course.get("title", ""), "error": str(exc)})
+
+    index["courses"] = scan_course_library()
+    enriched_courses = []
+    for course in index.get("courses", []):
+        enriched_courses.append(await enrich_course_with_ai(course, coach_model=body.coach_model or ""))
+    index["courses"] = enriched_courses
+    index = save_index(index)
+    return {
+        "ok": True,
+        "generated_count": len(generated_ids),
+        "generated_ids": generated_ids,
+        "failures": failures,
         "courses": index.get("courses", []),
     }
 
@@ -155,7 +240,7 @@ async def get_transcript(course_id: str):
 
 
 @router.post("/{course_id}/generate-transcript")
-async def generate_transcript(course_id: str):
+async def generate_transcript(course_id: str, coach_model: str = Query("")):
     index = load_index()
     course = find_course(index, course_id)
     if not course:
@@ -186,7 +271,14 @@ async def generate_transcript(course_id: str):
         raise HTTPException(status_code=503, detail=str(exc)) from exc
 
     index["courses"] = scan_course_library()
-    index = maybe_persist_enriched_courses(index)
+    refreshed = []
+    for item in index.get("courses", []):
+        if item.get("id") == course_id:
+            refreshed.append(await enrich_course_with_ai(item, coach_model=coach_model))
+        else:
+            refreshed.append(enrich_course(item))
+    index["courses"] = refreshed
+    index = save_index(index)
     updated_course = find_course(index, course_id)
     if not updated_course:
         raise HTTPException(status_code=500, detail="Course index refresh failed after transcript generation")

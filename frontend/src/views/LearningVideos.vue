@@ -363,6 +363,7 @@ import seedIndex from '../../../backend/data/index.json'
 const STORAGE_KEY = 'guitar-platform-collected-videos'
 const PLAY_COUNT_STORAGE_KEY = 'guitar-platform-video-play-counts'
 const PENDING_VIDEO_ID_KEY = 'guitar-platform-pending-video-id'
+const COACH_MODEL_STORAGE_KEY = 'guitar-platform-coach-model'
 
 const loading = ref(true)
 const error = ref('')
@@ -534,6 +535,8 @@ async function rebuildIntelligence() {
   try {
     const response = await fetch('/api/videos/rebuild-intelligence', {
       method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ coach_model: currentCoachModel() }),
     })
     const data = await response.json()
     if (!response.ok) throw new Error(data.detail || '刷新内容理解失败')
@@ -551,7 +554,7 @@ async function generateTranscript() {
   generatingTranscript.value = true
   error.value = ''
   try {
-    const response = await fetch(`/api/videos/${selectedVideo.value.id}/generate-transcript`, {
+    const response = await fetch(`/api/videos/${selectedVideo.value.id}/generate-transcript?coach_model=${encodeURIComponent(currentCoachModel())}`, {
       method: 'POST',
     })
     const data = await response.json()
@@ -573,7 +576,7 @@ async function generatePendingTranscripts() {
     const response = await fetch('/api/videos/generate-transcripts', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ limit: 3 }),
+      body: JSON.stringify({ limit: 3, coach_model: currentCoachModel() }),
     })
     const data = await response.json()
     if (!response.ok) throw new Error(data.detail || '批量生成 transcript 失败')
@@ -587,6 +590,11 @@ async function generatePendingTranscripts() {
   } finally {
     batchGeneratingTranscript.value = false
   }
+}
+
+function currentCoachModel() {
+  if (typeof window === 'undefined') return 'deepseek-r1:8b'
+  return window.localStorage.getItem(COACH_MODEL_STORAGE_KEY) || 'deepseek-r1:8b'
 }
 
 function openPriorityVideo(videoId) {

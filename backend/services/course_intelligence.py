@@ -62,6 +62,14 @@ def build_course_intelligence(course: dict, transcript_text: str = "") -> dict:
     merged["transcript_preview"] = transcript_preview
     merged["transcript_available"] = bool(transcript_preview)
     merged["tags"] = _derive_tags(tags, matched, title, level)
+    if course.get("intelligence_source") == "ai":
+        merged["summary"] = str(course.get("summary", "")).strip() or merged["summary"]
+        merged["learning_focus"] = str(course.get("learning_focus", "")).strip() or merged["learning_focus"]
+        merged["recommended_for"] = str(course.get("recommended_for", "")).strip() or merged["recommended_for"]
+        if course.get("key_points"):
+            merged["key_points"] = list(course.get("key_points") or [])[:3]
+        merged["tags"] = _merge_tags(list(course.get("tags") or []), list(merged.get("tags") or []))
+        merged["intelligence_source"] = "ai"
     return merged
 
 
@@ -75,6 +83,18 @@ def _clean_tags(values: list[str]) -> list[str]:
         seen.add(tag)
         result.append(tag)
     return result
+
+
+def _merge_tags(primary: list[str], secondary: list[str]) -> list[str]:
+    result = []
+    seen = set()
+    for raw in [*primary, *secondary]:
+        tag = str(raw or "").strip()
+        if not tag or tag in seen:
+            continue
+        seen.add(tag)
+        result.append(tag)
+    return result[:8]
 
 
 def _build_transcript_preview(text: str, limit: int = 180) -> str:

@@ -16,6 +16,7 @@ def build_video_intelligence_summary(index: dict) -> dict:
         "ready": len(ready),
         "pending": len(pending),
         "prioritized_items": prioritized,
+        "prioritized_ids": [item["id"] for item in prioritized],
     }
 
 
@@ -32,6 +33,7 @@ def build_course_intelligence_summary(index: dict) -> dict:
         "ready": len(ready),
         "pending": len(pending),
         "prioritized_items": prioritized,
+        "prioritized_ids": [item["id"] for item in prioritized],
     }
 
 

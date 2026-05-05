@@ -63,13 +63,13 @@ def _detect_focus_topic(song: dict, related_videos: list[dict], practice_text: s
         song.get("title", ""),
         song.get("artist", ""),
         practice_text,
-        " ".join(video.get("title", "") for video in related_videos[:4]),
-        " ".join(video.get("description", "") for video in related_videos[:4]),
-        " ".join(video.get("summary", "") for video in related_videos[:4]),
-        " ".join(video.get("learning_focus", "") for video in related_videos[:4]),
-        " ".join(video.get("recommended_for", "") for video in related_videos[:4]),
-        " ".join(" ".join(video.get("key_points") or []) for video in related_videos[:4]),
-        " ".join(" ".join(video.get("tags") or []) for video in related_videos[:4]),
+        " ".join(video.get("title", "") for video in related_videos[:6]),
+        " ".join(video.get("description", "") for video in related_videos[:6]),
+        " ".join(video.get("summary", "") for video in related_videos[:6]),
+        " ".join(video.get("learning_focus", "") for video in related_videos[:6]),
+        " ".join(video.get("recommended_for", "") for video in related_videos[:6]),
+        " ".join(" ".join(video.get("key_points") or []) for video in related_videos[:6]),
+        " ".join(" ".join(video.get("tags") or []) for video in related_videos[:6]),
     ]).lower()
 
     scores: Counter[str] = Counter()
@@ -102,6 +102,10 @@ def _recommend_courses(courses: list[dict], topic_key: str, limit: int = 2) -> l
             course.get("level", ""),
         ]).lower()
         score = sum(1 for keyword in config["course_keywords"] if keyword.lower() in haystack)
+        if course.get("intelligence_source") == "ai":
+            score += 6
+        if topic_key in str(course.get("learning_focus", "")).lower():
+            score += 4
         if score <= 0:
             continue
         scored.append((score, course))
@@ -113,7 +117,7 @@ def _recommend_courses(courses: list[dict], topic_key: str, limit: int = 2) -> l
             "title": course.get("title", ""),
             "series": course.get("series", ""),
             "level": course.get("level", ""),
-            "reason": course.get("recommended_for") or f"对应当前重点：{config['label']}",
+            "reason": build_course_reason(course, config["label"]),
             "reason_tag": config["reason_tag"],
             "focus": course.get("learning_focus", ""),
             "summary": course.get("summary", ""),
@@ -138,6 +142,8 @@ def _recommend_videos(related_videos: list[dict], topic_key: str, limit: int = 2
         ]).lower()
         extra = sum(1 for keyword in config["keywords"] if keyword.lower() in haystack)
         score = int(video.get("match_score", 0)) + extra * 10
+        if video.get("intelligence_source") == "ai":
+            score += 6
         scored.append((score, video))
 
     scored.sort(key=lambda item: (-item[0], item[1].get("title", "")))
@@ -145,7 +151,7 @@ def _recommend_videos(related_videos: list[dict], topic_key: str, limit: int = 2
         {
             "id": video.get("id", ""),
             "title": video.get("title", ""),
-            "reason": video.get("recommended_for") or "与当前歌曲直接相关，且适合补当前重点",
+            "reason": build_video_reason(video, config["label"]),
             "reason_tag": config["reason_tag"],
             "focus": video.get("learning_focus", ""),
             "summary": video.get("summary", ""),
@@ -170,6 +176,10 @@ def build_song_learning_recommendations(song: dict, index: dict) -> dict:
         if latest_session
         else f"你当前打开的是《{song.get('title', '')}》，先围绕最容易形成帮助的“{topic['label']}”补一轮。"
     )
+    if related_videos:
+        top_focuses = [video.get("learning_focus", "") for video in related_videos[:3] if video.get("learning_focus")]
+        if top_focuses:
+            focus_reason += f" 你现有相关视频里，最集中出现的也是：{' / '.join(top_focuses[:2])}。"
 
     next_action = topic["task"]
     if tempo_mode:
@@ -228,7 +238,7 @@ def build_song_learning_recommendations(song: dict, index: dict) -> dict:
     today_plan = {
         "title": f"今天先围绕《{song.get('title', '')}》练一轮",
         "total_minutes": total_minutes,
-        "summary": f"先补“{topic['label']}”，再用课程和视频各补一轮，最后回到歌曲验证。",
+        "summary": f"先补“{topic['label']}”，再用最相关的系统课和学习视频各补一轮，最后回到歌曲验证。",
         "checklist": [
             f"先练当前歌曲 {topic['minutes']} 分钟，别急着提速。",
             "系统课只看最相关的一节，不要分散。",
@@ -241,6 +251,7 @@ def build_song_learning_recommendations(song: dict, index: dict) -> dict:
         "focus_topic": topic["label"],
         "focus_tag": topic["reason_tag"],
         "reason": focus_reason,
+        "coach_brief": build_learning_coach_brief(song, topic["label"], latest_session),
         "today_plan": today_plan,
         "next_task": {
             "title": f"继续练《{song.get('title', '')}》当前版本",
@@ -256,3 +267,27 @@ def build_song_learning_recommendations(song: dict, index: dict) -> dict:
             "title": song.get("title", ""),
         },
     }
+
+
+def build_course_reason(course: dict, topic_label: str) -> str:
+    focus = str(course.get("learning_focus", "")).strip()
+    if focus and focus != topic_label:
+        return f"这节课主讲“{focus}”，能从侧面补当前更核心的“{topic_label}”。"
+    if course.get("recommended_for"):
+        return str(course.get("recommended_for"))
+    return f"对应当前重点：{topic_label}"
+
+
+def build_video_reason(video: dict, topic_label: str) -> str:
+    focus = str(video.get("learning_focus", "")).strip()
+    if focus and focus != topic_label:
+        return f"这条视频更偏“{focus}”，但正好能补你当前这首歌卡住的地方。"
+    if video.get("recommended_for"):
+        return str(video.get("recommended_for"))
+    return f"与当前歌曲直接相关，适合补“{topic_label}”。"
+
+
+def build_learning_coach_brief(song: dict, topic_label: str, latest_session: dict | None) -> str:
+    if latest_session:
+        return f"先别急着扩新内容，先把《{song.get('title', '')}》里和“{topic_label}”直接相关的问题补稳。"
+    return f"你现在最值得先补的是“{topic_label}”，先围绕当前这首歌完成一轮闭环。"
