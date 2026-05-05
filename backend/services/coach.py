@@ -79,6 +79,43 @@ async def analyze_practice_audio(
     )
 
 
+async def get_coach_runtime_status() -> dict[str, Any]:
+    coach_node_url = get_coach_node_url()
+    coach_model = get_coach_model()
+    timeout_seconds = get_coach_node_timeout_seconds()
+    status: dict[str, Any] = {
+        "configured": bool(coach_node_url),
+        "mode": "remote_node" if coach_node_url else "local_preview",
+        "coach_node_url": coach_node_url,
+        "coach_model": coach_model,
+        "timeout_seconds": timeout_seconds,
+        "connected": False,
+        "state": "not_configured" if not coach_node_url else "unreachable",
+        "status_text": "未配置 4080 分析节点，当前只会走本地预览。",
+        "node_name": "",
+    }
+    if not coach_node_url:
+        return status
+
+    health_url = derive_coach_health_url(coach_node_url)
+    try:
+        timeout = httpx.Timeout(min(timeout_seconds, 8.0))
+        async with httpx.AsyncClient(timeout=timeout) as client:
+            response = await client.get(health_url)
+        if response.status_code >= 400:
+            status["status_text"] = f"已配置分析节点，但健康检查返回 {response.status_code}。"
+            return status
+        payload = response.json() if response.headers.get("content-type", "").startswith("application/json") else {}
+        status["connected"] = True
+        status["state"] = "connected"
+        status["node_name"] = payload.get("service", "") if isinstance(payload, dict) else ""
+        status["status_text"] = "4080 本地大模型已连接，可用于 AI 陪练分析。"
+        return status
+    except Exception as exc:
+        status["status_text"] = f"已配置分析节点，但当前不可达：{exc}"
+        return status
+
+
 async def send_to_coach_node(
     *,
     song_id: str,
@@ -279,6 +316,15 @@ def get_coach_node_timeout_seconds() -> float:
         return float(configured) if configured else DEFAULT_COACH_NODE_TIMEOUT_SECONDS
     except ValueError:
         return DEFAULT_COACH_NODE_TIMEOUT_SECONDS
+
+
+def derive_coach_health_url(coach_node_url: str) -> str:
+    cleaned = coach_node_url.rstrip("/")
+    if cleaned.endswith("/api/coach/analyze-rhythm"):
+        return f"{cleaned[:-len('/api/coach/analyze-rhythm')]}/health"
+    if cleaned.endswith("/analyze-rhythm"):
+        return f"{cleaned[:-len('/analyze-rhythm')]}/health"
+    return f"{cleaned}/health"
 
 
 def guess_audio_extension(mime_type: str) -> str:

@@ -132,3 +132,26 @@ python3 -m py_compile backend/main.py backend/routers/courses.py backend/routers
 - 不要提交 `backend/.env`。
 - 不要把 MiniMax API Key 写入代码、文档或 commit message。
 - 如果小霞报鉴权错误，先确认 `backend/.env` 里的 `MINIMAX_BASE_URL` 是否为 Token Plan 接口。
+
+## 9. AI 规划文档
+
+当前 AI 相关规划建议优先参考：
+
+- `docs/AI_COACH_V0_1.md`
+  说明 AI 陪练录音、分析节点和基础反馈链路。
+- `docs/AI_PRODUCT_STRATEGY.md`
+  说明哪些 AI 功能应该保留、弱化或暂缓，以及后续更重要的“AI 学习教练 / 内容推荐系统”方向。
+- `docs/AI_LEARNING_COACH_V0_1.md`
+  说明 AI 学习教练 v0.1 的可开发功能清单，包括先做哪些数据分析、页面如何展示“下一步该练什么”、以及怎样把相关课程和学习视频推送给用户。
+- `docs/PRODUCT_OPTIMIZATION_PRIORITIES.md`
+  说明当前平台后续最值得做的产品优化，分为“立即做 / 下一阶段 / 暂缓”三档，便于后续排优先级。
+- `docs/WORKLOG_2026-05-04.md`
+  记录 2026-05-04 这轮开发的完整总结，包括学习教练、知识库、transcript 工作流和当前版本判断。
+- `docs/WORKLOG_2026-05-05.md`
+  记录 2026-05-05 这轮开发的完整总结，包括 4080 本地模型接入、AI 学习教练落地、歌曲练习录音录像工作流与界面交互收口。
+- `docs/KNOWLEDGE_BASE_ROADMAP.md`
+  记录系统教材与学习视频的知识库补全路线图，说明 transcript、摘要、标签和推荐系统后续如何继续推进。
+- `docs/MAC_SHARE_PACKAGE.md`
+  说明如何生成不带资源的 Mac 分享包，以及对方收到后如何安装本地服务并启动平台。
+- `docs/CHANGELOG.md`
+  记录当前正式版与开发中的阶段性版本进展，最新一轮开发汇总见 `v1.2.0-dev`。

@@ -2,8 +2,13 @@
   <div class="learning-layout">
     <aside class="sidebar">
       <div class="sidebar-header">
-        <h2>系统教材</h2>
-        <p>按章节树查看课程，直接点到具体课时</p>
+        <div>
+          <h2>系统教材</h2>
+          <p>按树状章节快速定位，直接点到具体课时。</p>
+        </div>
+        <button class="ghost-btn" :disabled="rebuildingIntelligence" @click="rebuildIntelligence">
+          {{ rebuildingIntelligence ? '整理中...' : '刷新内容理解' }}
+        </button>
       </div>
 
       <label class="search-panel">
@@ -50,6 +55,31 @@
         </div>
         <div v-else class="empty-side-copy">
           开始看一节课程后，这里会记住最近打开和上次播放位置。
+        </div>
+      </div>
+
+      <div class="nav-block">
+        <div class="nav-block-header">
+          <h3>内容整理</h3>
+          <span>{{ transcriptCoverageLabel }}</span>
+        </div>
+        <div class="resume-list">
+          <div class="resume-card info-card">
+            <strong>总计 {{ allVideos.length }} 节</strong>
+            <p>已有 transcript {{ transcriptReadyCount }} 节，待补 {{ transcriptPendingCount }} 节。</p>
+          </div>
+        </div>
+        <div v-if="intelligenceSummary?.prioritized_items?.length" class="priority-list">
+          <div class="priority-title">优先补这几节</div>
+          <button
+            v-for="item in intelligenceSummary.prioritized_items"
+            :key="`priority-course-${item.id}`"
+            class="priority-card"
+            @click="openPriorityCourse(item.id)"
+          >
+            <strong>{{ item.title }}</strong>
+            <p>{{ item.reason }}</p>
+          </button>
         </div>
       </div>
 
@@ -161,160 +191,193 @@
               </div>
             </div>
 
-            <div class="detail-grid">
-              <div class="detail-card">
-                <h4>分类信息</h4>
-                <ul>
-                  <li><span>分组</span><strong>{{ selectedVideo.group }}</strong></li>
-                  <li><span>来源</span><strong>系统课程</strong></li>
-                  <li><span>作者</span><strong>{{ selectedVideo.author || '未填写' }}</strong></li>
-                  <li><span>标签</span><strong>{{ selectedVideo.tags?.join(' / ') || '暂无标签' }}</strong></li>
-                </ul>
+            <div class="detail-layout">
+              <div class="detail-main">
+                <div class="detail-card detail-card-wide">
+                  <h4>课程摘要</h4>
+                  <p>{{ selectedVideo.summary || selectedVideo.subtitle || '当前还没有课程摘要。' }}</p>
+                  <div class="detail-hints">
+                    <span>{{ selectedVideo.recommendedFor || '后面会结合课程文字内容继续优化推荐。' }}</span>
+                  </div>
+                </div>
+
+                <div class="detail-card transcript-card detail-card-wide">
+                  <div class="transcript-header">
+                    <h4>课程笔记</h4>
+                    <div class="transcript-actions">
+                      <button
+                        class="ghost-btn"
+                        :disabled="generatingTranscript"
+                        @click="loadTranscript(selectedVideo.id)"
+                      >
+                        刷新
+                      </button>
+                      <button
+                        class="assistant-btn secondary"
+                        :disabled="generatingTranscript || transcriptLoading"
+                        @click="generateTranscript"
+                      >
+                        {{ generatingTranscript ? '生成中...' : (transcript ? '重新生成 transcript' : '生成 transcript') }}
+                      </button>
+                    </div>
+                  </div>
+                  <div v-if="transcriptLoading" class="empty-copy">
+                    {{ generatingTranscript ? 'Whisper 正在整理当前课程 transcript...' : '加载笔记中...' }}
+                  </div>
+                  <pre v-else class="transcript">{{ transcript || "当前课程暂无 transcript" }}</pre>
+                </div>
+
+                <div v-if="selectedVideo.transcriptAvailable || selectedVideo.transcriptPreview" class="detail-card transcript-preview-card">
+                  <h4>文字内容预览</h4>
+                  <p>{{ selectedVideo.transcriptPreview || '当前还没有可用的文字内容预览。' }}</p>
+                </div>
+
+                <div v-if="hasMaterials(selectedVideo)" class="materials-card">
+                  <div class="materials-header">
+                    <h4>随课资料</h4>
+                    <span>直接打开当前课程的谱面与伴奏</span>
+                  </div>
+
+                  <div class="materials-grid">
+                    <div v-if="selectedVideo.materials?.pdf?.length" class="material-group">
+                      <strong>PDF</strong>
+                      <a
+                        v-for="path in selectedVideo.materials.pdf"
+                        :key="path"
+                        class="material-link"
+                        :href="courseLibraryUrl(path)"
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        {{ fileName(path) }}
+                      </a>
+                    </div>
+
+                    <div v-if="selectedVideo.materials?.gp?.length" class="material-group">
+                      <strong>GP</strong>
+                      <a
+                        v-for="path in selectedVideo.materials.gp"
+                        :key="path"
+                        class="material-link"
+                        :href="courseLibraryUrl(path)"
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        {{ fileName(path) }}
+                      </a>
+                    </div>
+
+                    <div v-if="selectedVideo.materials?.audio?.length" class="material-group">
+                      <strong>伴奏 / 音频</strong>
+                      <a
+                        v-for="path in selectedVideo.materials.audio"
+                        :key="path"
+                        class="material-link"
+                        :href="courseLibraryUrl(path)"
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        {{ fileName(path) }}
+                      </a>
+                    </div>
+                  </div>
+                </div>
               </div>
 
-              <div class="detail-card transcript-card">
-                <div class="transcript-header">
-                  <h4>课程笔记</h4>
-                  <div class="transcript-actions">
-                    <button
-                      class="ghost-btn"
-                      :disabled="generatingTranscript"
-                      @click="loadTranscript(selectedVideo.id)"
-                    >
-                      刷新
+              <aside class="detail-side">
+                <div class="detail-card detail-card-compact">
+                  <h4>分类信息</h4>
+                  <ul>
+                    <li><span>分组</span><strong>{{ selectedVideo.group }}</strong></li>
+                    <li><span>来源</span><strong>系统课程</strong></li>
+                    <li><span>作者</span><strong>{{ selectedVideo.author || '未填写' }}</strong></li>
+                    <li><span>学习重点</span><strong>{{ selectedVideo.learningFocus || '待整理' }}</strong></li>
+                    <li><span>标签</span><strong>{{ selectedVideo.tags?.join(' / ') || '暂无标签' }}</strong></li>
+                  </ul>
+                </div>
+
+                <div class="detail-card detail-card-wide">
+                  <h4>适合怎么用</h4>
+                  <p>{{ selectedVideo.recommendedFor || '当前还没有足够信息，后面补 transcript 后会更适合做学习教练推荐。' }}</p>
+                </div>
+
+                <div class="detail-card detail-card-wide">
+                  <h4>关键点</h4>
+                  <ul v-if="selectedVideo.keyPoints?.length" class="key-point-list">
+                    <li v-for="(point, index) in selectedVideo.keyPoints" :key="`${selectedVideo.id}-point-${index}`">
+                      {{ point }}
+                    </li>
+                  </ul>
+                  <p v-else>当前还没有提炼出关键点。</p>
+                </div>
+
+                <div class="assistant-section">
+                  <div class="assistant-actions">
+                    <button class="assistant-btn" @click="showQA = !showQA">
+                      {{ showQA ? '收起小霞问答' : '打开小霞问答' }}
                     </button>
-                    <button
-                      class="assistant-btn secondary"
-                      :disabled="generatingTranscript || transcriptLoading"
-                      @click="generateTranscript"
-                    >
-                      {{ generatingTranscript ? '生成中...' : (transcript ? '重新生成 transcript' : '生成 transcript') }}
+                    <button class="assistant-btn secondary" :disabled="practiceLoading" @click="generatePractice">
+                      {{ practiceLoading ? '生成中...' : '生成练习任务' }}
                     </button>
                   </div>
-                </div>
-                <div v-if="transcriptLoading" class="empty-copy">
-                  {{ generatingTranscript ? 'Whisper 正在整理当前课程 transcript...' : '加载笔记中...' }}
-                </div>
-                <pre v-else class="transcript">{{ transcript || "当前课程暂无 transcript" }}</pre>
-              </div>
-            </div>
 
-            <div v-if="hasMaterials(selectedVideo)" class="materials-card">
-              <div class="materials-header">
-                <h4>随课资料</h4>
-                <span>直接打开当前课程的谱面与伴奏</span>
-              </div>
+                  <div v-if="showQA" class="assistant-card">
+                    <div class="assistant-header">
+                      <h4>小霞问答</h4>
+                      <span>基于当前课程 transcript 回答</span>
+                    </div>
 
-              <div class="materials-grid">
-                <div v-if="selectedVideo.materials?.pdf?.length" class="material-group">
-                  <strong>PDF</strong>
-                  <a
-                    v-for="path in selectedVideo.materials.pdf"
-                    :key="path"
-                    class="material-link"
-                    :href="courseLibraryUrl(path)"
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    {{ fileName(path) }}
-                  </a>
-                </div>
+                    <div class="qa-messages" ref="qaMessagesRef">
+                      <div
+                        v-for="(message, index) in qaMessages"
+                        :key="index"
+                        :class="['qa-message', message.role]"
+                      >
+                        <div class="qa-bubble">{{ message.content }}</div>
+                      </div>
+                      <div v-if="qaLoading" class="qa-message assistant">
+                        <div class="qa-bubble">小霞整理课程内容中...</div>
+                      </div>
+                    </div>
 
-                <div v-if="selectedVideo.materials?.gp?.length" class="material-group">
-                  <strong>GP</strong>
-                  <a
-                    v-for="path in selectedVideo.materials.gp"
-                    :key="path"
-                    class="material-link"
-                    :href="courseLibraryUrl(path)"
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    {{ fileName(path) }}
-                  </a>
-                </div>
-
-                <div v-if="selectedVideo.materials?.audio?.length" class="material-group">
-                  <strong>伴奏 / 音频</strong>
-                  <a
-                    v-for="path in selectedVideo.materials.audio"
-                    :key="path"
-                    class="material-link"
-                    :href="courseLibraryUrl(path)"
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    {{ fileName(path) }}
-                  </a>
-                </div>
-              </div>
-            </div>
-
-            <div class="assistant-section">
-              <div class="assistant-actions">
-                <button class="assistant-btn" @click="showQA = !showQA">
-                  {{ showQA ? '收起小霞问答' : '打开小霞问答' }}
-                </button>
-                <button class="assistant-btn secondary" :disabled="practiceLoading" @click="generatePractice">
-                  {{ practiceLoading ? '生成中...' : '生成练习任务' }}
-                </button>
-              </div>
-
-              <div v-if="showQA" class="assistant-card">
-                <div class="assistant-header">
-                  <h4>小霞问答</h4>
-                  <span>基于当前课程 transcript 回答</span>
-                </div>
-
-                <div class="qa-messages" ref="qaMessagesRef">
-                  <div
-                    v-for="(message, index) in qaMessages"
-                    :key="index"
-                    :class="['qa-message', message.role]"
-                  >
-                    <div class="qa-bubble">{{ message.content }}</div>
+                    <div class="qa-input-row">
+                      <input
+                        v-model="qaInput"
+                        class="text-input"
+                        type="text"
+                        placeholder="比如：老师这里说的和弦转换关键点是什么？"
+                        :disabled="qaLoading"
+                        @keydown.enter="sendQuestion"
+                      />
+                      <button class="assistant-btn" :disabled="qaLoading || !qaInput.trim()" @click="sendQuestion">
+                        发送
+                      </button>
+                    </div>
                   </div>
-                  <div v-if="qaLoading" class="qa-message assistant">
-                    <div class="qa-bubble">小霞整理课程内容中...</div>
+
+                  <div v-if="practiceResult" class="assistant-card practice-card">
+                    <div class="assistant-header">
+                      <h4>今日练习任务</h4>
+                      <select v-model="practiceLevel" class="text-input practice-level" @change="generatePractice">
+                        <option value="入门">入门</option>
+                        <option value="进阶">进阶</option>
+                        <option value="高级">高级</option>
+                      </select>
+                    </div>
+
+                    <div v-if="practiceLoading" class="empty-copy">小霞正在生成更贴合课程的练习计划...</div>
+                    <template v-else>
+                      <ol class="practice-list">
+                        <li v-for="(task, index) in practiceResult.tasks" :key="index">{{ task }}</li>
+                      </ol>
+                      <div v-if="practiceResult.tips" class="practice-tips">
+                        <h5>小霞贴士</h5>
+                        <pre>{{ practiceResult.tips }}</pre>
+                      </div>
+                    </template>
                   </div>
                 </div>
-
-                <div class="qa-input-row">
-                  <input
-                    v-model="qaInput"
-                    class="text-input"
-                    type="text"
-                    placeholder="比如：老师这里说的和弦转换关键点是什么？"
-                    :disabled="qaLoading"
-                    @keydown.enter="sendQuestion"
-                  />
-                  <button class="assistant-btn" :disabled="qaLoading || !qaInput.trim()" @click="sendQuestion">
-                    发送
-                  </button>
-                </div>
-              </div>
-
-              <div v-if="practiceResult" class="assistant-card practice-card">
-                <div class="assistant-header">
-                  <h4>今日练习任务</h4>
-                  <select v-model="practiceLevel" class="text-input practice-level" @change="generatePractice">
-                    <option value="入门">入门</option>
-                    <option value="进阶">进阶</option>
-                    <option value="高级">高级</option>
-                  </select>
-                </div>
-
-                <div v-if="practiceLoading" class="empty-copy">小霞正在生成更贴合课程的练习计划...</div>
-                <template v-else>
-                  <ol class="practice-list">
-                    <li v-for="(task, index) in practiceResult.tasks" :key="index">{{ task }}</li>
-                  </ol>
-                  <div v-if="practiceResult.tips" class="practice-tips">
-                    <h5>小霞贴士</h5>
-                    <pre>{{ practiceResult.tips }}</pre>
-                  </div>
-                </template>
-              </div>
+              </aside>
             </div>
           </template>
         </div>
@@ -324,11 +387,12 @@
 </template>
 
 <script setup>
-import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import seedIndex from '../../../backend/data/index.json'
 
 const STORAGE_KEY = 'guitar-platform-learning-state'
 const MAX_RECENT_ITEMS = 8
+const PENDING_COURSE_ID_KEY = 'guitar-platform-pending-course-id'
 
 const loading = ref(true)
 const error = ref('')
@@ -339,7 +403,9 @@ const selectedKey = ref('')
 const transcript = ref('')
 const transcriptLoading = ref(false)
 const generatingTranscript = ref(false)
+const rebuildingIntelligence = ref(false)
 const courses = ref([])
+const intelligenceSummary = ref(null)
 const showQA = ref(false)
 const qaInput = ref('')
 const qaLoading = ref(false)
@@ -372,6 +438,12 @@ const allVideos = computed(() => {
     tags: course.tags || [],
     path: course.video_path || '',
     materials: course.materials || {},
+    summary: course.summary || '',
+    learningFocus: course.learning_focus || '',
+    recommendedFor: course.recommended_for || '',
+    keyPoints: course.key_points || [],
+    transcriptPreview: course.transcript_preview || '',
+    transcriptAvailable: Boolean(course.transcript_available),
     url: course.video_path ? courseVideoUrl(course) : '',
   }))
 })
@@ -439,6 +511,10 @@ const courseTree = computed(() => {
       item.subtitle,
       item.group,
       item.chapterLabel,
+      item.summary,
+      item.learningFocus,
+      item.recommendedFor,
+      ...(item.keyPoints || []),
       ...(item.tags || []),
     ]
     const matches = !keyword || haystacks.some(value => (value || '').toLowerCase().includes(keyword))
@@ -492,6 +568,10 @@ const filteredVideos = computed(() => {
       item.group,
       item.chapterLabel,
       item.author,
+      item.summary,
+      item.learningFocus,
+      item.recommendedFor,
+      ...(item.keyPoints || []),
       ...(item.tags || []),
     ]
     return haystacks.some(value => (value || '').toLowerCase().includes(keyword))
@@ -503,6 +583,18 @@ const currentFilterLabel = computed(() => {
   if (current?.label) return current.label
   return searchQuery.value.trim() ? `搜索：${searchQuery.value.trim()}` : '系统教材'
 })
+
+const transcriptReadyCount = computed(() =>
+  allVideos.value.filter(item => item.transcriptAvailable || item.transcriptPreview).length
+)
+
+const transcriptPendingCount = computed(() =>
+  Math.max(0, allVideos.value.length - transcriptReadyCount.value)
+)
+
+const transcriptCoverageLabel = computed(() =>
+  `${transcriptReadyCount.value}/${allVideos.value.length || 0}`
+)
 
 const selectedVideo = computed(() => {
   return allVideos.value.find(item => item.key === selectedKey.value) || null
@@ -586,9 +678,20 @@ async function loadData() {
     courses.value = seedIndex.courses || []
     error.value = ''
   } finally {
+    await loadIntelligenceSummary()
     hydrateUiState()
     if (!activeSeries.value && seriesTabs.value.length) {
       activeSeries.value = seriesTabs.value[0].name
+    }
+
+    const pendingCourseId = consumePendingCourseId()
+    if (pendingCourseId) {
+      const pendingCourse = allVideos.value.find(item => item.id === pendingCourseId)
+      if (pendingCourse) {
+        await selectVideo(pendingCourse)
+        loading.value = false
+        return
+      }
     }
 
     if (selectedKey.value && allVideos.value.find(item => item.key === selectedKey.value)) {
@@ -599,6 +702,16 @@ async function loadData() {
       await selectVideo(allVideos.value[0])
     }
     loading.value = false
+  }
+}
+
+async function loadIntelligenceSummary() {
+  try {
+    const response = await fetch('/api/courses/intelligence-summary')
+    if (!response.ok) throw new Error('内容整理概览加载失败')
+    intelligenceSummary.value = await response.json()
+  } catch {
+    intelligenceSummary.value = null
   }
 }
 
@@ -708,12 +821,40 @@ async function generateTranscript() {
     if (!response.ok) throw new Error(data.detail || '生成 transcript 失败')
 
     transcript.value = data.content || ''
+    if (data.course?.id) {
+      courses.value = courses.value.map(item => item.id === data.course.id ? data.course : item)
+    }
+    await loadIntelligenceSummary()
   } catch (err) {
     transcript.value = `生成失败：${err.message}`
   } finally {
     generatingTranscript.value = false
     transcriptLoading.value = false
   }
+}
+
+async function rebuildIntelligence() {
+  rebuildingIntelligence.value = true
+  error.value = ''
+  try {
+    const response = await fetch('/api/courses/rebuild-intelligence', {
+      method: 'POST',
+    })
+    const data = await response.json()
+    if (!response.ok) throw new Error(data.detail || '刷新内容理解失败')
+    courses.value = data.courses || []
+    await loadIntelligenceSummary()
+  } catch (err) {
+    error.value = err.message
+  } finally {
+    rebuildingIntelligence.value = false
+  }
+}
+
+async function openPriorityCourse(courseId) {
+  const target = allVideos.value.find(item => item.id === courseId)
+  if (!target) return
+  await selectVideo(target)
 }
 
 async function sendQuestion() {
@@ -1004,6 +1145,19 @@ function loadPersistedState() {
   }
 }
 
+function consumePendingCourseId() {
+  if (typeof window === 'undefined') return ''
+  try {
+    const pending = window.localStorage.getItem(PENDING_COURSE_ID_KEY) || ''
+    if (pending) {
+      window.localStorage.removeItem(PENDING_COURSE_ID_KEY)
+    }
+    return pending
+  } catch {
+    return ''
+  }
+}
+
 function persistState(nextState) {
   recentState.value = nextState
   if (typeof window === 'undefined') return
@@ -1027,14 +1181,16 @@ onBeforeUnmount(() => {
   }
 })
 
-loadData()
+onMounted(() => {
+  loadData()
+})
 </script>
 
 <style scoped>
 .learning-layout {
   display: grid;
-  grid-template-columns: 360px 1fr;
-  gap: 20px;
+  grid-template-columns: 296px 1fr;
+  gap: 12px;
   min-height: 680px;
 }
 
@@ -1047,7 +1203,21 @@ loadData()
 }
 
 .sidebar {
-  padding: 20px;
+  position: sticky;
+  top: 12px;
+  max-height: calc(100vh - 40px);
+  overflow: auto;
+  padding: 14px;
+}
+
+.sidebar-header h2 {
+  font-size: 18px;
+  line-height: 1.2;
+}
+
+.sidebar-header p {
+  font-size: 12px;
+  line-height: 1.45;
 }
 
 .sidebar-header h2,
@@ -1070,7 +1240,7 @@ loadData()
 .search-panel {
   display: grid;
   gap: 8px;
-  margin-top: 18px;
+  margin-top: 14px;
   color: #dbe3f4;
   font-size: 13px;
 }
@@ -1081,16 +1251,16 @@ loadData()
   z-index: 2;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 10px;
-  margin-top: 16px;
-  padding: 10px 0;
+  gap: 7px;
+  margin-top: 14px;
+  padding: 8px 0;
   background: #16213e;
 }
 
 .series-tab {
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 12px;
-  padding: 12px;
+  border-radius: 10px;
+  padding: 9px 10px;
   background: #0f1730;
   color: #e5e7eb;
   text-align: left;
@@ -1127,8 +1297,8 @@ loadData()
 
 .course-tree {
   display: grid;
-  gap: 10px;
-  max-height: 560px;
+  gap: 8px;
+  max-height: 460px;
   overflow: auto;
   padding-right: 4px;
 }
@@ -1211,14 +1381,14 @@ loadData()
 }
 
 .nav-block {
-  margin-top: 20px;
+  margin-top: 16px;
 }
 
 .nav-block-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
 .import-card {
@@ -1280,8 +1450,8 @@ loadData()
   align-items: center;
   width: 100%;
   border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 12px;
-  padding: 12px 14px;
+  border-radius: 10px;
+  padding: 10px 12px;
   background: #0f1730;
   color: #d9dfeb;
   cursor: pointer;
@@ -1312,6 +1482,31 @@ loadData()
   display: grid;
   grid-template-columns: 1fr;
   gap: 20px;
+}
+
+.detail-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(300px, 0.8fr);
+  gap: 14px;
+  margin-top: 14px;
+  align-items: start;
+}
+
+.detail-main,
+.detail-side {
+  min-width: 0;
+}
+
+.detail-main {
+  display: grid;
+  gap: 14px;
+}
+
+.detail-side {
+  position: sticky;
+  top: 16px;
+  display: grid;
+  gap: 14px;
 }
 
 .video-list {
@@ -1470,7 +1665,7 @@ loadData()
 }
 
 .player-panel {
-  padding: 22px;
+  padding: 14px;
 }
 
 .video-frame {
@@ -1486,17 +1681,24 @@ loadData()
   background: #000;
 }
 
-.detail-grid {
+.detail-card-wide {
+  min-width: 0;
+}
+
+.detail-card-compact ul {
   display: grid;
-  grid-template-columns: 260px 1fr;
-  gap: 18px;
+  gap: 0;
+}
+
+.intelligence-grid {
+  margin-top: 18px;
 }
 
 .materials-card {
-  margin-top: 18px;
+  margin-top: 14px;
   background: #0f1730;
-  border-radius: 16px;
-  padding: 18px;
+  border-radius: 14px;
+  padding: 14px;
 }
 
 .materials-header {
@@ -1549,8 +1751,8 @@ loadData()
 
 .assistant-section {
   display: grid;
-  gap: 18px;
-  margin-top: 18px;
+  gap: 14px;
+  margin-top: 0;
 }
 
 .assistant-actions {
@@ -1582,8 +1784,8 @@ loadData()
 
 .assistant-card {
   background: #0f1730;
-  border-radius: 16px;
-  padding: 18px;
+  border-radius: 14px;
+  padding: 14px;
 }
 
 .assistant-header {
@@ -1682,8 +1884,14 @@ loadData()
 
 .detail-card {
   background: #0f1730;
-  border-radius: 16px;
-  padding: 18px;
+  border-radius: 14px;
+  padding: 14px;
+}
+
+.detail-card p {
+  color: #d9dfeb;
+  line-height: 1.6;
+  font-size: 13px;
 }
 
 .detail-card ul {
@@ -1707,8 +1915,64 @@ loadData()
   color: #95a2bf;
 }
 
+.priority-list {
+  display: grid;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.priority-title {
+  color: #fdba74;
+  font-size: 12px;
+}
+
+.priority-card {
+  width: 100%;
+  text-align: left;
+  border: 1px solid rgba(249, 115, 22, 0.2);
+  border-radius: 12px;
+  padding: 11px 12px;
+  background: rgba(249, 115, 22, 0.06);
+  color: #e5e7eb;
+  cursor: pointer;
+}
+
+.priority-card strong {
+  display: block;
+  color: #f8fafc;
+  margin-bottom: 4px;
+}
+
+.priority-card p {
+  color: #cbd5e1;
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.detail-hints {
+  margin-top: 10px;
+}
+
+.detail-hints span {
+  color: #fdba74;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.key-point-list {
+  display: grid;
+  gap: 8px;
+  padding-left: 18px;
+  color: #d9dfeb;
+  line-height: 1.6;
+}
+
+.transcript-preview-card {
+  margin-top: 18px;
+}
+
 .transcript-card {
-  min-height: 240px;
+  min-height: 220px;
 }
 
 .transcript-header {
@@ -1760,9 +2024,12 @@ loadData()
 .transcript {
   white-space: pre-wrap;
   word-break: break-word;
-  font-size: 14px;
-  line-height: 1.7;
+  font-size: 13px;
+  line-height: 1.65;
   color: #d9dfeb;
+  max-height: 420px;
+  overflow: auto;
+  padding-right: 4px;
 }
 
 .state-box {
@@ -1783,8 +2050,12 @@ loadData()
 @media (max-width: 960px) {
   .learning-layout,
   .content-grid,
-  .detail-grid {
+  .detail-layout {
     grid-template-columns: 1fr;
+  }
+
+  .detail-side {
+    position: static;
   }
 
   .import-grid {

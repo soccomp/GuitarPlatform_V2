@@ -1,3 +1,5 @@
+import subprocess
+
 from fastapi import APIRouter, HTTPException, Query, Request
 from pydantic import BaseModel
 
@@ -6,6 +8,7 @@ from services.index_store import find_song, load_index, resolve_under, save_inde
 from services.indexer import scan_song_library
 from services.media_response import media_file_response
 from services.resource_manager import delete_song_resource
+from services.video_matching import match_related_videos
 
 
 router = APIRouter(prefix="/api/songs", tags=["songs"])
@@ -47,6 +50,31 @@ async def get_song(song_id: str):
     if not song:
         raise HTTPException(status_code=404, detail="Song not found")
     return song
+
+
+@router.get("/{song_id}/related-videos")
+async def get_related_videos(song_id: str, limit: int = Query(8, ge=1, le=20)):
+    index = load_index()
+    song = find_song(index, song_id)
+    if not song:
+        raise HTTPException(status_code=404, detail="Song not found")
+
+    matches = match_related_videos(song, index.get("videos", []), limit=limit)
+    return [
+        {
+            "id": video.get("id", ""),
+            "title": video.get("title", ""),
+            "author": video.get("author", ""),
+            "category": video.get("category", ""),
+            "path": video.get("path", ""),
+            "thumbnail": video.get("thumbnail", ""),
+            "tags": video.get("tags", []),
+            "description": video.get("description", ""),
+            "match_score": video.get("match_score", 0),
+            "match_reasons": video.get("match_reasons", []),
+        }
+        for video in matches
+    ]
 
 
 @router.delete("/{song_id}")
@@ -106,6 +134,28 @@ async def get_song_asset(request: Request, song_id: str, path: str = Query(..., 
     if not song:
         raise HTTPException(status_code=404, detail="Song not found")
     return build_song_file_response(song, path, request)
+
+
+@router.post("/{song_id}/open-asset")
+async def open_song_asset(song_id: str, path: str = Query(..., description="相对歌曲目录的文件路径")):
+    song = find_song(load_index(), song_id)
+    if not song:
+        raise HTTPException(status_code=404, detail="Song not found")
+
+    try:
+        file_path = resolve_under(SONGS_DIR, f"{song['path']}/{path}")
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    if not file_path.exists():
+        raise HTTPException(status_code=404, detail="File not found")
+
+    try:
+        subprocess.run(["open", str(file_path)], check=True)
+    except subprocess.CalledProcessError as exc:
+        raise HTTPException(status_code=500, detail="无法调用系统默认程序打开文件") from exc
+
+    return {"ok": True, "path": path}
 
 
 @router.post("/{song_id}/markers")

@@ -4,11 +4,16 @@
       <div class="sidebar-header">
         <div>
           <h2>学习视频</h2>
-          <p>收藏视频按主题整理，统一回看和练习</p>
+          <p>收藏视频按主题整理，统一回看和练习。</p>
         </div>
-        <button class="ghost-btn" :disabled="scanning" @click="scanVideos">
-          {{ scanning ? '扫描中...' : '扫描目录' }}
-        </button>
+        <div class="sidebar-actions">
+          <button class="ghost-btn" :disabled="rebuildingIntelligence" @click="rebuildIntelligence">
+            {{ rebuildingIntelligence ? '整理中...' : '刷新内容理解' }}
+          </button>
+          <button class="ghost-btn" :disabled="scanning" @click="scanVideos">
+            {{ scanning ? '扫描中...' : '扫描目录' }}
+          </button>
+        </div>
       </div>
 
       <label class="search-panel">
@@ -41,6 +46,39 @@
           打开过的视频会出现在这里，方便你反复回看。
         </div>
       </div>
+
+      <div class="nav-block">
+        <div class="nav-block-header">
+          <h3>内容整理</h3>
+          <span>{{ transcriptCoverageLabel }}</span>
+        </div>
+        <div class="resume-list">
+          <div class="resume-card info-card">
+            <strong>总计 {{ allVideos.length }} 条</strong>
+            <p>已有 transcript {{ transcriptReadyCount }} 条，待补 {{ transcriptPendingCount }} 条。</p>
+          </div>
+          <button
+            class="resume-card action-card"
+            :disabled="batchGeneratingTranscript || transcriptPendingCount === 0"
+            @click="generatePendingTranscripts"
+          >
+            <strong>{{ batchGeneratingTranscript ? '批量生成中...' : '批量补 transcript' }}</strong>
+            <p>先为最需要整理的几条学习视频补文字内容。</p>
+          </button>
+        </div>
+        <div v-if="intelligenceSummary?.prioritized_items?.length" class="priority-list">
+          <div class="priority-title">优先补这几条</div>
+          <button
+            v-for="item in intelligenceSummary.prioritized_items"
+            :key="`priority-video-${item.id}`"
+            class="priority-card"
+            @click="openPriorityVideo(item.id)"
+          >
+            <strong>{{ item.title }}</strong>
+            <p>{{ item.reason }}</p>
+          </button>
+        </div>
+      </div>
     </aside>
 
     <section class="content">
@@ -48,7 +86,7 @@
         <div class="section-header">
           <div>
             <h3>{{ currentFilterLabel }}</h3>
-            <p>像逛视频首页一样，直接点卡片开始学。</p>
+            <p>直接点卡片开始看，少跳转、少打断。</p>
           </div>
           <span>{{ filteredVideos.length }} 条内容</span>
         </div>
@@ -76,7 +114,14 @@
             </div>
             <div class="video-card-body">
               <strong>{{ item.title }}</strong>
-              <p>{{ item.author || item.subtitle || '点击播放学习视频' }}</p>
+              <p>{{ item.author || item.subtitle || displayCategory(item) || '点击播放学习视频' }}</p>
+              <div class="video-card-highlights">
+                <span v-if="item.learningFocus">{{ item.learningFocus }}</span>
+              </div>
+              <div class="video-card-meta">
+                <span>播放 {{ item.playCount || 0 }} 次</span>
+                <span v-if="displayCategory(item)">{{ displayCategory(item) }}</span>
+              </div>
             </div>
           </button>
         </div>
@@ -91,13 +136,19 @@
           @click.self="closeVideo"
         >
           <div class="video-modal-card">
-            <div class="player-header">
-              <div>
-                <span class="panel-tag">{{ displayCategory(selectedVideo) || '学习视频' }}</span>
-                <h3>{{ selectedVideo.title }}</h3>
-                <p v-if="selectedVideo.subtitle">{{ selectedVideo.subtitle }}</p>
-              </div>
+              <div class="player-header">
+                <div>
+                  <span class="panel-tag">{{ displayCategory(selectedVideo) || '学习视频' }}</span>
+                  <h3>{{ selectedVideo.title }}</h3>
+                  <p v-if="selectedVideo.subtitle">{{ selectedVideo.subtitle }}</p>
+                </div>
               <div class="modal-actions">
+                <button class="ghost-btn" :disabled="generatingTranscript || deleting || savingMeta" @click="generateTranscript">
+                  {{ generatingTranscript ? '生成中...' : (selectedVideo?.transcriptAvailable ? '重新生成 transcript' : '生成 transcript') }}
+                </button>
+                <button class="ghost-btn" :disabled="deleting || savingMeta" @click="openMetaEditor">
+                  {{ savingMeta ? '保存中...' : (isEditingMeta ? '取消编辑' : '编辑信息') }}
+                </button>
                 <button class="danger-btn" :disabled="deleting" @click="deleteSelectedVideo">
                   {{ deleting ? '删除中...' : '删除视频' }}
                 </button>
@@ -105,78 +156,175 @@
               </div>
             </div>
 
-            <div class="video-frame">
-              <video
-                v-if="selectedVideo.path"
-                ref="videoPlayerRef"
-                :key="selectedVideo.id"
-                :src="selectedVideo.url"
-                controls
-                controlsList="nodownload"
-                autoplay
-                @loadedmetadata="handleVideoReady"
-                @timeupdate="handleVideoProgress"
-                @play="isPlaying = true"
-                @pause="isPlaying = false"
-              ></video>
-              <div v-else class="state-box">当前视频未配置媒体路径</div>
-            </div>
+            <div class="video-modal-layout">
+              <div class="video-modal-main">
+                <div class="video-frame">
+                  <video
+                    v-if="selectedVideo.path"
+                    ref="videoPlayerRef"
+                    :key="selectedVideo.id"
+                    :src="selectedVideo.url"
+                    controls
+                    controlsList="nodownload"
+                    autoplay
+                    @loadedmetadata="handleVideoReady"
+                    @timeupdate="handleVideoProgress"
+                    @play="isPlaying = true"
+                    @pause="isPlaying = false"
+                  ></video>
+                  <div v-else class="state-box">当前视频未配置媒体路径</div>
+                </div>
 
-            <div v-if="selectedVideo.path" class="practice-controls">
-              <div class="practice-topbar">
-                <button class="ghost-btn" @click="togglePlay">
-                  {{ isPlaying ? '暂停' : '播放' }}
-                </button>
-                <span>{{ formatTime(currentTime) }} / {{ formatTime(duration) }}</span>
+                <div v-if="selectedVideo.path" class="practice-controls">
+                  <div class="practice-topbar">
+                    <button class="ghost-btn" @click="togglePlay">
+                      {{ isPlaying ? '暂停' : '播放' }}
+                    </button>
+                    <span>{{ formatTime(currentTime) }} / {{ formatTime(duration) }}</span>
+                  </div>
+
+                  <input
+                    class="seek-slider"
+                    type="range"
+                    min="0"
+                    :max="duration || 0"
+                    step="0.1"
+                    :value="currentTime"
+                    :disabled="!duration"
+                    @input="seekVideoRange"
+                  />
+
+                  <div class="practice-actions">
+                    <button :class="{ active: loopStart !== null }" @click="setLoopStart">
+                      A {{ loopStart === null ? '--:--' : formatTime(loopStart) }}
+                    </button>
+                    <button :class="{ active: loopEnd !== null }" @click="setLoopEnd">
+                      B {{ loopEnd === null ? '--:--' : formatTime(loopEnd) }}
+                    </button>
+                    <button @click="clearLoop">清除循环</button>
+                  </div>
+
+                  <div class="practice-actions speed-row">
+                    <span>速度</span>
+                    <button
+                      v-for="speed in speeds"
+                      :key="speed"
+                      :class="{ active: playbackRate === speed }"
+                      @click="setSpeed(speed)"
+                    >
+                      {{ speed }}x
+                    </button>
+                  </div>
+                </div>
               </div>
 
-              <input
-                class="seek-slider"
-                type="range"
-                min="0"
-                :max="duration || 0"
-                step="0.1"
-                :value="currentTime"
-                :disabled="!duration"
-                @input="seekVideoRange"
-              />
+              <aside class="video-modal-side">
+                <div class="detail-strip detail-strip-stack">
+                  <div>
+                    <span>分类</span>
+                    <strong>{{ displayCategory(selectedVideo) || '未填写' }}</strong>
+                  </div>
+                  <div>
+                    <span>作者</span>
+                    <strong>{{ selectedVideo.author || '未整理' }}</strong>
+                  </div>
+                  <div>
+                    <span>学习重点</span>
+                    <strong>{{ selectedVideo.learningFocus || '待整理' }}</strong>
+                  </div>
+                </div>
 
-              <div class="practice-actions">
-                <button :class="{ active: loopStart !== null }" @click="setLoopStart">
-                  A {{ loopStart === null ? '--:--' : formatTime(loopStart) }}
-                </button>
-                <button :class="{ active: loopEnd !== null }" @click="setLoopEnd">
-                  B {{ loopEnd === null ? '--:--' : formatTime(loopEnd) }}
-                </button>
-                <button @click="clearLoop">清除循环</button>
-              </div>
+                <div class="intelligence-grid intelligence-grid-single">
+                  <div class="meta-editor-card intelligence-card">
+                    <div class="meta-editor-header">
+                      <h4>内容摘要</h4>
+                      <span>{{ selectedVideo.summary ? '会参与推荐' : '补 transcript 后会更准' }}</span>
+                    </div>
+                    <p class="intelligence-copy">{{ selectedVideo.summary || selectedVideo.description || '当前还没有整理出内容摘要。' }}</p>
+                  </div>
 
-              <div class="practice-actions speed-row">
-                <span>速度</span>
-                <button
-                  v-for="speed in speeds"
-                  :key="speed"
-                  :class="{ active: playbackRate === speed }"
-                  @click="setSpeed(speed)"
-                >
-                  {{ speed }}x
-                </button>
-              </div>
-            </div>
+                  <div class="meta-editor-card intelligence-card">
+                    <div class="meta-editor-header">
+                      <h4>适合怎么用</h4>
+                      <span>{{ selectedVideo.recommendedFor ? '会参与学习教练推荐' : '当前先按标题和标签理解' }}</span>
+                    </div>
+                    <p class="intelligence-copy">{{ selectedVideo.recommendedFor || '适合先作为参考视频收藏，后面补 transcript 后会更适合做智能推荐。' }}</p>
+                  </div>
 
-            <div class="detail-strip">
-              <div>
-                <span>分类</span>
-                <strong>{{ displayCategory(selectedVideo) || '未填写' }}</strong>
-              </div>
-              <div>
-                <span>作者</span>
-                <strong>{{ selectedVideo.author || '未整理' }}</strong>
-              </div>
-              <div>
-                <span>备注</span>
-                <strong>{{ selectedVideo.description || '暂无整理备注' }}</strong>
-              </div>
+                  <div class="meta-editor-card intelligence-card">
+                    <div class="meta-editor-header">
+                      <h4>关键点</h4>
+                      <span>先抓 1 到 2 个最值得回看的点</span>
+                    </div>
+                    <ul v-if="selectedVideo.keyPoints?.length" class="intelligence-points">
+                      <li v-for="(point, index) in selectedVideo.keyPoints" :key="`${selectedVideo.id}-point-${index}`">
+                        {{ point }}
+                      </li>
+                    </ul>
+                    <p v-else class="intelligence-copy">当前还没有提炼出关键点。</p>
+                  </div>
+
+                  <div class="meta-editor-card intelligence-card">
+                    <div class="meta-editor-header">
+                      <h4>标签</h4>
+                      <span>会直接参与搜索和歌曲练习推荐</span>
+                    </div>
+                    <div v-if="selectedVideo.tags?.length" class="chip-row">
+                      <span v-for="tag in selectedVideo.tags" :key="`${selectedVideo.id}-${tag}`" class="chip">
+                        {{ tag }}
+                      </span>
+                    </div>
+                    <p v-else class="intelligence-copy">当前还没有标签。</p>
+                  </div>
+
+                  <div v-if="selectedVideo.transcriptAvailable || selectedVideo.transcriptPreview" class="meta-editor-card intelligence-card">
+                    <div class="meta-editor-header">
+                      <h4>文字内容预览</h4>
+                      <span>{{ selectedVideo.transcriptAvailable ? '后面可继续做问答、摘要和相关推荐' : '当前只显示少量内容' }}</span>
+                    </div>
+                    <p class="intelligence-copy transcript-preview">{{ selectedVideo.transcriptPreview || '当前还没有可用的 transcript 预览。' }}</p>
+                  </div>
+
+                  <div v-if="selectedVideo" class="meta-editor-card">
+                    <div class="meta-editor-header">
+                      <h4>视频标题与介绍</h4>
+                      <span>{{ isEditingMeta ? '可直接修改显示标题、备注和自定义标签' : '需要时可自定义平台内显示信息' }}</span>
+                    </div>
+
+                    <div v-if="isEditingMeta" class="meta-editor-form">
+                      <label>
+                        <span>显示标题</span>
+                        <input v-model.trim="metaDraft.title" class="text-input" type="text" placeholder="例如：早班火车 Solo 教学" />
+                      </label>
+                      <label>
+                        <span>作者 / 备注来源</span>
+                        <input v-model.trim="metaDraft.author" class="text-input" type="text" placeholder="例如：B站收藏 / 某某老师" />
+                      </label>
+                      <label>
+                        <span>分类</span>
+                        <input v-model.trim="metaDraft.category" class="text-input" type="text" placeholder="例如：歌曲教学 / Solo 参考" />
+                      </label>
+                      <label>
+                        <span>介绍 / 备注</span>
+                        <textarea v-model.trim="metaDraft.description" class="text-input meta-textarea" placeholder="写一点你想保留的说明，比如这条视频适合练哪一段、讲了什么重点。"></textarea>
+                      </label>
+                      <label>
+                        <span>自定义标签</span>
+                        <input v-model.trim="metaDraft.tags" class="text-input" type="text" placeholder="用逗号分隔，比如：早班火车,Solo,主拍" />
+                      </label>
+                      <div class="meta-editor-actions">
+                        <button class="ghost-btn" :disabled="savingMeta" @click="cancelMetaEditor">取消</button>
+                        <button class="play-btn" :disabled="savingMeta || !metaDraft.title" @click="saveMetaEditor">保存</button>
+                      </div>
+                    </div>
+
+                    <div v-else class="meta-editor-preview">
+                      <p><strong>当前标题：</strong>{{ selectedVideo.title }}</p>
+                      <p><strong>当前介绍：</strong>{{ selectedVideo.description || '暂无整理备注' }}</p>
+                    </div>
+                  </div>
+                </div>
+              </aside>
             </div>
           </div>
         </div>
@@ -186,10 +334,12 @@
 </template>
 
 <script setup>
-import { computed, nextTick, ref, watch } from 'vue'
+import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import seedIndex from '../../../backend/data/index.json'
 
 const STORAGE_KEY = 'guitar-platform-collected-videos'
+const PLAY_COUNT_STORAGE_KEY = 'guitar-platform-video-play-counts'
+const PENDING_VIDEO_ID_KEY = 'guitar-platform-pending-video-id'
 
 const loading = ref(true)
 const error = ref('')
@@ -197,8 +347,14 @@ const searchQuery = ref('')
 const selectedKey = ref('')
 const videos = ref([])
 const scanning = ref(false)
+const rebuildingIntelligence = ref(false)
+const generatingTranscript = ref(false)
+const batchGeneratingTranscript = ref(false)
 const deleting = ref(false)
+const savingMeta = ref(false)
+const intelligenceSummary = ref(null)
 const recentKeys = ref(loadRecentKeys())
+const playCounts = ref(loadPlayCounts())
 const videoPlayerRef = ref(null)
 const isPlaying = ref(false)
 const currentTime = ref(0)
@@ -207,6 +363,13 @@ const playbackRate = ref(1)
 const loopStart = ref(null)
 const loopEnd = ref(null)
 const speeds = [0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 1.0]
+const isEditingMeta = ref(false)
+const metaDraft = ref({
+  title: '',
+  author: '',
+  category: '',
+  description: '',
+})
 
 const allVideos = computed(() =>
   videos.value.map(video => ({
@@ -220,9 +383,16 @@ const allVideos = computed(() =>
     tags: video.tags || [],
     path: video.path || '',
     description: video.description || '',
+    summary: video.summary || '',
+    learningFocus: video.learning_focus || '',
+    recommendedFor: video.recommended_for || '',
+    keyPoints: video.key_points || [],
+    transcriptPreview: video.transcript_preview || '',
+    transcriptAvailable: Boolean(video.transcript_available),
     thumbnail: video.thumbnail || '',
     thumbnailUrl: video.thumbnail ? mediaUrl('collected', video.thumbnail) : '',
     url: video.path ? videoStreamUrl(video) : '',
+    playCount: playCounts.value[video.id] || 0,
   }))
 )
 
@@ -231,7 +401,7 @@ const filteredVideos = computed(() => {
   if (!keyword) return allVideos.value
 
   return allVideos.value.filter(item =>
-    [item.title, item.subtitle, item.author, item.category, ...(item.tags || [])]
+    [item.title, item.subtitle, item.author, item.category, item.summary, item.learningFocus, item.recommendedFor, ...(item.keyPoints || []), ...(item.tags || [])]
       .some(value => (value || '').toLowerCase().includes(keyword))
   )
 })
@@ -250,13 +420,28 @@ const currentFilterLabel = computed(() => {
   return searchQuery.value.trim() ? `搜索：${searchQuery.value.trim()}` : '全部视频'
 })
 
-watch(selectedVideo, async video => {
+const transcriptReadyCount = computed(() =>
+  allVideos.value.filter(item => item.transcriptAvailable || item.transcriptPreview).length
+)
+
+const transcriptPendingCount = computed(() =>
+  Math.max(0, allVideos.value.length - transcriptReadyCount.value)
+)
+
+const transcriptCoverageLabel = computed(() =>
+  `${transcriptReadyCount.value}/${allVideos.value.length || 0}`
+)
+
+watch(() => selectedKey.value, async () => {
+  const video = selectedVideo.value
   currentTime.value = 0
   duration.value = 0
   isPlaying.value = false
   loopStart.value = null
   loopEnd.value = null
   if (!video?.path) return
+  bumpPlayCount(video.id)
+  syncMetaDraft(video)
   await nextTick()
   if (videoPlayerRef.value) {
     videoPlayerRef.value.playbackRate = playbackRate.value
@@ -274,7 +459,25 @@ async function loadData() {
     videos.value = seedIndex.videos || []
     error.value = ''
   } finally {
+    await loadIntelligenceSummary()
+    const pendingVideoId = consumePendingVideoId()
+    if (pendingVideoId) {
+      const pendingVideo = allVideos.value.find(item => item.id === pendingVideoId)
+      if (pendingVideo) {
+        selectVideo(pendingVideo)
+      }
+    }
     loading.value = false
+  }
+}
+
+async function loadIntelligenceSummary() {
+  try {
+    const response = await fetch('/api/videos/intelligence-summary')
+    if (!response.ok) throw new Error('内容整理概览加载失败')
+    intelligenceSummary.value = await response.json()
+  } catch {
+    intelligenceSummary.value = null
   }
 }
 
@@ -287,6 +490,7 @@ async function scanVideos() {
     if (!response.ok) throw new Error(data.detail || '扫描失败')
 
     videos.value = data.videos || []
+    await loadIntelligenceSummary()
     if (allVideos.value.length > 0) {
       selectedKey.value = ''
     }
@@ -295,6 +499,73 @@ async function scanVideos() {
   } finally {
     scanning.value = false
   }
+}
+
+async function rebuildIntelligence() {
+  rebuildingIntelligence.value = true
+  error.value = ''
+  try {
+    const response = await fetch('/api/videos/rebuild-intelligence', {
+      method: 'POST',
+    })
+    const data = await response.json()
+    if (!response.ok) throw new Error(data.detail || '刷新内容理解失败')
+    videos.value = data.videos || []
+    await loadIntelligenceSummary()
+  } catch (err) {
+    error.value = err.message
+  } finally {
+    rebuildingIntelligence.value = false
+  }
+}
+
+async function generateTranscript() {
+  if (!selectedVideo.value || generatingTranscript.value) return
+  generatingTranscript.value = true
+  error.value = ''
+  try {
+    const response = await fetch(`/api/videos/${selectedVideo.value.id}/generate-transcript`, {
+      method: 'POST',
+    })
+    const data = await response.json()
+    if (!response.ok) throw new Error(data.detail || '生成 transcript 失败')
+    videos.value = videos.value.map(item => item.id === data.video.id ? data.video : item)
+    await loadIntelligenceSummary()
+  } catch (err) {
+    error.value = err.message
+  } finally {
+    generatingTranscript.value = false
+  }
+}
+
+async function generatePendingTranscripts() {
+  if (batchGeneratingTranscript.value || transcriptPendingCount.value === 0) return
+  batchGeneratingTranscript.value = true
+  error.value = ''
+  try {
+    const response = await fetch('/api/videos/generate-transcripts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ limit: 3 }),
+    })
+    const data = await response.json()
+    if (!response.ok) throw new Error(data.detail || '批量生成 transcript 失败')
+    videos.value = data.videos || videos.value
+    await loadIntelligenceSummary()
+    if (data.failures?.length) {
+      error.value = `有 ${data.failures.length} 条生成失败，请稍后重试。`
+    }
+  } catch (err) {
+    error.value = err.message
+  } finally {
+    batchGeneratingTranscript.value = false
+  }
+}
+
+function openPriorityVideo(videoId) {
+  const item = allVideos.value.find(video => video.id === videoId)
+  if (!item) return
+  selectVideo(item)
 }
 
 async function deleteSelectedVideo() {
@@ -340,6 +611,59 @@ function closeVideo() {
   isPlaying.value = false
   loopStart.value = null
   loopEnd.value = null
+  isEditingMeta.value = false
+}
+
+function syncMetaDraft(video) {
+  metaDraft.value = {
+    title: video?.title || '',
+    author: video?.author || '',
+    category: video?.category || '',
+    description: video?.description || '',
+    tags: Array.isArray(video?.tags) ? video.tags.join(', ') : '',
+  }
+}
+
+function openMetaEditor() {
+  if (isEditingMeta.value) {
+    cancelMetaEditor()
+    return
+  }
+  syncMetaDraft(selectedVideo.value)
+  isEditingMeta.value = true
+}
+
+function cancelMetaEditor() {
+  isEditingMeta.value = false
+  syncMetaDraft(selectedVideo.value)
+}
+
+async function saveMetaEditor() {
+  if (!selectedVideo.value || !metaDraft.value.title || savingMeta.value) return
+  savingMeta.value = true
+  error.value = ''
+  try {
+    const response = await fetch(`/api/videos/${selectedVideo.value.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        ...metaDraft.value,
+        tags: String(metaDraft.value.tags || '')
+          .split(/[，,]/)
+          .map(item => item.trim())
+          .filter(Boolean),
+      }),
+    })
+    const data = await response.json()
+    if (!response.ok) throw new Error(data.detail || '保存失败')
+
+    videos.value = videos.value.map(item => item.id === data.id ? data : item)
+    isEditingMeta.value = false
+  } catch (err) {
+    error.value = err.message
+  } finally {
+    savingMeta.value = false
+  }
 }
 
 function handleVideoReady(event) {
@@ -435,6 +759,43 @@ function loadRecentKeys() {
   }
 }
 
+function loadPlayCounts() {
+  if (typeof window === 'undefined') return {}
+  try {
+    const raw = window.localStorage.getItem(PLAY_COUNT_STORAGE_KEY)
+    return raw ? JSON.parse(raw) : {}
+  } catch {
+    return {}
+  }
+}
+
+function consumePendingVideoId() {
+  if (typeof window === 'undefined') return ''
+  try {
+    const pending = window.localStorage.getItem(PENDING_VIDEO_ID_KEY) || ''
+    if (pending) {
+      window.localStorage.removeItem(PENDING_VIDEO_ID_KEY)
+    }
+    return pending
+  } catch {
+    return ''
+  }
+}
+
+function persistPlayCounts() {
+  if (typeof window === 'undefined') return
+  window.localStorage.setItem(PLAY_COUNT_STORAGE_KEY, JSON.stringify(playCounts.value))
+}
+
+function bumpPlayCount(videoId) {
+  if (!videoId) return
+  playCounts.value = {
+    ...playCounts.value,
+    [videoId]: Number(playCounts.value[videoId] || 0) + 1,
+  }
+  persistPlayCounts()
+}
+
 function sourceLabel(source) {
   const labels = {
     local: '本地收藏',
@@ -469,14 +830,16 @@ function isFilePreview() {
   return typeof window !== 'undefined' && window.location.protocol === 'file:'
 }
 
-loadData()
+onMounted(() => {
+  loadData()
+})
 </script>
 
 <style scoped>
 .learning-layout {
   display: grid;
-  grid-template-columns: 280px 1fr;
-  gap: 20px;
+  grid-template-columns: 272px 1fr;
+  gap: 12px;
   min-height: 680px;
 }
 
@@ -488,7 +851,21 @@ loadData()
 }
 
 .sidebar {
-  padding: 20px;
+  position: sticky;
+  top: 12px;
+  max-height: calc(100vh - 40px);
+  overflow: auto;
+  padding: 14px;
+}
+
+.sidebar-header h2 {
+  font-size: 18px;
+  line-height: 1.2;
+}
+
+.sidebar-header p {
+  font-size: 12px;
+  line-height: 1.45;
 }
 
 .sidebar-header h2,
@@ -509,6 +886,24 @@ loadData()
   color: #95a2bf;
 }
 
+.video-card-highlights {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 0;
+  min-height: 22px;
+}
+
+.video-card-highlights span {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 4px 8px;
+  background: rgba(249, 115, 22, 0.12);
+  color: #fdba74;
+  font-size: 11px;
+}
+
 .search-panel,
 .resume-list {
   display: grid;
@@ -517,7 +912,7 @@ loadData()
 
 .search-panel,
 .nav-block {
-  margin-top: 20px;
+  margin-top: 16px;
 }
 
 .search-panel {
@@ -537,6 +932,47 @@ loadData()
 
 .sidebar-header {
   align-items: flex-start;
+}
+
+.sidebar-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.priority-list {
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.priority-title {
+  color: #fdba74;
+  font-size: 12px;
+}
+
+.priority-card {
+  width: 100%;
+  text-align: left;
+  border: 1px solid rgba(249, 115, 22, 0.2);
+  border-radius: 11px;
+  padding: 9px 10px;
+  background: rgba(249, 115, 22, 0.06);
+  color: #e5e7eb;
+  cursor: pointer;
+}
+
+.priority-card strong {
+  display: block;
+  color: #f8fafc;
+  margin-bottom: 4px;
+}
+
+.priority-card p {
+  color: #cbd5e1;
+  font-size: 12px;
+  line-height: 1.55;
 }
 
 .text-input {
@@ -568,8 +1004,8 @@ loadData()
   width: 100%;
   text-align: left;
   border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 12px;
-  padding: 12px 14px;
+  border-radius: 10px;
+  padding: 9px 11px;
   background: #0f1730;
   color: #d9dfeb;
   cursor: pointer;
@@ -583,11 +1019,36 @@ loadData()
 
 .content {
   display: grid;
-  gap: 20px;
+  gap: 14px;
 }
 
 .video-shelf {
-  padding: 20px;
+  padding: 14px;
+}
+
+.video-modal-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(280px, 0.82fr);
+  gap: 14px;
+  align-items: start;
+}
+
+.video-modal-main,
+.video-modal-side {
+  min-width: 0;
+}
+
+.video-modal-side {
+  display: grid;
+  gap: 12px;
+}
+
+.section-header h3 {
+  font-size: 20px;
+}
+
+.section-header p {
+  font-size: 12px;
 }
 
 .panel-tag {
@@ -648,15 +1109,19 @@ loadData()
 .detail-strip {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px;
+  gap: 10px;
+}
+
+.detail-strip-stack {
+  grid-template-columns: 1fr;
 }
 
 .practice-controls {
   display: grid;
-  gap: 12px;
-  margin: -2px 0 20px;
-  padding: 14px 16px;
-  border-radius: 16px;
+  gap: 10px;
+  margin: -2px 0 16px;
+  padding: 12px 14px;
+  border-radius: 14px;
   background: #0f1730;
 }
 
@@ -700,8 +1165,8 @@ loadData()
 
 .detail-strip div {
   background: #0f1730;
-  border-radius: 14px;
-  padding: 12px 14px;
+  border-radius: 12px;
+  padding: 10px 12px;
   min-width: 0;
 }
 
@@ -722,10 +1187,112 @@ loadData()
   white-space: nowrap;
 }
 
+.meta-editor-card {
+  margin-top: 14px;
+  padding: 14px;
+  border-radius: 14px;
+  background: #0f1730;
+  display: grid;
+  gap: 10px;
+}
+
+.intelligence-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.intelligence-grid-single {
+  grid-template-columns: 1fr;
+  margin-top: 0;
+}
+
+.intelligence-card {
+  margin-top: 0;
+}
+
+.intelligence-copy {
+  color: #dbe3f4;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.intelligence-points {
+  display: grid;
+  gap: 8px;
+  padding-left: 18px;
+  color: #dbe3f4;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.transcript-preview {
+  color: #cbd5e1;
+}
+
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 4px 9px;
+  background: rgba(255, 255, 255, 0.06);
+  color: #f8fafc;
+  font-size: 12px;
+}
+
+.meta-editor-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.meta-editor-header h4 {
+  color: #f4f5f7;
+}
+
+.meta-editor-header span,
+.meta-editor-preview p {
+  color: #95a2bf;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.meta-editor-form {
+  display: grid;
+  gap: 12px;
+}
+
+.meta-editor-form label {
+  display: grid;
+  gap: 6px;
+  color: #dbe3f4;
+  font-size: 13px;
+}
+
+.meta-textarea {
+  min-height: 96px;
+  resize: vertical;
+}
+
+.meta-editor-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
 .video-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
-  gap: 18px;
+  grid-template-columns: repeat(auto-fill, minmax(172px, 1fr));
+  gap: 12px;
 }
 
 .video-card {
@@ -745,7 +1312,7 @@ loadData()
   position: relative;
   display: grid;
   place-items: center;
-  min-height: 128px;
+  min-height: 108px;
   overflow: hidden;
   background:
     radial-gradient(circle at 22% 20%, rgba(255, 255, 255, 0.34), transparent 18%),
@@ -814,24 +1381,36 @@ loadData()
 
 .video-card-body {
   display: grid;
-  gap: 8px;
-  padding: 12px 13px 14px;
+  gap: 5px;
+  padding: 10px 11px 11px;
 }
 
 .video-card-body strong {
   display: -webkit-box;
-  min-height: 42px;
+  min-height: 36px;
   overflow: hidden;
   color: #f4f5f7;
-  line-height: 1.45;
+  font-size: 13px;
+  line-height: 1.4;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
 }
 
 .video-card-body p {
+  min-height: 18px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  font-size: 11px;
+}
+
+.video-card-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  color: #94a3b8;
+  font-size: 11px;
 }
 
 .state-box {
@@ -857,12 +1436,12 @@ loadData()
 }
 
 .video-modal-card {
-  width: min(1080px, calc(100vw - 56px));
+  width: min(960px, calc(100vw - 48px));
   max-height: calc(100vh - 56px);
   overflow: auto;
   border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 22px;
-  padding: 22px;
+  border-radius: 20px;
+  padding: 16px;
   background:
     radial-gradient(circle at top left, rgba(249, 115, 22, 0.18), transparent 34%),
     #16213e;
@@ -877,12 +1456,14 @@ loadData()
 .video-modal .video-frame video {
   width: auto;
   max-width: 100%;
-  max-height: min(68vh, 760px);
+  max-height: min(62vh, 720px);
 }
 
 @media (max-width: 960px) {
   .learning-layout,
-  .detail-strip {
+  .detail-strip,
+  .intelligence-grid,
+  .video-modal-layout {
     grid-template-columns: 1fr;
   }
 
