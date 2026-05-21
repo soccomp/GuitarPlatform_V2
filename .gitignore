@@ -13,6 +13,8 @@ tmp/
 tmp_inspect_ui.js
 projects/
 scripts/promo/
+scripts/com.claw.guitar-platform.backend.plist
+scripts/com.claw.guitar-platform.frontend.plist
 
 library/courses/*
 !library/courses/.gitkeep
