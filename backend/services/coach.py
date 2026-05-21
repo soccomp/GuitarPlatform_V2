@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 import os
+from urllib.parse import urlparse
 
 import httpx
 
@@ -88,6 +89,10 @@ async def get_coach_runtime_status() -> dict[str, Any]:
         "mode": "remote_node" if coach_node_url else "local_preview",
         "coach_node_url": coach_node_url,
         "coach_model": coach_model,
+        "default_model": coach_model,
+        "installed_models": [],
+        "running_models": [],
+        "ollama_connected": False,
         "timeout_seconds": timeout_seconds,
         "connected": False,
         "state": "not_configured" if not coach_node_url else "unreachable",
@@ -109,7 +114,26 @@ async def get_coach_runtime_status() -> dict[str, Any]:
         status["connected"] = True
         status["state"] = "connected"
         status["node_name"] = payload.get("service", "") if isinstance(payload, dict) else ""
-        status["status_text"] = "4080 本地大模型已连接，可用于 AI 陪练分析。"
+        if isinstance(payload, dict):
+            status["default_model"] = str(payload.get("default_model") or coach_model)
+            status["installed_models"] = normalize_model_choices(payload.get("installed_models"))
+            status["running_models"] = normalize_model_choices(payload.get("running_models"))
+            status["ollama_connected"] = bool(payload.get("ollama_connected"))
+        if not status["ollama_connected"]:
+            ollama_status = await probe_remote_ollama_status(coach_node_url, timeout_seconds)
+            if ollama_status:
+                status["ollama_connected"] = True
+                status["installed_models"] = ollama_status["installed_models"]
+                status["running_models"] = ollama_status["running_models"]
+        if status["ollama_connected"]:
+            if status["running_models"]:
+                running_names = "、".join(item["label"] for item in status["running_models"][:2])
+                suffix = "" if len(status["running_models"]) <= 2 else " 等模型"
+                status["status_text"] = f"4080 节点与 Ollama 已连接，当前已加载 {running_names}{suffix}。"
+            else:
+                status["status_text"] = "4080 节点与 Ollama 已连接，可直接切换已安装模型。"
+        else:
+            status["status_text"] = "4080 节点已连接，但 Ollama 当前不可达或还没准备好。"
         return status
     except Exception as exc:
         status["status_text"] = f"已配置分析节点，但当前不可达：{exc}"
@@ -325,6 +349,73 @@ def derive_coach_health_url(coach_node_url: str) -> str:
     if cleaned.endswith("/analyze-rhythm"):
         return f"{cleaned[:-len('/analyze-rhythm')]}/health"
     return f"{cleaned}/health"
+
+
+def normalize_model_choices(items: Any) -> list[dict[str, str]]:
+    if not isinstance(items, list):
+        return []
+    normalized: list[dict[str, str]] = []
+    seen: set[str] = set()
+    for item in items:
+        if isinstance(item, dict):
+            value = str(item.get("value") or item.get("name") or item.get("model") or "").strip()
+            label = str(item.get("label") or humanize_model_label(value)).strip()
+        else:
+            value = str(item or "").strip()
+            label = humanize_model_label(value)
+        if not value or value in seen:
+            continue
+        seen.add(value)
+        normalized.append({"value": value, "label": label or value})
+    return normalized
+
+
+def humanize_model_label(value: str) -> str:
+    normalized = (value or "").strip()
+    lower = normalized.lower()
+    if lower == "qwen3:8b":
+        return "Qwen 3 8B"
+    if lower == "deepseek-r1:8b":
+        return "DeepSeek R1 8B"
+    if lower == "qwen2.5vl:7b":
+        return "Qwen 2.5 VL 7B"
+    if lower == "gemma3:12b":
+        return "Gemma 3 12B"
+    if ":" in normalized:
+        base, size = normalized.split(":", 1)
+        return f"{base} {size}".strip()
+    return normalized
+
+
+async def probe_remote_ollama_status(coach_node_url: str, timeout_seconds: float) -> dict[str, Any] | None:
+    base_url = derive_remote_ollama_base_url(coach_node_url)
+    if not base_url:
+        return None
+    timeout = httpx.Timeout(min(timeout_seconds, 6.0))
+    try:
+        async with httpx.AsyncClient(timeout=timeout) as client:
+            tags_response = await client.get(f"{base_url}/api/tags")
+            ps_response = await client.get(f"{base_url}/api/ps")
+        if tags_response.status_code >= 400 or ps_response.status_code >= 400:
+            return None
+        tags_payload = tags_response.json()
+        ps_payload = ps_response.json()
+        return {
+            "installed_models": normalize_model_choices(tags_payload.get("models")),
+            "running_models": normalize_model_choices(ps_payload.get("models")),
+        }
+    except Exception:
+        return None
+
+
+def derive_remote_ollama_base_url(coach_node_url: str) -> str:
+    parsed = urlparse(coach_node_url)
+    if not parsed.scheme or not parsed.hostname:
+        return ""
+    port = parsed.port or 11434
+    if parsed.port == 9000:
+        port = 11434
+    return f"{parsed.scheme}://{parsed.hostname}:{port}"
 
 
 def guess_audio_extension(mime_type: str) -> str:

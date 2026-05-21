@@ -1,3 +1,6 @@
+import os
+
+import httpx
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from pydantic import BaseModel
 
@@ -5,6 +8,8 @@ from service import analyze_with_ollama, build_content_intelligence_with_ollama
 
 
 app = FastAPI(title="Guitar Coach Node")
+DEFAULT_OLLAMA_BASE_URL = "http://127.0.0.1:11434"
+DEFAULT_MODEL = "qwen3:8b"
 
 
 class ContentIntelligenceRequest(BaseModel):
@@ -19,9 +24,87 @@ class ContentIntelligenceRequest(BaseModel):
     system_prompt: str = ""
 
 
+def get_ollama_base_url() -> str:
+    return (os.environ.get("OLLAMA_BASE_URL") or DEFAULT_OLLAMA_BASE_URL).strip()
+
+
+def get_default_model() -> str:
+    return (os.environ.get("COACH_OLLAMA_MODEL") or DEFAULT_MODEL).strip()
+
+
+def humanize_model_name(model_name: str) -> str:
+    normalized = (model_name or "").strip()
+    lower = normalized.lower()
+    if lower == "qwen3:8b":
+        return "Qwen 3 8B"
+    if lower == "deepseek-r1:8b":
+        return "DeepSeek R1 8B"
+    if ":" in normalized:
+        base, size = normalized.split(":", 1)
+        return f"{base} {size}".strip()
+    return normalized or "未命名模型"
+
+
+def normalize_model_entries(raw_items: list[dict] | list[str] | None) -> list[dict[str, str]]:
+    items = raw_items or []
+    normalized: list[dict[str, str]] = []
+    seen: set[str] = set()
+    for item in items:
+        name = ""
+        if isinstance(item, dict):
+            name = str(item.get("name") or item.get("model") or "").strip()
+        else:
+            name = str(item or "").strip()
+        if not name or name in seen:
+            continue
+        seen.add(name)
+        normalized.append(
+            {
+                "value": name,
+                "label": humanize_model_name(name),
+            }
+        )
+    return normalized
+
+
+async def fetch_ollama_json(path: str) -> dict:
+    base_url = get_ollama_base_url().rstrip("/")
+    timeout = httpx.Timeout(4.0)
+    async with httpx.AsyncClient(timeout=timeout) as client:
+        response = await client.get(f"{base_url}{path}")
+    response.raise_for_status()
+    payload = response.json()
+    if not isinstance(payload, dict):
+        raise RuntimeError("Ollama 返回格式无效")
+    return payload
+
+
 @app.get("/health")
 async def health():
-    return {"ok": True, "service": "guitar-coach-node"}
+    default_model = get_default_model()
+    installed_models: list[dict[str, str]] = []
+    running_models: list[dict[str, str]] = []
+    ollama_connected = False
+    ollama_error = ""
+    try:
+        tags_payload = await fetch_ollama_json("/api/tags")
+        ps_payload = await fetch_ollama_json("/api/ps")
+        installed_models = normalize_model_entries(tags_payload.get("models"))
+        running_models = normalize_model_entries(ps_payload.get("models"))
+        ollama_connected = True
+    except Exception as exc:
+        ollama_error = str(exc)
+
+    return {
+        "ok": True,
+        "service": "guitar-coach-node",
+        "ollama_base_url": get_ollama_base_url(),
+        "ollama_connected": ollama_connected,
+        "ollama_error": ollama_error,
+        "default_model": default_model,
+        "installed_models": installed_models,
+        "running_models": running_models,
+    }
 
 
 @app.post("/api/coach/analyze-rhythm")
