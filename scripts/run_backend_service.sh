@@ -7,11 +7,15 @@ BACKEND_DIR="$PROJECT_ROOT/backend"
 BACKEND_VENV="$BACKEND_DIR/.venv"
 BACKEND_HOST="0.0.0.0"
 BACKEND_PORT="8000"
-PYTHON_BIN="$(command -v python3 || true)"
+PYTHON_BIN=""
 
 if [[ -z "$PYTHON_BIN" ]]; then
-  if [[ -x /opt/homebrew/bin/python3 ]]; then
+  if [[ -x /opt/homebrew/opt/python@3.14/bin/python3.14 ]]; then
+    PYTHON_BIN="/opt/homebrew/opt/python@3.14/bin/python3.14"
+  elif [[ -x /opt/homebrew/bin/python3 ]]; then
     PYTHON_BIN="/opt/homebrew/bin/python3"
+  elif command -v python3 >/dev/null 2>&1; then
+    PYTHON_BIN="$(command -v python3)"
   elif [[ -x /usr/local/bin/python3 ]]; then
     PYTHON_BIN="/usr/local/bin/python3"
   else

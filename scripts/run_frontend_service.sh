@@ -6,11 +6,16 @@ PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 FRONTEND_DIR="$PROJECT_ROOT/frontend"
 FRONTEND_HOST="0.0.0.0"
 FRONTEND_PORT="3000"
+export PATH="/opt/homebrew/opt/node@22/bin:/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin"
 NPM_BIN="$(command -v npm || true)"
 
 if [[ -z "$NPM_BIN" ]]; then
-  echo "npm 未安装，无法启动前端。" >&2
-  exit 1
+  if [[ -x /opt/homebrew/opt/node@22/bin/npm ]]; then
+    NPM_BIN="/opt/homebrew/opt/node@22/bin/npm"
+  else
+    echo "npm 未安装，无法启动前端。" >&2
+    exit 1
+  fi
 fi
 
 cd "$PROJECT_ROOT"
