@@ -3,6 +3,8 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
+from services.learning_signals import build_signal_summary, merge_signal_tags
+
 
 VIDEO_TOPIC_RULES = [
     {
@@ -82,11 +84,12 @@ def build_video_intelligence(video: dict, transcript_text: str = "") -> dict:
             matched_topics.append(rule)
 
     primary = matched_topics[0] if matched_topics else VIDEO_TOPIC_RULES[0]
-    derived_tags = _derive_tags(matched_topics, title, description, tags)
+    derived_tags = _derive_tags(matched_topics, title, description, tags, transcript_preview)
     key_points = _build_key_points(primary, title, transcript_preview, description)
+    signal_summary = build_signal_summary(title, description, author, category, " ".join(tags), transcript_preview)
 
-    summary = _build_summary(primary, title, description, transcript_preview)
-    recommended_for = _build_recommended_for(primary, title)
+    summary = _build_summary(primary, title, description, transcript_preview, signal_summary)
+    recommended_for = _build_recommended_for(primary, title, signal_summary)
 
     return {
         "summary": summary,
@@ -157,7 +160,13 @@ def _build_transcript_preview(text: str, limit: int = 180) -> str:
     return compact[:limit].rstrip("，。；,. ") + ("..." if len(compact) > limit else "")
 
 
-def _derive_tags(matched_topics: list[dict], title: str, description: str, existing_tags: list[str]) -> list[str]:
+def _derive_tags(
+    matched_topics: list[dict],
+    title: str,
+    description: str,
+    existing_tags: list[str],
+    transcript_preview: str,
+) -> list[str]:
     tags = list(existing_tags)
     for rule in matched_topics[:3]:
         if rule["topic"] not in tags:
@@ -177,7 +186,7 @@ def _derive_tags(matched_topics: list[dict], title: str, description: str, exist
     for keyword, tag in keyword_tags:
         if keyword in text and tag not in tags:
             tags.append(tag)
-    return tags[:8]
+    return merge_signal_tags(tags[:8], title, description, transcript_preview)
 
 
 def _build_key_points(primary: dict, title: str, transcript_preview: str, description: str) -> list[str]:
@@ -198,15 +207,18 @@ def _build_key_points(primary: dict, title: str, transcript_preview: str, descri
     return points[:3]
 
 
-def _build_summary(primary: dict, title: str, description: str, transcript_preview: str) -> str:
+def _build_summary(primary: dict, title: str, description: str, transcript_preview: str, signal_summary: str) -> str:
     if description:
-        return f"{primary['summary']} 当前备注显示它主要围绕“{title}”展开。"
+        suffix = f" 重点维度集中在：{signal_summary}。" if signal_summary else ""
+        return f"{primary['summary']} 当前备注显示它主要围绕“{title}”展开。{suffix}"
     if transcript_preview:
-        return f"{primary['summary']} 这条视频已经带文字内容，适合后续继续提炼重点。"
-    return f"{primary['summary']} 当前主要依据标题“{title}”做理解。"
+        suffix = f" 目前更像在补：{signal_summary}。" if signal_summary else ""
+        return f"{primary['summary']} 这条视频已经带文字内容，适合后续继续提炼重点。{suffix}"
+    suffix = f" 当前能识别到的重点维度包括：{signal_summary}。" if signal_summary else ""
+    return f"{primary['summary']} 当前主要依据标题“{title}”做理解。{suffix}"
 
 
-def _build_recommended_for(primary: dict, title: str) -> str:
+def _build_recommended_for(primary: dict, title: str, signal_summary: str) -> str:
     if primary["topic"] == "Solo 句子":
         return "适合在歌曲练习里卡住前奏、间奏或尾奏时拿来对照。"
     if primary["topic"] == "节奏与主拍":
@@ -217,4 +229,6 @@ def _build_recommended_for(primary: dict, title: str) -> str:
         return "适合在歌曲能弹出来但不知道为什么这样弹时补理解。"
     if primary["topic"] == "和弦与伴奏":
         return "适合先把和弦框架和伴奏型练稳，再回到整首歌。"
+    if signal_summary:
+        return f"适合先补“{signal_summary}”，再回到当前歌曲练习验证。"
     return f"适合围绕“{title}”做参考学习，再回到当前歌曲练习。"

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from services.learning_signals import build_signal_summary, signal_labels_from_scores, build_signal_scores
 from services.video_matching import normalize_text
 
 
@@ -69,6 +70,10 @@ def build_video_backlog_item(video: dict, songs: list[dict]) -> dict:
         score += 8
     if tags:
         score += min(len(tags), 3) * 3
+    signal_summary = build_signal_summary(title, category, video.get("description", ""), " ".join(tags))
+    if signal_summary:
+        score += 10
+        reasons.append(f"当前已识别出 {signal_summary} 维度")
 
     return {
         "id": video.get("id", ""),
@@ -99,6 +104,10 @@ def build_course_backlog_item(course: dict) -> dict:
         reasons.append("补齐后更适合做知识点问答和摘要")
     if series:
         score += 5
+    signal_summary = build_signal_summary(title, series, level, " ".join(tags))
+    if signal_summary:
+        score += 10
+        reasons.append(f"当前已识别出 {signal_summary} 维度")
 
     return {
         "id": course.get("id", ""),

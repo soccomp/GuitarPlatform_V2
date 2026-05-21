@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import re
 
+from services.learning_signals import build_signal_summary, merge_signal_tags
+
 
 COURSE_TOPIC_RULES = [
     {
@@ -55,13 +57,15 @@ def build_course_intelligence(course: dict, transcript_text: str = "") -> dict:
     matched = [rule for rule in COURSE_TOPIC_RULES if any(keyword.lower() in corpus for keyword in rule["keywords"])]
     primary = matched[0] if matched else COURSE_TOPIC_RULES[0]
 
+    signal_summary = build_signal_summary(title, series, level, description, " ".join(tags), transcript_preview)
+
     merged["learning_focus"] = primary["topic"]
-    merged["summary"] = _build_summary(primary, title, transcript_preview)
-    merged["recommended_for"] = primary["recommended_for"]
+    merged["summary"] = _build_summary(primary, title, transcript_preview, signal_summary)
+    merged["recommended_for"] = _build_recommended_for(primary, signal_summary)
     merged["key_points"] = _build_key_points(primary, title, transcript_preview, description)
     merged["transcript_preview"] = transcript_preview
     merged["transcript_available"] = bool(transcript_preview)
-    merged["tags"] = _derive_tags(tags, matched, title, level)
+    merged["tags"] = _derive_tags(tags, matched, title, level, transcript_preview)
     if course.get("intelligence_source") == "ai":
         merged["summary"] = str(course.get("summary", "")).strip() or merged["summary"]
         merged["learning_focus"] = str(course.get("learning_focus", "")).strip() or merged["learning_focus"]
@@ -104,7 +108,7 @@ def _build_transcript_preview(text: str, limit: int = 180) -> str:
     return compact[:limit].rstrip("，。；,. ") + ("..." if len(compact) > limit else "")
 
 
-def _derive_tags(existing_tags: list[str], matched: list[dict], title: str, level: str) -> list[str]:
+def _derive_tags(existing_tags: list[str], matched: list[dict], title: str, level: str, transcript_preview: str) -> list[str]:
     tags = list(existing_tags)
     for rule in matched[:3]:
         if rule["topic"] not in tags:
@@ -123,13 +127,21 @@ def _derive_tags(existing_tags: list[str], matched: list[dict], title: str, leve
     for keyword, tag in keyword_tags:
         if keyword in haystack and tag not in tags:
             tags.append(tag)
-    return tags[:8]
+    return merge_signal_tags(tags[:8], title, level, transcript_preview)
 
 
-def _build_summary(primary: dict, title: str, transcript_preview: str) -> str:
+def _build_summary(primary: dict, title: str, transcript_preview: str, signal_summary: str) -> str:
     if transcript_preview:
-        return f"{primary['summary']} 当前已经有文字内容，适合继续做问答、摘要和相关推荐。"
-    return f"{primary['summary']} 当前主要依据课程标题“{title}”做理解。"
+        suffix = f" 当前这节课主要能补：{signal_summary}。" if signal_summary else ""
+        return f"{primary['summary']} 当前已经有文字内容，适合继续做问答、摘要和相关推荐。{suffix}"
+    suffix = f" 当前能识别到的重点维度包括：{signal_summary}。" if signal_summary else ""
+    return f"{primary['summary']} 当前主要依据课程标题“{title}”做理解。{suffix}"
+
+
+def _build_recommended_for(primary: dict, signal_summary: str) -> str:
+    if signal_summary:
+        return f"{primary['recommended_for']} 当前更适合用来补：{signal_summary}。"
+    return primary["recommended_for"]
 
 
 def _build_key_points(primary: dict, title: str, transcript_preview: str, description: str) -> list[str]:

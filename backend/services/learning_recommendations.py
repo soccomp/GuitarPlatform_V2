@@ -3,6 +3,7 @@ from __future__ import annotations
 from collections import Counter
 
 from services.coach_sessions import list_sessions
+from services.learning_signals import SIGNAL_RULES, build_signal_scores, signal_labels_from_scores
 from services.video_matching import match_related_videos
 
 
@@ -78,6 +79,18 @@ def _detect_focus_topic(song: dict, related_videos: list[dict], practice_text: s
             if keyword.lower() in corpus:
                 scores[topic] += 1
 
+    signal_scores = build_signal_scores(corpus)
+    if signal_scores.get("rhythm"):
+        scores["rhythm"] += signal_scores["rhythm"] * 2
+    if signal_scores.get("picking"):
+        scores["picking"] += signal_scores["picking"] * 2
+    if signal_scores.get("solo"):
+        scores["solo"] += signal_scores["solo"] * 2
+    if signal_scores.get("theory") or signal_scores.get("fretboard"):
+        scores["theory"] += (signal_scores.get("theory", 0) + signal_scores.get("fretboard", 0)) * 2
+    if signal_scores.get("chords"):
+        scores["theory"] += signal_scores["chords"]
+
     if scores:
         return scores.most_common(1)[0][0]
 
@@ -89,6 +102,7 @@ def _detect_focus_topic(song: dict, related_videos: list[dict], practice_text: s
 def _recommend_courses(courses: list[dict], topic_key: str, limit: int = 2) -> list[dict]:
     config = TOPIC_DEFINITIONS[topic_key]
     scored: list[tuple[int, dict]] = []
+    topic_signal_labels = _topic_signal_labels(topic_key)
     for course in courses:
         haystack = " ".join([
             course.get("title", ""),
@@ -102,6 +116,7 @@ def _recommend_courses(courses: list[dict], topic_key: str, limit: int = 2) -> l
             course.get("level", ""),
         ]).lower()
         score = sum(1 for keyword in config["course_keywords"] if keyword.lower() in haystack)
+        score += _signal_overlap_score(course, topic_signal_labels)
         if course.get("intelligence_source") == "ai":
             score += 6
         if topic_key in str(course.get("learning_focus", "")).lower():
@@ -117,7 +132,7 @@ def _recommend_courses(courses: list[dict], topic_key: str, limit: int = 2) -> l
             "title": course.get("title", ""),
             "series": course.get("series", ""),
             "level": course.get("level", ""),
-            "reason": build_course_reason(course, config["label"]),
+            "reason": build_course_reason(course, config["label"], topic_signal_labels),
             "reason_tag": config["reason_tag"],
             "focus": course.get("learning_focus", ""),
             "summary": course.get("summary", ""),
@@ -129,6 +144,7 @@ def _recommend_courses(courses: list[dict], topic_key: str, limit: int = 2) -> l
 def _recommend_videos(related_videos: list[dict], topic_key: str, limit: int = 2) -> list[dict]:
     config = TOPIC_DEFINITIONS[topic_key]
     scored: list[tuple[int, dict]] = []
+    topic_signal_labels = _topic_signal_labels(topic_key)
     for video in related_videos:
         haystack = " ".join([
             video.get("title", ""),
@@ -141,7 +157,7 @@ def _recommend_videos(related_videos: list[dict], topic_key: str, limit: int = 2
             " ".join(video.get("tags") or []),
         ]).lower()
         extra = sum(1 for keyword in config["keywords"] if keyword.lower() in haystack)
-        score = int(video.get("match_score", 0)) + extra * 10
+        score = int(video.get("match_score", 0)) + extra * 10 + _signal_overlap_score(video, topic_signal_labels)
         if video.get("intelligence_source") == "ai":
             score += 6
         scored.append((score, video))
@@ -151,7 +167,7 @@ def _recommend_videos(related_videos: list[dict], topic_key: str, limit: int = 2
         {
             "id": video.get("id", ""),
             "title": video.get("title", ""),
-            "reason": build_video_reason(video, config["label"]),
+            "reason": build_video_reason(video, config["label"], topic_signal_labels),
             "reason_tag": config["reason_tag"],
             "focus": video.get("learning_focus", ""),
             "summary": video.get("summary", ""),
@@ -165,6 +181,7 @@ def build_song_learning_recommendations(song: dict, index: dict) -> dict:
     practice_text, sessions = _collect_song_practice_text(song.get("id", ""))
     topic_key = _detect_focus_topic(song, related_videos, practice_text)
     topic = TOPIC_DEFINITIONS[topic_key]
+    signal_labels = _topic_signal_labels(topic_key)
 
     latest_session = sessions[0] if sessions else None
     tempo_mode = ""
@@ -180,6 +197,8 @@ def build_song_learning_recommendations(song: dict, index: dict) -> dict:
         top_focuses = [video.get("learning_focus", "") for video in related_videos[:3] if video.get("learning_focus")]
         if top_focuses:
             focus_reason += f" 你现有相关视频里，最集中出现的也是：{' / '.join(top_focuses[:2])}。"
+    if signal_labels:
+        focus_reason += f" 这轮学习更值得优先补：{' / '.join(signal_labels[:2])}。"
 
     next_action = topic["task"]
     if tempo_mode:
@@ -252,6 +271,7 @@ def build_song_learning_recommendations(song: dict, index: dict) -> dict:
         "focus_tag": topic["reason_tag"],
         "reason": focus_reason,
         "coach_brief": build_learning_coach_brief(song, topic["label"], latest_session),
+        "coach_diagnosis": build_learning_coach_diagnosis(song, topic["label"], signal_labels, related_videos, recommended_courses, recommended_videos),
         "today_plan": today_plan,
         "next_task": {
             "title": f"继续练《{song.get('title', '')}》当前版本",
@@ -266,11 +286,14 @@ def build_song_learning_recommendations(song: dict, index: dict) -> dict:
             "id": song.get("id", ""),
             "title": song.get("title", ""),
         },
-    }
+}
 
 
-def build_course_reason(course: dict, topic_label: str) -> str:
+def build_course_reason(course: dict, topic_label: str, signal_labels: list[str]) -> str:
     focus = str(course.get("learning_focus", "")).strip()
+    matching_labels = _matching_signal_labels(course, signal_labels)
+    if matching_labels:
+        return f"这节课和你当前要补的 { ' / '.join(matching_labels[:2]) } 直接对上，适合先看再回歌里验证。"
     if focus and focus != topic_label:
         return f"这节课主讲“{focus}”，能从侧面补当前更核心的“{topic_label}”。"
     if course.get("recommended_for"):
@@ -278,8 +301,11 @@ def build_course_reason(course: dict, topic_label: str) -> str:
     return f"对应当前重点：{topic_label}"
 
 
-def build_video_reason(video: dict, topic_label: str) -> str:
+def build_video_reason(video: dict, topic_label: str, signal_labels: list[str]) -> str:
     focus = str(video.get("learning_focus", "")).strip()
+    matching_labels = _matching_signal_labels(video, signal_labels)
+    if matching_labels:
+        return f"这条视频最适合先补 { ' / '.join(matching_labels[:2]) }，看完马上回当前歌曲验证会更有帮助。"
     if focus and focus != topic_label:
         return f"这条视频更偏“{focus}”，但正好能补你当前这首歌卡住的地方。"
     if video.get("recommended_for"):
@@ -291,3 +317,71 @@ def build_learning_coach_brief(song: dict, topic_label: str, latest_session: dic
     if latest_session:
         return f"先别急着扩新内容，先把《{song.get('title', '')}》里和“{topic_label}”直接相关的问题补稳。"
     return f"你现在最值得先补的是“{topic_label}”，先围绕当前这首歌完成一轮闭环。"
+
+
+def build_learning_coach_diagnosis(
+    song: dict,
+    topic_label: str,
+    signal_labels: list[str],
+    related_videos: list[dict],
+    recommended_courses: list[dict],
+    recommended_videos: list[dict],
+) -> str:
+    content_hits = []
+    if recommended_courses:
+        content_hits.append("系统课")
+    if recommended_videos:
+        content_hits.append("学习视频")
+    if related_videos and "学习视频" not in content_hits:
+        content_hits.append("相关视频")
+
+    signal_text = " / ".join(signal_labels[:2]) if signal_labels else topic_label
+    if content_hits:
+        return f"当前判断你更需要先补 {signal_text}，而且平台里已经有对应的{' + '.join(content_hits)}可以马上接上。"
+    return f"当前判断你更需要先补 {signal_text}，建议先围绕当前歌曲完成一轮针对性练习。"
+
+
+def _topic_signal_labels(topic_key: str) -> list[str]:
+    mapping = {
+        "rhythm": ["节奏"],
+        "picking": ["拨弦", "表达"],
+        "solo": ["Solo", "表达"],
+        "theory": ["乐理", "指板", "和弦"],
+    }
+    return mapping.get(topic_key, [])
+
+
+def _item_signal_labels(item: dict) -> list[str]:
+    signal_scores = build_signal_scores(
+        item.get("title", ""),
+        item.get("description", ""),
+        item.get("summary", ""),
+        item.get("learning_focus", ""),
+        item.get("recommended_for", ""),
+        " ".join(item.get("key_points") or []),
+        " ".join(item.get("tags") or []),
+        item.get("series", ""),
+        item.get("level", ""),
+        item.get("category", ""),
+        item.get("author", ""),
+    )
+    labels = signal_labels_from_scores(signal_scores, limit=4)
+    for tag in item.get("tags") or []:
+        normalized = str(tag or "").strip()
+        if normalized in {config["label"] for config in SIGNAL_RULES.values()} and normalized not in labels:
+            labels.append(normalized)
+    return labels[:4]
+
+
+def _signal_overlap_score(item: dict, target_labels: list[str]) -> int:
+    if not target_labels:
+        return 0
+    labels = _item_signal_labels(item)
+    matches = [label for label in labels if label in target_labels]
+    return len(matches) * 9
+
+
+def _matching_signal_labels(item: dict, target_labels: list[str]) -> list[str]:
+    if not target_labels:
+        return []
+    return [label for label in _item_signal_labels(item) if label in target_labels]
