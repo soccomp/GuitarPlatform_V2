@@ -5,9 +5,14 @@ __pycache__/
 *.pyc
 
 frontend/node_modules/
+node_modules/
 frontend/dist/
 dist/
 coach_node.zip
+tmp/
+tmp_inspect_ui.js
+projects/
+scripts/promo/
 
 library/courses/*
 !library/courses/.gitkeep
