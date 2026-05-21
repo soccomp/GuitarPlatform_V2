@@ -266,7 +266,7 @@
 
 <script setup>
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
-import seedIndex from '../../../backend/data/index.json'
+import { loadLocalSeedIndex } from '../utils/localSeedIndex'
 
 const STORAGE_KEY = 'guitar-platform-collected-videos'
 const PLAY_COUNT_STORAGE_KEY = 'guitar-platform-video-play-counts'
@@ -312,6 +312,12 @@ const allVideos = computed(() =>
     tags: video.tags || [],
     path: video.path || '',
     description: video.description || '',
+    summary: video.summary || '',
+    learningFocus: video.learning_focus || '',
+    recommendedFor: video.recommended_for || '',
+    keyPoints: video.key_points || [],
+    transcriptPreview: video.transcript_preview || '',
+    transcriptAvailable: Boolean(video.transcript_available),
     thumbnail: video.thumbnail || '',
     thumbnailUrl: video.thumbnail ? mediaUrl('collected', video.thumbnail) : '',
     url: video.path ? videoStreamUrl(video) : '',
@@ -369,6 +375,7 @@ async function loadData() {
     if (!response.ok) throw new Error('收藏视频列表加载失败')
     videos.value = await response.json()
   } catch (err) {
+    const seedIndex = await loadLocalSeedIndex()
     videos.value = seedIndex.videos || []
     error.value = ''
   } finally {

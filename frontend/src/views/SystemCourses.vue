@@ -389,7 +389,7 @@
 
 <script setup>
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
-import seedIndex from '../../../backend/data/index.json'
+import { loadLocalSeedIndex } from '../utils/localSeedIndex'
 
 const STORAGE_KEY = 'guitar-platform-learning-state'
 const MAX_RECENT_ITEMS = 8
@@ -684,6 +684,7 @@ async function loadData() {
 
     courses.value = await courseRes.json()
   } catch (err) {
+    const seedIndex = await loadLocalSeedIndex()
     courses.value = seedIndex.courses || []
     error.value = ''
   } finally {

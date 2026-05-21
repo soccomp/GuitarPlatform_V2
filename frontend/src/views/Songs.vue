@@ -442,6 +442,20 @@
                     <span v-if="!recordingSupported">当前浏览器不支持录音</span>
                   </div>
 
+                  <div v-if="learningRecommendationsLoading || learningRecommendations" class="coach-block coach-block-compact">
+                    <h5>下一步建议</h5>
+                    <p v-if="learningRecommendationsLoading">正在整理当前这首歌更适合先补什么。</p>
+                    <template v-else-if="learningRecommendations">
+                      <p><strong>{{ learningRecommendations.next_task?.title || learningRecommendations.focus_topic }}</strong></p>
+                      <p>{{ learningRecommendations.next_task?.action || learningRecommendations.reason }}</p>
+                      <div class="media-hints compact-hints">
+                        <span v-if="learningRecommendations.focus_tag">{{ learningRecommendations.focus_tag }}</span>
+                        <span v-if="learningRecommendations.next_task?.minutes">先练 {{ learningRecommendations.next_task.minutes }} 分钟</span>
+                        <span v-if="learningRecommendations.next_task?.verify_step">{{ learningRecommendations.next_task.verify_step }}</span>
+                      </div>
+                    </template>
+                  </div>
+
                   <div v-if="coachError" class="coach-error">{{ coachError }}</div>
 
                   <div v-if="pendingCoachTake" class="coach-result pending-coach-result">
@@ -688,7 +702,7 @@
 </template>
 
 <script>
-import seedIndex from '../../../backend/data/index.json'
+import { loadLocalSeedIndex } from '../utils/localSeedIndex'
 
 const COACH_MODEL_STORAGE_KEY = 'guitar-platform-coach-model'
 const PENDING_COURSE_ID_KEY = 'guitar-platform-pending-course-id'
@@ -1086,6 +1100,7 @@ export default {
         if (!response.ok) throw new Error('歌曲列表加载失败')
         this.songs = await response.json()
       } catch (error) {
+        const seedIndex = await loadLocalSeedIndex()
         this.songs = seedIndex.songs.map(song => ({
           id: song.id,
           title: song.title,
@@ -1127,10 +1142,12 @@ export default {
         if (!response.ok) throw new Error('歌曲详情加载失败')
         this.selectedSong = await response.json()
       } catch {
+        const seedIndex = await loadLocalSeedIndex()
         this.selectedSong = seedIndex.songs.find(item => item.id === song.id) || null
       }
       if (!this.selectedSong) return
       this.selectedCoachSessionIds = []
+      await this.loadLearningRecommendations(this.selectedSong.id)
       await this.loadRelatedVideos(this.selectedSong.id)
       if (this.selectedSong.versions?.length) {
         this.selectVersion(this.selectedSong.versions[0])
@@ -1892,7 +1909,7 @@ export default {
         captureMode,
         recordingDuration,
       }
-      this.setPracticeSideTab('ai')
+      this.setPracticeSideTab('record')
     },
     async savePendingCoachTake() {
       if (!this.pendingCoachTake) return
