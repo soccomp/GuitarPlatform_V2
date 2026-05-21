@@ -225,6 +225,20 @@
                     </button>
                   </div>
 
+                  <div class="control-row volume-row">
+                    <span>伴奏音量</span>
+                    <input
+                      class="volume-slider"
+                      type="range"
+                      min="0"
+                      max="150"
+                      step="1"
+                      :value="backingVolumePercent"
+                      @input="setBackingVolume"
+                    />
+                    <strong>{{ backingVolumePercent }}%</strong>
+                  </div>
+
                   <div class="loop-snippet-panel">
                     <div class="loop-snippet-head">
                       <div>
@@ -389,10 +403,10 @@
               <aside class="practice-side">
                 <div class="practice-side-tabs">
                   <button
-                    :class="['practice-tab-btn', { active: practiceSideTab === 'coach' }]"
-                    @click="setPracticeSideTab('coach')"
+                    :class="['practice-tab-btn', { active: practiceSideTab === 'record' }]"
+                    @click="setPracticeSideTab('record')"
                   >
-                    学习教练
+                    录制回放
                   </button>
                   <button
                     :class="['practice-tab-btn', { active: practiceSideTab === 'history' }]"
@@ -400,211 +414,15 @@
                   >
                     练习记录
                   </button>
-                  <button
-                    :class="['practice-tab-btn', { active: practiceSideTab === 'ai' }]"
-                    @click="setPracticeSideTab('ai')"
-                  >
-                    实验陪练
-                  </button>
                 </div>
 
-                <div v-if="practiceSideTab === 'coach' && todayPracticeSummary.length" class="coach-section">
+                <div v-if="practiceSideTab === 'record'" class="coach-section">
                   <div class="score-header">
                     <div>
-                      <h4>今天练了什么</h4>
-                      <p class="coach-copy">今天练过的歌，随时接着练。</p>
+                      <h4>录制回放</h4>
+                      <p class="coach-copy">这里用于录音、录像、试听和保存练习回放。</p>
                     </div>
-                    <span class="coach-badge">{{ todayPracticeSummary.length }} 首</span>
-                  </div>
-
-                  <div class="learning-links">
-                    <article
-                      v-for="item in todayPracticeSummary"
-                      :key="`today-practice-${item.songId}`"
-                      class="learning-link-card"
-                    >
-                      <strong>{{ item.title }}</strong>
-                      <p>{{ item.roundsToday }} 轮 · 上次完成 {{ formatRoundTimestamp(item.lastCompletedAt) }}</p>
-                      <div class="media-hints">
-                        <span>累计 {{ item.totalRounds }} 轮</span>
-                        <span v-if="item.songId === selectedSong?.id">当前歌曲</span>
-                      </div>
-                      <div class="learning-link-actions">
-                        <button class="ghost-btn" @click="openTodayPracticeSong(item.songId)">
-                          回到这首歌
-                        </button>
-                      </div>
-                    </article>
-                  </div>
-                </div>
-
-                <div v-if="practiceSideTab === 'coach'" class="coach-section">
-                  <div class="score-header">
-                    <div>
-                      <h4>下一步该练什么</h4>
-                      <p class="coach-copy">先看结论，再决定补哪节课、哪条视频。</p>
-                    </div>
-                    <span class="coach-badge">学习教练</span>
-                  </div>
-
-                  <div v-if="learningRecommendationsLoading" class="empty-copy">正在整理当前歌曲的下一步建议...</div>
-                  <div v-else-if="learningRecommendations" class="coach-result">
-                    <div v-if="learningRecommendations.coach_brief" class="coach-focus-card coach-focus-card-compact">
-                      <div class="coach-focus-block">
-                        <span class="coach-focus-label">学习教练判断</span>
-                        <strong>{{ learningRecommendations.coach_brief }}</strong>
-                      </div>
-                    </div>
-
-                    <div class="coach-metric coach-metric-primary">
-                      <span>当前重点</span>
-                      <strong>{{ learningRecommendations.focus_topic }}</strong>
-                      <em v-if="learningRecommendations.focus_tag" class="coach-metric-tag">{{ learningRecommendations.focus_tag }}</em>
-                    </div>
-
-                    <div v-if="learningRecommendations.today_plan" class="coach-block coach-block-wide coach-plan-block">
-                      <h5>今天这样练</h5>
-                      <p><strong>{{ learningRecommendations.today_plan.title }}</strong></p>
-                      <p>{{ learningRecommendations.today_plan.summary }}</p>
-                      <div class="media-hints">
-                        <span v-if="learningRecommendations.today_plan.total_minutes">总计约 {{ learningRecommendations.today_plan.total_minutes }} 分钟</span>
-                        <span>{{ currentPlanCheckedCount }} / {{ currentPlanChecklist.length }} 已完成</span>
-                        <span v-if="currentRoundSummary?.roundsToday">今天已完整练 {{ currentRoundSummary.roundsToday }} 轮</span>
-                        <span v-if="currentRoundSummary?.lastCompletedAt">上次完成 {{ formatRoundTimestamp(currentRoundSummary.lastCompletedAt) }}</span>
-                        <span v-if="learningFlowCompleted">今天这一轮已完成</span>
-                      </div>
-                      <ul class="coach-plan-list interactive-plan-list">
-                        <li
-                          v-for="(item, index) in learningRecommendations.today_plan.checklist"
-                          :key="`plan-${index}`"
-                        >
-                          <label class="plan-check-item">
-                            <input
-                              type="checkbox"
-                              :checked="isPlanItemCompleted(index)"
-                              @change="togglePlanItem(index)"
-                            >
-                            <span>{{ item }}</span>
-                          </label>
-                        </li>
-                      </ul>
-                    </div>
-
-                    <div class="coach-block coach-block-compact">
-                      <h5>为什么先练这个</h5>
-                      <p>{{ learningRecommendations.reason }}</p>
-                    </div>
-
-                    <div class="coach-block coach-block-compact">
-                      <h5>下一步动作</h5>
-                      <p><strong>{{ learningRecommendations.next_task.title }}</strong></p>
-                      <p>{{ learningRecommendations.next_task.action }}</p>
-                      <div class="media-hints">
-                        <span v-if="learningRecommendations.next_task.minutes">先练 {{ learningRecommendations.next_task.minutes }} 分钟</span>
-                        <span v-if="learningRecommendations.next_task.verify_step">{{ learningRecommendations.next_task.verify_step }}</span>
-                      </div>
-                    </div>
-
-                    <div v-if="learningRecommendations.learning_path?.length" class="coach-block coach-block-wide">
-                      <h5>推荐练习路径</h5>
-                      <div class="media-hints compact-hints">
-                        <span>{{ currentPathDoneCount }} / {{ currentPathStepCount }} 步已完成</span>
-                        <span v-if="currentRoundSummary?.totalRounds">累计完成 {{ currentRoundSummary.totalRounds }} 轮</span>
-                        <span v-if="learningFlowCompleted">可以结束今天这首歌的一轮练习了</span>
-                      </div>
-                      <div class="learning-path">
-                        <article
-                          v-for="step in learningRecommendations.learning_path"
-                          :key="`${step.type}-${step.step}`"
-                          class="learning-path-step"
-                        >
-                          <div class="learning-path-head">
-                            <span class="learning-path-index">步骤 {{ step.step }}</span>
-                            <div class="learning-path-meta">
-                              <span v-if="step.minutes" class="learning-path-minutes">{{ step.minutes }} 分钟</span>
-                              <span class="learning-path-status">{{ pathStatusLabel(step.step) }}</span>
-                            </div>
-                          </div>
-                          <strong>{{ step.title }}</strong>
-                          <p>{{ step.action }}</p>
-                          <div class="learning-path-controls">
-                            <button class="ghost-btn" @click="cyclePathStatus(step.step)">
-                              {{ pathStatusActionLabel(step.step) }}
-                            </button>
-                          </div>
-                          <div v-if="step.type === 'course' || step.type === 'video'" class="learning-link-actions">
-                            <button
-                              v-if="step.type === 'course'"
-                              class="ghost-btn"
-                              @click="openRecommendedCourse({ id: step.target_id })"
-                            >
-                              打开课程
-                            </button>
-                            <button
-                              v-else-if="step.type === 'video'"
-                              class="ghost-btn"
-                              @click="openRecommendedVideo({ id: step.target_id })"
-                            >
-                              打开视频
-                            </button>
-                          </div>
-                        </article>
-                      </div>
-                    </div>
-
-                    <div v-if="learningRecommendations.recommended_courses?.length" class="coach-block coach-block-compact">
-                      <h5>推荐系统课程</h5>
-                      <div class="learning-links">
-                        <article
-                          v-for="course in learningRecommendations.recommended_courses"
-                          :key="course.id"
-                          class="learning-link-card"
-                        >
-                          <strong>{{ course.title }}</strong>
-                          <p>{{ course.series }} / {{ course.level }}</p>
-                          <span>{{ course.reason }}</span>
-                          <div class="media-hints compact-hints">
-                            <span v-if="course.reason_tag">{{ course.reason_tag }}</span>
-                          </div>
-                          <div class="learning-link-actions">
-                            <button class="ghost-btn" @click="openRecommendedCourse(course)">打开课程</button>
-                          </div>
-                        </article>
-                      </div>
-                    </div>
-
-                    <div v-if="learningRecommendations.recommended_videos?.length" class="coach-block coach-block-compact">
-                      <h5>推荐学习视频</h5>
-                      <div class="learning-links">
-                        <article
-                          v-for="video in learningRecommendations.recommended_videos"
-                          :key="video.id"
-                          class="learning-link-card"
-                        >
-                          <strong>{{ video.title }}</strong>
-                          <p>{{ video.reason }}</p>
-                          <div class="media-hints compact-hints">
-                            <span v-if="video.reason_tag">{{ video.reason_tag }}</span>
-                          </div>
-                          <div class="learning-link-actions">
-                            <button class="ghost-btn" @click="openRecommendedVideo(video)">打开视频</button>
-                          </div>
-                        </article>
-                      </div>
-                    </div>
-                  </div>
-                  <div v-else class="empty-copy">先选一首歌，系统会给你这首歌相关的下一步练习建议。</div>
-                </div>
-
-                <div v-if="practiceSideTab === 'ai'" class="coach-section">
-                  <div class="score-header">
-                    <div>
-                      <h4>实验陪练</h4>
-                      <p class="coach-copy">先用于录制、回听和试验性反馈，不作为主学习入口。</p>
-                    </div>
-                    <div class="coach-header-side">
-                      <span class="coach-badge">推荐输入：Scarlett 2i2</span>
-                    </div>
+                    <span class="coach-badge">推荐输入：Scarlett 2i2</span>
                   </div>
 
                   <div class="coach-actions">
@@ -625,11 +443,6 @@
                   </div>
 
                   <div v-if="coachError" class="coach-error">{{ coachError }}</div>
-
-                  <div class="coach-block coach-block-compact">
-                    <h5>当前定位</h5>
-                    <p>这块现在主要用于保存录制回放和做实验性分析。真正有长期价值的 AI 主线，已经转到课程/视频内容理解、知识整理和“下一步该练什么”。</p>
-                  </div>
 
                   <div v-if="pendingCoachTake" class="coach-result pending-coach-result">
                     <div class="coach-block pending-coach-head">
@@ -667,65 +480,8 @@
                     </div>
                   </div>
 
-                  <div v-else-if="coachResult" class="coach-result">
-                    <div class="coach-focus-card">
-                      <div class="coach-focus-block">
-                        <span class="coach-focus-label">这次先盯住</span>
-                        <strong>{{ coachPrimaryIssue || '先把当前句子弹完整，再看更细的问题。' }}</strong>
-                      </div>
-                      <div class="coach-focus-block">
-                        <span class="coach-focus-label">下一轮先这样练</span>
-                        <p>{{ coachPrimaryAdvice || '先保持当前速度，把最容易断掉的那一句单独重复几遍。' }}</p>
-                      </div>
-                    </div>
-
-                    <div class="coach-metrics">
-                      <div class="coach-metric">
-                        <span>模式</span>
-                        <strong>{{ coachResult.mode === 'local_preview' ? '本地预览' : coachResult.mode }}</strong>
-                      </div>
-                      <div class="coach-metric">
-                        <span>模型</span>
-                        <strong>{{ coachResult.model || coachModel }}</strong>
-                      </div>
-                      <div class="coach-metric">
-                        <span>段落</span>
-                        <strong>{{ coachResult.segment }}</strong>
-                      </div>
-                      <div class="coach-metric">
-                        <span>速度</span>
-                        <strong>{{ coachResult.tempo_mode }}</strong>
-                      </div>
-                      <div class="coach-metric">
-                        <span>稳定度</span>
-                        <strong>{{ coachResult.stability_score }}</strong>
-                      </div>
-                    </div>
-
+                  <div v-else-if="coachResult && (coachResult.mix_url || coachResult.recording_url)" class="coach-result">
                     <div class="coach-block">
-                      <h5>问题提示</h5>
-                      <ul>
-                        <li v-for="(issue, index) in coachResult.issues" :key="`issue-${index}`">
-                          {{ issue.message }}
-                        </li>
-                      </ul>
-                    </div>
-
-                    <div class="coach-block">
-                      <h5>练习建议</h5>
-                      <ul>
-                        <li v-for="(tip, index) in coachResult.advice" :key="`tip-${index}`">
-                          {{ tip }}
-                        </li>
-                      </ul>
-                    </div>
-
-                    <div class="coach-block">
-                      <h5>老师反馈</h5>
-                      <p>{{ coachResult.coach_feedback }}</p>
-                    </div>
-
-                    <div v-if="coachResult.mix_url || coachResult.recording_url" class="coach-block">
                       <h5>练习回放</h5>
                       <video
                         v-if="isVideoReplay(coachResult)"
@@ -740,7 +496,7 @@
                       </a>
                     </div>
                   </div>
-                  <div v-else class="empty-copy compact-empty">开始一次内录混音或音画同录后，这里会出现本次反馈和练习回放。</div>
+                  <div v-else class="empty-copy compact-empty">开始一次内录混音或音画同录后，这里会出现录制预览和练习回放。</div>
                 </div>
 
                 <div v-if="practiceSideTab === 'history'" class="coach-section">
@@ -789,9 +545,9 @@
                       <div class="coach-history-head">
                         <div>
                           <strong>{{ session.song_title }} / {{ session.segment || session.version }}</strong>
-                          <p>{{ formatCoachTimestamp(session.created_at) }} · {{ session.tempo_mode }} · {{ session.coach_model || session.model }}</p>
+                          <p>{{ formatCoachTimestamp(session.created_at) }} · {{ session.tempo_mode }}</p>
                         </div>
-                        <span class="coach-history-score">稳定度 {{ session.stability_score }}</span>
+                        <span class="coach-history-score">{{ isVideoReplay(session) ? '视频回放' : '音频回放' }}</span>
                       </div>
 
                       <div class="coach-history-media">
@@ -811,9 +567,6 @@
                         </div>
                       </div>
 
-                      <div class="coach-history-feedback">
-                        <p>{{ session.coach_feedback }}</p>
-                      </div>
                     </article>
                   </div>
                   <div v-else class="empty-copy compact-empty">还没有练习记录。录完一遍后会自动出现在这里。</div>
@@ -946,6 +699,7 @@ const LEARNING_ROUND_HISTORY_KEY = 'guitar-platform-learning-round-history'
 const PRACTICE_SIDE_TAB_STORAGE_KEY = 'guitar-platform-practice-side-tab'
 const LOOP_SNIPPETS_STORAGE_KEY = 'guitar-platform-loop-snippets'
 const RECENT_PRACTICE_LINKS_KEY = 'guitar-platform-recent-practice-links'
+const BACKING_VOLUME_STORAGE_KEY = 'guitar-platform-backing-volume'
 const COACH_MODELS = [
   { value: 'qwen3:8b', label: 'Qwen 3 8B', hint: '更稳，更像日常陪练' },
   { value: 'deepseek-r1:8b', label: 'DeepSeek R1 8B', hint: '推理更强，建议更展开' },
@@ -966,6 +720,7 @@ export default {
       currentTime: 0,
       duration: 0,
       playbackRate: 1,
+      backingVolume: this.loadBackingVolume(),
       speeds: [0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 1.0],
       loopStart: null,
       loopEnd: null,
@@ -1082,6 +837,9 @@ export default {
     progressPercent() {
       if (!this.duration) return 0
       return Math.min((this.currentTime / this.duration) * 100, 100)
+    },
+    backingVolumePercent() {
+      return Math.round(this.backingVolume * 100)
     },
     visibleMarkers() {
       if (!this.selectedSong || !this.selectedVersion) return []
@@ -1200,12 +958,12 @@ export default {
       return this.learningPlanProgress[`${this.selectedSong.id}::path`] || {}
     },
     coachStatusText() {
-      if (this.coachAnalyzing) return 'AI 陪练正在整理这次录音反馈'
+      if (this.coachAnalyzing) return '正在保存这次录制和练习回放'
       if (this.pendingCoachTake) return '这次录制先别急着分析，先听预览，满意后再 Save，不满意就 Retry。'
       if (this.videoCoachActive) return '音画同录中，正在同步录像、录音与伴奏'
       if (this.coachPlaybackActive) return '内录混音中，正在同步录音与伴奏'
       if (this.isRecording) return this.coachCaptureMode === 'video' ? '录像录音中，请完整弹完当前练习段落' : '录音中，请完整弹完当前练习段落'
-      if (this.coachResult) return '本次反馈已生成，后续可直接替换成 4080 节点分析结果'
+      if (this.coachResult) return '本次练习回放已生成，可以直接保存、下载或继续下一遍。'
       return '建议把系统默认输入切到 Scarlett 2i2；如果要录视频，可直接用音画同录。'
     },
     playbackButtonLabel() {
@@ -1280,6 +1038,7 @@ export default {
   methods: {
     initAudio() {
       this.audio = new Audio()
+      this.audio.volume = this.backingVolume
       this.audio.addEventListener('timeupdate', () => {
         this.currentTime = this.audio.currentTime
         if (
@@ -1318,6 +1077,7 @@ export default {
           this.stopCoachPlayback()
         }
       })
+      this.applyBackingVolume()
     },
     async loadSongs() {
       this.loading = true
@@ -1372,7 +1132,6 @@ export default {
       if (!this.selectedSong) return
       this.selectedCoachSessionIds = []
       await this.loadRelatedVideos(this.selectedSong.id)
-      await this.loadLearningRecommendations(this.selectedSong.id)
       if (this.selectedSong.versions?.length) {
         this.selectVersion(this.selectedSong.versions[0])
       }
@@ -1546,6 +1305,38 @@ export default {
       this.playbackRate = speed
       if (this.audio) {
         this.audio.playbackRate = speed
+      }
+    },
+    loadBackingVolume() {
+      try {
+        const raw = Number(window.localStorage.getItem(BACKING_VOLUME_STORAGE_KEY))
+        if (Number.isFinite(raw) && raw >= 0 && raw <= 1.5) {
+          return raw
+        }
+      } catch {}
+      return 0.9
+    },
+    persistBackingVolume() {
+      try {
+        window.localStorage.setItem(BACKING_VOLUME_STORAGE_KEY, String(this.backingVolume))
+      } catch {}
+    },
+    setBackingVolume(event) {
+      const value = Number(event?.target?.value)
+      if (!Number.isFinite(value)) return
+      this.backingVolume = Math.max(0, Math.min(1.5, value / 100))
+      this.applyBackingVolume()
+      this.persistBackingVolume()
+    },
+    applyBackingVolume() {
+      if (this.audio) {
+        this.audio.volume = this.backingVolume
+      }
+      if (this.backingMonitorGain) {
+        this.backingMonitorGain.gain.value = this.backingVolume
+      }
+      if (this.backingRecordGain) {
+        this.backingRecordGain.gain.value = this.backingVolume * 0.92
       }
     },
     setLoopStart() {
@@ -1726,7 +1517,7 @@ export default {
       const path = `${this.selectedSong.path}/${file}`
       const cleanPath = path.split('/').map(encodeURIComponent).join('/')
       return this.isFilePreview()
-        ? `file:///Users/claw/GuitarPlatform_v2/library/songs/${cleanPath}`
+        ? `file:///Users/m5air/GuitarPlatform_v2/library/songs/${cleanPath}`
         : `/api/songs/${this.selectedSong.id}/asset?path=${encodeURIComponent(file)}`
     },
     audioOptionLabel(path) {
@@ -2156,7 +1947,7 @@ export default {
 
         const data = await response.json()
         if (!response.ok) {
-          throw new Error(data.detail || 'AI 陪练分析失败')
+          throw new Error(data.detail || '练习回放保存失败')
         }
 
         this.coachResult = data
@@ -2166,7 +1957,7 @@ export default {
         await this.loadCoachSessions()
         this.setPracticeSideTab('history')
       } catch (error) {
-        this.coachError = error.message || 'AI 陪练分析失败'
+        this.coachError = error.message || '练习回放保存失败'
       } finally {
         this.coachAnalyzing = false
       }
@@ -2242,9 +2033,11 @@ export default {
     },
     loadPracticeSideTab() {
       try {
-        return window.localStorage.getItem(PRACTICE_SIDE_TAB_STORAGE_KEY) || 'coach'
+        const saved = window.localStorage.getItem(PRACTICE_SIDE_TAB_STORAGE_KEY) || 'record'
+        if (saved === 'coach' || saved === 'ai') return 'record'
+        return saved
       } catch {
-        return 'coach'
+        return 'record'
       }
     },
     setPracticeSideTab(tab) {
@@ -2380,13 +2173,14 @@ export default {
         this.backingSourceNode = this.audioContext.createMediaElementSource(this.audio)
         this.backingMonitorGain = this.audioContext.createGain()
         this.backingRecordGain = this.audioContext.createGain()
-        this.backingMonitorGain.gain.value = 1
-        this.backingRecordGain.gain.value = 0.92
+        this.backingMonitorGain.gain.value = this.backingVolume
+        this.backingRecordGain.gain.value = this.backingVolume * 0.92
         this.backingSourceNode.connect(this.backingMonitorGain)
         this.backingMonitorGain.connect(this.audioContext.destination)
         this.backingSourceNode.connect(this.backingRecordGain)
         this.backingRecordGain.connect(this.mixDestination)
       }
+      this.applyBackingVolume()
       if (this.currentInputSource) {
         try {
           this.currentInputSource.disconnect()
@@ -3017,6 +2811,23 @@ export default {
   flex-wrap: wrap;
   gap: 5px;
   margin-top: 0;
+}
+
+.volume-row {
+  align-items: center;
+}
+
+.volume-slider {
+  flex: 1 1 140px;
+  min-width: 120px;
+  accent-color: #f97316;
+}
+
+.volume-row strong {
+  min-width: 44px;
+  text-align: right;
+  color: #fff7ed;
+  font-size: 11px;
 }
 
 .control-row button,

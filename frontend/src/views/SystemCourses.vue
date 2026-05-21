@@ -6,9 +6,6 @@
           <h2>系统教材</h2>
           <p>按章节快速定位，直接开课。</p>
         </div>
-        <button class="ghost-btn" :disabled="rebuildingIntelligence" @click="rebuildIntelligence">
-          {{ rebuildingIntelligence ? '整理中...' : '刷新内容理解' }}
-        </button>
       </div>
 
       <label class="search-panel">
@@ -58,89 +55,164 @@
         </div>
       </div>
 
-      <div class="nav-block">
-        <div class="nav-block-header">
-          <h3>内容整理</h3>
-          <span>{{ transcriptCoverageLabel }}</span>
-        </div>
-        <div class="resume-list">
-          <div class="resume-card info-card">
-            <strong>总计 {{ allVideos.length }} 节</strong>
-            <p>已整理 {{ transcriptReadyCount }} 节，待补 {{ transcriptPendingCount }} 节。</p>
-          </div>
-          <button
-            class="resume-card action-card"
-            :disabled="batchGeneratingTranscript || transcriptPendingCount === 0"
-            @click="generatePendingTranscripts"
-          >
-            <strong>{{ batchGeneratingTranscript ? '批量生成中...' : '批量补 transcript' }}</strong>
-            <p>优先补最值得先进入知识库的课程。</p>
-          </button>
-        </div>
-        <div v-if="intelligenceSummary?.prioritized_items?.length" class="priority-list">
-          <div class="priority-title">优先补这几节</div>
-          <button
-            v-for="item in intelligenceSummary.prioritized_items"
-            :key="`priority-course-${item.id}`"
-            class="priority-card"
-            @click="openPriorityCourse(item.id)"
-          >
-            <strong>{{ item.title }}</strong>
-            <p>{{ item.reason }}</p>
-          </button>
-        </div>
-      </div>
-
-      <div class="nav-block">
-        <div class="nav-block-header">
-          <h3>{{ activeSeries || '教材目录' }}</h3>
-          <span>{{ courseTree.length }}</span>
-        </div>
-        <div v-if="courseTree.length" class="course-tree">
-          <details
-            v-for="chapter in courseTree"
-            :key="chapter.key"
-            class="chapter-node"
-            :open="selectedVideo?.group === activeSeries && selectedVideo?.chapterLabel === chapter.label"
-          >
-            <summary class="chapter-summary" @click="selectFilter(chapter.key)">
-              <div class="filter-main">
-                <span>{{ chapter.label }}</span>
-                <small v-if="chapter.watchedCount">{{ chapter.watchedCount }} 节已学</small>
-              </div>
-              <span class="filter-count">{{ chapter.count }}</span>
-            </summary>
-
-            <div class="course-children">
-              <button
-                v-for="course in chapter.courses"
-                :key="course.key"
-                :class="['course-leaf', { active: selectedKey === course.key }]"
-                @click="selectVideo(course)"
-              >
-                <span>{{ course.title }}</span>
-                <small v-if="courseProgress(course)">{{ progressLabel(course) }}</small>
-              </button>
-            </div>
-          </details>
-        </div>
-        <div v-else class="empty-side-copy">
-          当前没有可展示的系统教材。
-        </div>
-      </div>
-
     </aside>
 
     <section class="content">
       <div class="content-grid">
-        <div class="player-panel">
-          <div v-if="!selectedVideo" class="state-box">
-            从左侧教材树选择一节课开始学习
+        <div v-if="activeSeriesStats" class="series-overview">
+          <div class="series-overview-copy">
+            <span class="panel-tag">系统教程</span>
+            <h2>{{ activeSeriesStats.name }}</h2>
+            <p>
+              共 {{ activeSeriesStats.chapterCount }} 章 · {{ activeSeriesStats.count }} 节课，
+              已学习 {{ activeSeriesStats.watchedCount }} 节
+            </p>
           </div>
-          <template v-else>
+          <div class="series-overview-progress">
+            <div class="progress-summary">
+              <strong>{{ activeSeriesProgress }}%</strong>
+              <span>整体进度</span>
+            </div>
+            <div class="overview-progress-track">
+              <div class="overview-progress-fill" :style="{ width: `${activeSeriesProgress}%` }"></div>
+            </div>
+            <button
+              class="play-btn"
+              :disabled="!resumeCourseForSeries"
+              @click="goToCourse(resumeCourseForSeries)"
+            >
+              {{ activeSeriesStats.watchedCount ? '继续学习' : '开始第一课' }}
+            </button>
+          </div>
+        </div>
+
+        <div class="study-workspace">
+          <div class="browser-panel">
+            <div v-if="searchQuery.trim()" class="search-results-panel">
+              <div class="section-header">
+                <div>
+                  <h3>搜索结果</h3>
+                  <p>点卡片直接打开课程，左侧目录保持原来的结构导航。</p>
+                </div>
+                <div class="search-results-actions">
+                  <span>{{ searchResults.length }} 节</span>
+                  <button class="ghost-btn" @click="searchQuery = ''">清除搜索</button>
+                </div>
+              </div>
+
+              <div v-if="searchResults.length" class="course-result-grid">
+                <button
+                  v-for="course in searchResults"
+                  :key="`search-${course.key}`"
+                  :class="['course-result-card', { active: selectedKey === course.key }]"
+                  @click="selectSearchResult(course)"
+                >
+                  <div class="course-result-copy">
+                    <strong>{{ course.title }}</strong>
+                    <p>{{ course.group }} / {{ course.chapterLabel }}</p>
+                  </div>
+                  <div class="course-result-meta">
+                    <span v-if="courseProgress(course)">{{ progressLabel(course) }}</span>
+                    <span v-else>未开始</span>
+                  </div>
+                </button>
+              </div>
+              <div v-else class="state-box compact-state">
+                没有找到匹配的课程，试试换个关键词。
+              </div>
+            </div>
+
+            <div v-else class="structure-browser">
+              <div class="section-header">
+                <div>
+                  <h3>{{ activeSeries || '教材目录' }}</h3>
+                  <p>左侧浏览全章节结构，右侧直接定位到具体课时。</p>
+                </div>
+                <div class="search-results-actions">
+                  <span>{{ courseTree.length }} 章</span>
+                </div>
+              </div>
+
+              <div v-if="courseTree.length" class="course-map-layout">
+                <nav class="chapter-rail" aria-label="章节导航">
+                  <button
+                    v-for="(chapter, index) in courseTree"
+                    :key="chapter.key"
+                    :class="['chapter-rail-item', { active: activeFilter === chapter.key }]"
+                    @click="selectFilter(chapter.key)"
+                  >
+                    <span class="chapter-index">{{ String(index + 1).padStart(2, '0') }}</span>
+                    <span class="chapter-rail-copy">
+                      <strong>{{ chapter.label }}</strong>
+                      <small>{{ chapter.watchedCount }}/{{ chapter.count }} 已学</small>
+                    </span>
+                    <span class="chapter-rail-progress">
+                      {{ chapterProgress(chapter) }}%
+                    </span>
+                  </button>
+                </nav>
+
+                <div class="chapter-courses-panel">
+                  <div v-if="activeChapter" class="section-header chapter-detail-header">
+                    <div>
+                      <h3>{{ activeChapter.label }}</h3>
+                      <p>点击课时后，右侧会立即预览，不需要滚到页面底部。</p>
+                    </div>
+                    <div class="search-results-actions">
+                      <span>{{ activeChapter.courses.length }} 节</span>
+                    </div>
+                  </div>
+
+                  <div v-if="activeChapter" class="lesson-list">
+                    <button
+                      v-for="(course, index) in activeChapter.courses"
+                      :key="`chapter-course-${course.key}`"
+                      :class="['lesson-row', { active: selectedKey === course.key }]"
+                      @click="selectVideo(course)"
+                    >
+                      <span class="lesson-order">{{ String(index + 1).padStart(2, '0') }}</span>
+                      <span class="lesson-main">
+                        <strong>{{ course.title }}</strong>
+                        <small>
+                          {{ course.learningFocus || course.summary || course.subtitle || '系统课时' }}
+                        </small>
+                      </span>
+                      <span class="lesson-tags">
+                        <em v-if="hasMaterials(course)">有资料</em>
+                        <em v-if="course.transcriptAvailable">有笔记</em>
+                      </span>
+                      <span class="lesson-status">
+                        {{ progressLabel(course) }}
+                      </span>
+                    </button>
+                  </div>
+                  <div v-else class="state-box compact-state">
+                    选择左侧章节查看课时。
+                  </div>
+                </div>
+              </div>
+              <div v-else class="state-box compact-state">
+                当前没有可展示的系统教材。
+              </div>
+            </div>
+          </div>
+
+          <div v-if="previewCollapsed && selectedVideo" class="preview-collapsed-card">
+            <div>
+              <span>已选择</span>
+              <strong>{{ selectedVideo.title }}</strong>
+            </div>
+            <button class="play-btn" @click="previewCollapsed = false">打开预览</button>
+          </div>
+
+          <div v-else class="player-panel">
+            <div v-if="!selectedVideo" class="state-box">
+            先在右侧选择一章，再点开具体课程开始学习
+            </div>
+            <template v-else>
             <div class="player-header">
               <div>
-                <span class="panel-tag">系统课程</span>
+                <span class="panel-tag">即时预览</span>
                 <h3>{{ selectedVideo.title }}</h3>
                 <p>{{ selectedVideo.subtitle }}</p>
               </div>
@@ -152,13 +224,9 @@
                 >
                   继续看到 {{ formatTime(resumeInfo.position) }}
                 </button>
-                <button
-                  class="danger-btn"
-                  :disabled="deletingCourse"
-                  @click="deleteSelectedCourse"
-                >
-                  {{ deletingCourse ? '删除中...' : '删除课时' }}
-                </button>
+                <button class="ghost-btn" @click="continuePreviewPlayback">继续播放</button>
+                <button class="ghost-btn" @click="previewExpanded = true">放大</button>
+                <button class="ghost-btn" @click="previewCollapsed = true">收起</button>
               </div>
             </div>
 
@@ -169,6 +237,9 @@
                 :src="selectedVideo.url"
                 controls
                 controlsList="nodownload"
+                :muted="previewMuted"
+                autoplay
+                playsinline
                 @loadedmetadata="handleVideoReady"
                 @timeupdate="handleVideoProgress"
               ></video>
@@ -201,45 +272,6 @@
 
             <div class="detail-layout">
               <div class="detail-main">
-                <div class="detail-card detail-card-wide">
-                  <h4>课程摘要</h4>
-                  <p>{{ selectedVideo.summary || selectedVideo.subtitle || '当前还没有课程摘要。' }}</p>
-                  <div class="detail-hints">
-                    <span>{{ selectedVideo.recommendedFor || '补完文字内容后，这里会更准。' }}</span>
-                  </div>
-                </div>
-
-                <div class="detail-card transcript-card detail-card-wide">
-                  <div class="transcript-header">
-                    <h4>课程笔记</h4>
-                    <div class="transcript-actions">
-                      <button
-                        class="ghost-btn"
-                        :disabled="generatingTranscript"
-                        @click="loadTranscript(selectedVideo.id)"
-                      >
-                        刷新
-                      </button>
-                      <button
-                        class="assistant-btn secondary"
-                        :disabled="generatingTranscript || transcriptLoading"
-                        @click="generateTranscript"
-                      >
-                        {{ generatingTranscript ? '生成中...' : (transcript ? '重新生成 transcript' : '生成 transcript') }}
-                      </button>
-                    </div>
-                  </div>
-                  <div v-if="transcriptLoading" class="empty-copy">
-                    {{ generatingTranscript ? 'Whisper 正在整理当前课程 transcript...' : '加载笔记中...' }}
-                  </div>
-                  <pre v-else class="transcript">{{ transcript || "当前课程暂无 transcript" }}</pre>
-                </div>
-
-                <div v-if="selectedVideo.transcriptAvailable || selectedVideo.transcriptPreview" class="detail-card transcript-preview-card">
-                  <h4>文字内容预览</h4>
-                  <p>{{ selectedVideo.transcriptPreview || '当前还没有可用的文字内容预览。' }}</p>
-                </div>
-
                 <div v-if="hasMaterials(selectedVideo)" class="materials-card">
                   <div class="materials-header">
                     <h4>随课资料</h4>
@@ -299,117 +331,58 @@
                     <li><span>分组</span><strong>{{ selectedVideo.group }}</strong></li>
                     <li><span>来源</span><strong>系统课程</strong></li>
                     <li><span>作者</span><strong>{{ selectedVideo.author || '未填写' }}</strong></li>
-                    <li><span>学习重点</span><strong>{{ selectedVideo.learningFocus || '待整理' }}</strong></li>
                     <li><span>标签</span><strong>{{ selectedVideo.tags?.join(' / ') || '暂无标签' }}</strong></li>
                   </ul>
-                </div>
-
-                <div class="detail-card detail-card-wide">
-                  <h4>适合怎么用</h4>
-                  <p>{{ selectedVideo.recommendedFor || '当前信息还不够，补 transcript 后会更准。' }}</p>
-                </div>
-
-                <div class="detail-card detail-card-wide">
-                  <h4>关键点</h4>
-                  <ul v-if="selectedVideo.keyPoints?.length" class="key-point-list">
-                    <li v-for="(point, index) in selectedVideo.keyPoints" :key="`${selectedVideo.id}-point-${index}`">
-                      {{ point }}
-                    </li>
-                  </ul>
-                  <p v-else>当前还没有提炼出关键点。</p>
-                </div>
-
-                <div v-if="selectedVideo.type === 'course'" class="detail-card detail-card-wide">
-                  <h4>适合回到这些歌验证</h4>
-                  <div v-if="relatedSongsLoading" class="empty-copy">正在整理这节课更适合回到哪些歌验证...</div>
-                  <div v-else-if="relatedSongs.length" class="linked-song-list">
-                    <article
-                      v-for="song in relatedSongs"
-                      :key="`course-song-${song.id}`"
-                      class="linked-song-card"
+                  <div class="secondary-danger-zone">
+                    <button
+                      class="danger-btn subtle-danger-btn"
+                      :disabled="deletingCourse"
+                      @click="deleteSelectedCourse"
                     >
-                      <div class="linked-song-copy">
-                        <strong>{{ song.title }}</strong>
-                        <p>{{ song.artist || '歌曲练习' }}</p>
-                        <span>{{ song.reason }}</span>
-                      </div>
-                      <button class="ghost-btn" @click="openRelatedSong(song.id)">去练这首歌</button>
-                    </article>
-                  </div>
-                  <p v-else class="empty-copy">这节课当前还没有明确命中的歌曲，后面补完 transcript 和标签后会更准。</p>
-                </div>
-
-                <div class="assistant-section">
-                  <div class="assistant-actions">
-                    <button class="assistant-btn" @click="showQA = !showQA">
-                      {{ showQA ? '收起小霞问答' : '打开小霞问答' }}
+                      {{ deletingCourse ? '删除中...' : '删除课时' }}
                     </button>
-                    <button class="assistant-btn secondary" :disabled="practiceLoading" @click="generatePractice">
-                      {{ practiceLoading ? '生成中...' : '生成练习任务' }}
-                    </button>
-                  </div>
-
-                  <div v-if="showQA" class="assistant-card">
-                    <div class="assistant-header">
-                      <h4>小霞问答</h4>
-                      <span>基于当前课程内容回答</span>
-                    </div>
-
-                    <div class="qa-messages" ref="qaMessagesRef">
-                      <div
-                        v-for="(message, index) in qaMessages"
-                        :key="index"
-                        :class="['qa-message', message.role]"
-                      >
-                        <div class="qa-bubble">{{ message.content }}</div>
-                      </div>
-                      <div v-if="qaLoading" class="qa-message assistant">
-                        <div class="qa-bubble">小霞整理课程内容中...</div>
-                      </div>
-                    </div>
-
-                    <div class="qa-input-row">
-                      <input
-                        v-model="qaInput"
-                        class="text-input"
-                        type="text"
-                        placeholder="比如：老师这里说的和弦转换关键点是什么？"
-                        :disabled="qaLoading"
-                        @keydown.enter="sendQuestion"
-                      />
-                      <button class="assistant-btn" :disabled="qaLoading || !qaInput.trim()" @click="sendQuestion">
-                        发送
-                      </button>
-                    </div>
-                  </div>
-
-                  <div v-if="practiceResult" class="assistant-card practice-card">
-                    <div class="assistant-header">
-                      <h4>今日练习任务</h4>
-                      <select v-model="practiceLevel" class="text-input practice-level" @change="generatePractice">
-                        <option value="入门">入门</option>
-                        <option value="进阶">进阶</option>
-                        <option value="高级">高级</option>
-                      </select>
-                    </div>
-
-                    <div v-if="practiceLoading" class="empty-copy">小霞正在生成更贴合课程的练习计划...</div>
-                    <template v-else>
-                      <ol class="practice-list">
-                        <li v-for="(task, index) in practiceResult.tasks" :key="index">{{ task }}</li>
-                      </ol>
-                      <div v-if="practiceResult.tips" class="practice-tips">
-                        <h5>小霞贴士</h5>
-                        <pre>{{ practiceResult.tips }}</pre>
-                      </div>
-                    </template>
                   </div>
                 </div>
               </aside>
             </div>
-          </template>
+            </template>
+          </div>
         </div>
       </div>
+
+      <teleport to="body">
+        <div
+          v-if="previewExpanded && selectedVideo"
+          class="preview-modal"
+          role="dialog"
+          aria-modal="true"
+          @click.self="previewExpanded = false"
+        >
+          <div class="preview-modal-card">
+            <div class="player-header">
+              <div>
+                <span class="panel-tag">放大播放</span>
+                <h3>{{ selectedVideo.title }}</h3>
+                <p>{{ selectedVideo.subtitle }}</p>
+              </div>
+              <div class="player-header-actions">
+                <button class="ghost-btn" @click="previewExpanded = false">回到目录</button>
+              </div>
+            </div>
+            <div class="video-frame preview-modal-frame">
+              <video
+                v-if="selectedVideo.path"
+                :src="selectedVideo.url"
+                controls
+                controlsList="nodownload"
+                autoplay
+                @timeupdate="handleVideoProgress"
+              ></video>
+              <div v-else class="state-box">当前视频未配置媒体路径</div>
+            </div>
+          </div>
+        </div>
+      </teleport>
     </section>
   </div>
 </template>
@@ -450,6 +423,9 @@ const practiceLoading = ref(false)
 const practiceLevel = ref('入门')
 const practiceResult = ref(null)
 const videoPlayerRef = ref(null)
+const previewCollapsed = ref(false)
+const previewExpanded = ref(false)
+const previewMuted = ref(true)
 const recentState = ref(loadPersistedState())
 const deletingCourse = ref(false)
 const relatedSongs = ref([])
@@ -530,27 +506,22 @@ const seriesTabs = computed(() => {
     }))
 })
 
+const activeSeriesStats = computed(() => {
+  return seriesTabs.value.find(series => series.name === activeSeries.value) || seriesTabs.value[0] || null
+})
+
+const activeSeriesProgress = computed(() => {
+  const stats = activeSeriesStats.value
+  if (!stats?.count) return 0
+  return Math.round((stats.watchedCount / stats.count) * 100)
+})
+
 const courseTree = computed(() => {
-  const keyword = searchQuery.value.trim().toLowerCase()
   const chapterMap = new Map()
 
   for (const item of allVideos.value) {
     if (item.type !== 'course') continue
     if (activeSeries.value && item.group !== activeSeries.value) continue
-
-    const haystacks = [
-      item.title,
-      item.subtitle,
-      item.group,
-      item.chapterLabel,
-      item.summary,
-      item.learningFocus,
-      item.recommendedFor,
-      ...(item.keyPoints || []),
-      ...(item.tags || []),
-    ]
-    const matches = !keyword || haystacks.some(value => (value || '').toLowerCase().includes(keyword))
-    if (!matches) continue
 
     const chapterKey = `${item.group}|||${item.chapterLabel}`
     const chapter = chapterMap.get(chapterKey) || {
@@ -577,44 +548,50 @@ const courseTree = computed(() => {
     }))
 })
 
-const filteredVideos = computed(() => {
-  let items = allVideos.value
-
-  if (activeSeries.value) {
-    items = items.filter(item => item.group === activeSeries.value)
-  }
-  if (activeFilter.value.startsWith('chapter:')) {
-    const [series, chapter] = activeFilter.value.slice('chapter:'.length).split('|||')
-    items = items.filter(item => item.group === series && item.chapterLabel === chapter)
-  }
-
+const searchResults = computed(() => {
   const keyword = searchQuery.value.trim().toLowerCase()
-  if (!keyword) {
-    return items
-  }
+  if (!keyword) return []
 
-  return items.filter(item => {
+  return allVideos.value.filter(item => {
     const haystacks = [
       item.title,
       item.subtitle,
       item.group,
       item.chapterLabel,
       item.author,
-      item.summary,
-      item.learningFocus,
-      item.recommendedFor,
-      ...(item.keyPoints || []),
       ...(item.tags || []),
     ]
     return haystacks.some(value => (value || '').toLowerCase().includes(keyword))
-  })
+  }).sort((a, b) => compareCourseItems(a, b))
 })
 
-const currentFilterLabel = computed(() => {
-  const current = chapterFilters.value.find(item => item.key === activeFilter.value)
-  if (current?.label) return current.label
-  return searchQuery.value.trim() ? `搜索：${searchQuery.value.trim()}` : '系统教材'
+const activeChapter = computed(() => {
+  if (!activeFilter.value || activeFilter.value === 'all') return null
+  return courseTree.value.find(chapter => chapter.key === activeFilter.value) || null
 })
+
+const resumeCourseForSeries = computed(() => {
+  if (!activeSeries.value) return allVideos.value[0] || null
+
+  const recentInSeries = recentHistory.value.find(item => item.group === activeSeries.value)
+  if (recentInSeries) return recentInSeries
+
+  const firstUnwatched = allVideos.value
+    .filter(item => item.group === activeSeries.value && !isWatched(item))
+    .sort((a, b) => compareCourseItems(a, b))[0]
+  if (firstUnwatched) return firstUnwatched
+
+  return allVideos.value
+    .filter(item => item.group === activeSeries.value)
+    .sort((a, b) => compareCourseItems(a, b))[0] || null
+})
+
+watch(courseTree, tree => {
+  if (!tree.length) return
+  if (!activeFilter.value || activeFilter.value === 'all' || !tree.some(chapter => chapter.key === activeFilter.value)) {
+    activeFilter.value = tree[0].key
+  }
+}, { immediate: true })
 
 const transcriptReadyCount = computed(() =>
   allVideos.value.filter(item => item.transcriptAvailable || item.transcriptPreview).length
@@ -710,7 +687,6 @@ async function loadData() {
     courses.value = seedIndex.courses || []
     error.value = ''
   } finally {
-    await loadIntelligenceSummary()
     hydrateUiState()
     if (!activeSeries.value && seriesTabs.value.length) {
       activeSeries.value = seriesTabs.value[0].name
@@ -734,16 +710,6 @@ async function loadData() {
       await selectVideo(allVideos.value[0])
     }
     loading.value = false
-  }
-}
-
-async function loadIntelligenceSummary() {
-  try {
-    const response = await fetch('/api/courses/intelligence-summary')
-    if (!response.ok) throw new Error('内容整理概览加载失败')
-    intelligenceSummary.value = await response.json()
-  } catch {
-    intelligenceSummary.value = null
   }
 }
 
@@ -793,7 +759,9 @@ function selectSeries(seriesName) {
   activeFilter.value = 'all'
   const current = selectedVideo.value
   if (!current || current.group !== seriesName) {
-    const firstCourse = filteredVideos.value[0]
+    const firstCourse = allVideos.value
+      .filter(item => item.group === seriesName)
+      .sort((a, b) => compareCourseItems(a, b))[0]
     if (firstCourse) {
       selectVideo(firstCourse)
     }
@@ -802,209 +770,33 @@ function selectSeries(seriesName) {
 
 function selectFilter(key) {
   activeFilter.value = key
-  if (!filteredVideos.value.find(item => item.key === selectedKey.value) && filteredVideos.value.length > 0) {
-    selectVideo(filteredVideos.value[0])
+  const [series, chapter] = key.slice('chapter:'.length).split('|||')
+  if (!selectedVideo.value || selectedVideo.value.group !== series || selectedVideo.value.chapterLabel !== chapter) {
+    const firstCourse = allVideos.value
+      .filter(item => item.group === series && item.chapterLabel === chapter)
+      .sort((a, b) => compareCourseItems(a, b))[0]
+    if (firstCourse) {
+      selectVideo(firstCourse)
+    }
   }
+}
+
+function selectSearchResult(item) {
+  activeSeries.value = item.group
+  activeFilter.value = `chapter:${item.group}|||${item.chapterLabel}`
+  selectVideo(item)
 }
 
 async function selectVideo(item) {
   activeSeries.value = item.group
+  activeFilter.value = `chapter:${item.group}|||${item.chapterLabel}`
   selectedKey.value = item.key
-  transcript.value = ''
-  relatedSongs.value = []
+  previewCollapsed.value = false
+  previewMuted.value = true
   rememberVideo(item)
   resetAssistantState(item.type)
-  if (item.type === 'course') {
-    await loadTranscript(item.id)
-    await loadRelatedSongs(item.id)
-  }
-}
-
-async function loadTranscript(courseId) {
-  transcriptLoading.value = true
-  try {
-    if (isFilePreview()) {
-      transcript.value = ''
-      return
-    }
-    const response = await fetch(`/api/courses/${courseId}/transcript`)
-    if (!response.ok) throw new Error('课程笔记加载失败')
-    const data = await response.json()
-    transcript.value = data.content || ''
-  } catch (err) {
-    transcript.value = `加载失败：${err.message}`
-  } finally {
-    transcriptLoading.value = false
-  }
-}
-
-async function generateTranscript() {
-  if (!selectedVideo.value || selectedVideo.value.type !== 'course' || generatingTranscript.value || isFilePreview()) {
-    return
-  }
-
-  generatingTranscript.value = true
-  transcriptLoading.value = true
-  transcript.value = ''
-
-  try {
-    const response = await fetch(`/api/courses/${selectedVideo.value.id}/generate-transcript?coach_model=${encodeURIComponent(currentCoachModel())}`, {
-      method: 'POST',
-    })
-    const data = await response.json()
-    if (!response.ok) throw new Error(data.detail || '生成 transcript 失败')
-
-    transcript.value = data.content || ''
-    if (data.course?.id) {
-      courses.value = courses.value.map(item => item.id === data.course.id ? data.course : item)
-    }
-    await loadIntelligenceSummary()
-  } catch (err) {
-    transcript.value = `生成失败：${err.message}`
-  } finally {
-    generatingTranscript.value = false
-    transcriptLoading.value = false
-  }
-}
-
-async function generatePendingTranscripts() {
-  if (batchGeneratingTranscript.value || transcriptPendingCount.value === 0) return
-
-  batchGeneratingTranscript.value = true
-  error.value = ''
-  try {
-    const response = await fetch('/api/courses/generate-transcripts', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ limit: 3, coach_model: currentCoachModel() }),
-    })
-    const data = await response.json()
-    if (!response.ok) throw new Error(data.detail || '批量生成 transcript 失败')
-    courses.value = data.courses || courses.value
-    await loadIntelligenceSummary()
-    if (data.failures?.length) {
-      error.value = `有 ${data.failures.length} 节课程生成失败，请稍后重试。`
-    }
-  } catch (err) {
-    error.value = err.message
-  } finally {
-    batchGeneratingTranscript.value = false
-  }
-}
-
-async function rebuildIntelligence() {
-  rebuildingIntelligence.value = true
-  error.value = ''
-  try {
-    const response = await fetch('/api/courses/rebuild-intelligence', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ coach_model: currentCoachModel() }),
-    })
-    const data = await response.json()
-    if (!response.ok) throw new Error(data.detail || '刷新内容理解失败')
-    courses.value = data.courses || []
-    await loadIntelligenceSummary()
-  } catch (err) {
-    error.value = err.message
-  } finally {
-    rebuildingIntelligence.value = false
-  }
-}
-
-function currentCoachModel() {
-  if (typeof window === 'undefined') return 'deepseek-r1:8b'
-  return window.localStorage.getItem(COACH_MODEL_STORAGE_KEY) || 'deepseek-r1:8b'
-}
-
-async function openPriorityCourse(courseId) {
-  const target = allVideos.value.find(item => item.id === courseId)
-  if (!target) return
-  await selectVideo(target)
-}
-
-async function loadRelatedSongs(courseId) {
-  if (!courseId || isFilePreview()) {
-    relatedSongs.value = []
-    return
-  }
-  relatedSongsLoading.value = true
-  try {
-    const response = await fetch(`/api/courses/${courseId}/related-songs`)
-    if (!response.ok) throw new Error('关联歌曲加载失败')
-    relatedSongs.value = await response.json()
-  } catch {
-    relatedSongs.value = []
-  } finally {
-    relatedSongsLoading.value = false
-  }
-}
-
-async function sendQuestion() {
-  if (!selectedVideo.value || selectedVideo.value.type !== 'course') return
-  if (!qaInput.value.trim() || qaLoading.value) return
-
-  const question = qaInput.value.trim()
-  qaMessages.value.push({ role: 'user', content: question })
-  qaInput.value = ''
-  qaLoading.value = true
-  await scrollQaToBottom()
-
-  try {
-    const response = await fetch(`/api/courses/${selectedVideo.value.id}/ask`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        question,
-        transcript: transcript.value,
-      }),
-    })
-    const data = await response.json()
-    if (!response.ok) {
-      throw new Error(data.detail || '小霞回答失败')
-    }
-    qaMessages.value.push({ role: 'assistant', content: data.answer })
-  } catch (err) {
-    qaMessages.value.push({
-      role: 'assistant',
-      content: `这次回答失败了：${err.message}`,
-    })
-  } finally {
-    qaLoading.value = false
-    await scrollQaToBottom()
-  }
-}
-
-async function generatePractice() {
-  if (!selectedVideo.value || selectedVideo.value.type !== 'course') return
-
-  practiceLoading.value = true
-  if (!practiceResult.value) {
-    practiceResult.value = { tasks: [], tips: '' }
-  }
-
-  try {
-    const response = await fetch('/api/courses/generate-practice', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        topic: selectedVideo.value.title,
-        level: practiceLevel.value,
-      }),
-    })
-    const data = await response.json()
-    if (!response.ok) {
-      throw new Error(data.detail || '生成练习任务失败')
-    }
-    practiceResult.value = data
-  } catch (err) {
-    practiceResult.value = {
-      tasks: [`生成失败：${err.message}`],
-      tips: '',
-    }
-  } finally {
-    practiceLoading.value = false
-  }
+  await nextTick()
+  startPreviewPlayback()
 }
 
 function resetAssistantState(type) {
@@ -1126,6 +918,7 @@ function handleVideoReady() {
   if (player && position > 0 && position < player.duration - 3) {
     player.currentTime = position
   }
+  startPreviewPlayback()
 }
 
 function resumePlayback() {
@@ -1134,6 +927,40 @@ function resumePlayback() {
   if (!player || !position) return
   player.currentTime = position
   player.play().catch(() => {})
+}
+
+function startPreviewPlayback() {
+  const player = videoPlayerRef.value
+  if (!player || previewCollapsed.value) return
+  player.muted = previewMuted.value
+  player.play().catch(() => {})
+}
+
+function continuePreviewPlayback() {
+  previewCollapsed.value = false
+  previewMuted.value = false
+  const player = videoPlayerRef.value
+  if (!player) return
+  player.muted = false
+  player.play().catch(() => {})
+}
+
+async function togglePlay() {
+  const player = videoPlayerRef.value
+  if (!player) return
+  if (player.paused) {
+    await player.play().catch(() => {})
+  } else {
+    player.pause()
+  }
+}
+
+function seekBy(deltaSeconds) {
+  const player = videoPlayerRef.value
+  if (!player) return
+  const duration = Number.isFinite(player.duration) ? player.duration : 0
+  const nextTime = Math.max(0, Math.min(duration || Number.MAX_SAFE_INTEGER, (player.currentTime || 0) + deltaSeconds))
+  player.currentTime = nextTime
 }
 
 function openRecentItem(item) {
@@ -1170,6 +997,11 @@ function progressLabel(item) {
   const seconds = courseProgress(item)?.position || 0
   if (!seconds) return '未开始'
   return `看到 ${formatTime(seconds)}`
+}
+
+function chapterProgress(chapter) {
+  if (!chapter?.count) return 0
+  return Math.round((chapter.watchedCount / chapter.count) * 100)
 }
 
 function isWatched(item) {
@@ -1264,13 +1096,43 @@ function isFilePreview() {
   return typeof window !== 'undefined' && window.location.protocol === 'file:'
 }
 
+function isTypingTarget(target) {
+  if (!(target instanceof HTMLElement)) return false
+  const tag = target.tagName
+  return target.isContentEditable || tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT'
+}
+
+function handleGlobalVideoKeydown(event) {
+  if (!selectedVideo.value || !videoPlayerRef.value) return
+  if (isTypingTarget(event.target)) return
+
+  if (event.code === 'Space' || event.key === ' ') {
+    event.preventDefault()
+    togglePlay()
+    return
+  }
+
+  if (event.key === 'ArrowLeft') {
+    event.preventDefault()
+    seekBy(-5)
+    return
+  }
+
+  if (event.key === 'ArrowRight') {
+    event.preventDefault()
+    seekBy(5)
+  }
+}
+
 onBeforeUnmount(() => {
+  window.removeEventListener('keydown', handleGlobalVideoKeydown)
   if (selectedVideo.value && videoPlayerRef.value) {
     rememberVideo(selectedVideo.value, Math.floor(videoPlayerRef.value.currentTime || 0))
   }
 })
 
 onMounted(() => {
+  window.addEventListener('keydown', handleGlobalVideoKeydown)
   loadData()
 })
 </script>
@@ -1339,7 +1201,7 @@ onMounted(() => {
   top: 0;
   z-index: 2;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(128px, 1fr));
+  grid-template-columns: 1fr;
   gap: 6px;
   margin-top: 12px;
   padding: 6px 0;
@@ -1348,8 +1210,8 @@ onMounted(() => {
 
 .series-tab {
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 9px;
-  padding: 8px 9px;
+  border-radius: 12px;
+  padding: 12px 12px;
   background: #0f1730;
   color: #e5e7eb;
   text-align: left;
@@ -1367,9 +1229,9 @@ onMounted(() => {
 }
 
 .series-tab small {
-  margin-top: 3px;
+  margin-top: 5px;
   color: #95a2bf;
-  font-size: 10.5px;
+  font-size: 11px;
 }
 
 .filter-list {
@@ -1573,6 +1435,439 @@ onMounted(() => {
   gap: 16px;
 }
 
+.study-workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(340px, 0.42fr);
+  gap: 14px;
+  align-items: start;
+}
+
+.browser-panel {
+  min-width: 0;
+}
+
+.series-overview {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(240px, 0.34fr);
+  gap: 16px;
+  align-items: center;
+  padding: 18px;
+  border-radius: 16px;
+  background:
+    linear-gradient(135deg, rgba(249, 115, 22, 0.16), rgba(14, 165, 233, 0.08)),
+    #16213e;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.series-overview-copy {
+  min-width: 0;
+}
+
+.series-overview-copy h2 {
+  margin-top: 10px;
+  color: #f8fafc;
+  font-size: 24px;
+  line-height: 1.25;
+}
+
+.series-overview-copy p {
+  margin-top: 7px;
+  color: #cbd5e1;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.series-overview-progress {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  border-radius: 14px;
+  background: rgba(15, 23, 42, 0.72);
+}
+
+.progress-summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.progress-summary strong {
+  color: #fdba74;
+  font-size: 24px;
+  line-height: 1;
+}
+
+.progress-summary span {
+  color: #95a2bf;
+  font-size: 12px;
+}
+
+.overview-progress-track {
+  height: 8px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.overview-progress-fill {
+  height: 100%;
+  min-width: 4px;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #f97316, #38bdf8);
+}
+
+.play-btn {
+  border: 0;
+  border-radius: 999px;
+  padding: 10px 15px;
+  background: linear-gradient(135deg, #f97316, #38bdf8);
+  color: #08111f;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.play-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.structure-browser {
+  display: grid;
+  gap: 14px;
+  padding: 14px;
+  border-radius: 16px;
+  background: #16213e;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.chapter-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 10px;
+}
+
+.chapter-card {
+  display: grid;
+  gap: 8px;
+  width: 100%;
+  text-align: left;
+  padding: 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #0f1730;
+  color: #eef1f6;
+  cursor: pointer;
+  transition: border-color 0.18s ease, background 0.18s ease, transform 0.18s ease;
+}
+
+.chapter-card:hover {
+  border-color: rgba(249, 115, 22, 0.45);
+  transform: translateY(-1px);
+}
+
+.chapter-card.active {
+  border-color: rgba(249, 115, 22, 0.72);
+  background: linear-gradient(135deg, rgba(249, 115, 22, 0.18), rgba(255, 255, 255, 0.05));
+}
+
+.chapter-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.chapter-card-top strong {
+  color: #f8fafc;
+  font-size: 14px;
+  line-height: 1.35;
+}
+
+.chapter-card-top span {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 4px 8px;
+  background: rgba(249, 115, 22, 0.12);
+  color: #fdba74;
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.chapter-card p {
+  color: #95a2bf;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.chapter-card small {
+  color: #cbd5e1;
+  font-size: 11px;
+}
+
+.chapter-courses-panel {
+  display: grid;
+  gap: 12px;
+}
+
+.course-map-layout {
+  display: grid;
+  grid-template-columns: minmax(240px, 0.32fr) minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+}
+
+.chapter-rail {
+  position: sticky;
+  top: 12px;
+  display: grid;
+  gap: 7px;
+  max-height: calc(100vh - 210px);
+  overflow: auto;
+  padding-right: 4px;
+}
+
+.chapter-rail-item {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 11px;
+  padding: 10px;
+  background: #0f1730;
+  color: #eef1f6;
+  text-align: left;
+  cursor: pointer;
+}
+
+.chapter-rail-item:hover {
+  border-color: rgba(56, 189, 248, 0.45);
+}
+
+.chapter-rail-item.active {
+  border-color: rgba(249, 115, 22, 0.72);
+  background: linear-gradient(135deg, rgba(249, 115, 22, 0.16), rgba(56, 189, 248, 0.08));
+}
+
+.chapter-index {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.07);
+  color: #fdba74;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.chapter-rail-copy {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.chapter-rail-copy strong {
+  overflow: hidden;
+  color: #f8fafc;
+  font-size: 12.5px;
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chapter-rail-copy small,
+.chapter-rail-progress {
+  color: #95a2bf;
+  font-size: 11px;
+}
+
+.chapter-rail-progress {
+  color: #7dd3fc;
+  white-space: nowrap;
+}
+
+.chapter-detail-header {
+  margin-bottom: 0;
+}
+
+.lesson-list {
+  display: grid;
+  gap: 8px;
+}
+
+.lesson-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 62px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 12px;
+  padding: 10px 12px;
+  background: #0f1730;
+  color: #eef1f6;
+  text-align: left;
+  cursor: pointer;
+}
+
+.lesson-row:hover {
+  border-color: rgba(56, 189, 248, 0.45);
+}
+
+.lesson-row.active {
+  border-color: rgba(249, 115, 22, 0.72);
+  background: linear-gradient(135deg, rgba(249, 115, 22, 0.15), rgba(255, 255, 255, 0.04));
+}
+
+.lesson-order {
+  color: #fdba74;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.lesson-main {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.lesson-main strong {
+  overflow: hidden;
+  color: #f8fafc;
+  font-size: 13px;
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lesson-main small {
+  display: block;
+  overflow: hidden;
+  color: #95a2bf;
+  font-size: 11.5px;
+  line-height: 1.45;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lesson-tags {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.lesson-tags em {
+  border-radius: 999px;
+  padding: 4px 7px;
+  background: rgba(56, 189, 248, 0.12);
+  color: #7dd3fc;
+  font-size: 10.5px;
+  font-style: normal;
+  white-space: nowrap;
+}
+
+.lesson-status {
+  min-width: 72px;
+  color: #fdba74;
+  font-size: 11.5px;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.search-results-panel {
+  padding: 14px;
+  border-radius: 16px;
+  background: #16213e;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.search-results-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: #95a2bf;
+  font-size: 12px;
+}
+
+.course-result-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 10px;
+}
+
+.course-result-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 10px;
+  width: 100%;
+  text-align: left;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #0f1730;
+  color: #eef1f6;
+  cursor: pointer;
+  transition: border-color 0.18s ease, background 0.18s ease, transform 0.18s ease;
+}
+
+.course-result-card:hover {
+  border-color: rgba(249, 115, 22, 0.45);
+  transform: translateY(-1px);
+}
+
+.course-result-card.active {
+  border-color: rgba(249, 115, 22, 0.72);
+  background: linear-gradient(135deg, rgba(249, 115, 22, 0.18), rgba(255, 255, 255, 0.05));
+}
+
+.course-result-copy {
+  min-width: 0;
+}
+
+.course-result-copy strong {
+  display: block;
+  color: #f8fafc;
+  font-size: 13.5px;
+  line-height: 1.4;
+}
+
+.course-result-copy p {
+  margin-top: 5px;
+  color: #95a2bf;
+  font-size: 11.5px;
+  line-height: 1.5;
+}
+
+.course-result-meta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.course-result-meta span {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 5px 9px;
+  background: rgba(249, 115, 22, 0.12);
+  color: #fdba74;
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.compact-state {
+  min-height: 88px;
+  font-size: 12px;
+}
+
 .detail-layout {
   display: grid;
   grid-template-columns: minmax(0, 1.15fr) minmax(280px, 0.85fr);
@@ -1755,7 +2050,12 @@ onMounted(() => {
 }
 
 .player-panel {
+  position: sticky;
+  top: 12px;
   padding: 12px;
+  max-height: calc(100vh - 24px);
+  overflow: auto;
+  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.22);
 }
 
 .video-frame {
@@ -1769,6 +2069,63 @@ onMounted(() => {
   width: 100%;
   display: block;
   background: #000;
+}
+
+.preview-collapsed-card {
+  position: sticky;
+  top: 12px;
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  border-radius: 16px;
+  background: #16213e;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.22);
+}
+
+.preview-collapsed-card span,
+.preview-collapsed-card strong {
+  display: block;
+}
+
+.preview-collapsed-card span {
+  color: #95a2bf;
+  font-size: 12px;
+}
+
+.preview-collapsed-card strong {
+  margin-top: 4px;
+  color: #f8fafc;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.preview-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 28px;
+  background: rgba(2, 6, 23, 0.82);
+  backdrop-filter: blur(14px);
+}
+
+.preview-modal-card {
+  width: min(1180px, 100%);
+  max-height: calc(100vh - 56px);
+  overflow: auto;
+  border-radius: 18px;
+  padding: 16px;
+  background: #16213e;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 24px 90px rgba(0, 0, 0, 0.44);
+}
+
+.preview-modal-frame video {
+  max-height: calc(100vh - 190px);
+  object-fit: contain;
 }
 
 .detail-card-wide {
@@ -2152,6 +2509,22 @@ onMounted(() => {
   opacity: 0.6;
 }
 
+.secondary-danger-zone {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.subtle-danger-btn {
+  opacity: 0.78;
+}
+
+.subtle-danger-btn:hover {
+  opacity: 1;
+}
+
 .transcript {
   white-space: pre-wrap;
   word-break: break-word;
@@ -2181,8 +2554,43 @@ onMounted(() => {
 @media (max-width: 960px) {
   .learning-layout,
   .content-grid,
+  .study-workspace,
+  .series-overview,
+  .course-map-layout,
   .detail-layout {
     grid-template-columns: 1fr;
+  }
+
+  .chapter-rail {
+    position: static;
+    max-height: none;
+  }
+
+  .player-panel,
+  .preview-collapsed-card {
+    position: static;
+    max-height: none;
+  }
+
+  .preview-modal {
+    padding: 12px;
+  }
+
+  .lesson-row {
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: start;
+  }
+
+  .lesson-tags,
+  .lesson-status {
+    grid-column: 2;
+    justify-content: flex-start;
+    text-align: left;
+  }
+
+  .lesson-main strong,
+  .lesson-main small {
+    white-space: normal;
   }
 
   .detail-side {

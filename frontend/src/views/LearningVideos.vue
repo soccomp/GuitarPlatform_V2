@@ -7,9 +7,6 @@
           <p>按主题整理，直接回看。</p>
         </div>
         <div class="sidebar-actions">
-          <button class="ghost-btn" :disabled="rebuildingIntelligence" @click="rebuildIntelligence">
-            {{ rebuildingIntelligence ? '整理中...' : '刷新内容理解' }}
-          </button>
           <button class="ghost-btn" :disabled="scanning" @click="scanVideos">
             {{ scanning ? '扫描中...' : '扫描目录' }}
           </button>
@@ -47,38 +44,6 @@
         </div>
       </div>
 
-      <div class="nav-block">
-        <div class="nav-block-header">
-          <h3>内容整理</h3>
-          <span>{{ transcriptCoverageLabel }}</span>
-        </div>
-        <div class="resume-list">
-          <div class="resume-card info-card">
-            <strong>总计 {{ allVideos.length }} 条</strong>
-            <p>已有 transcript {{ transcriptReadyCount }} 条，待补 {{ transcriptPendingCount }} 条。</p>
-          </div>
-          <button
-            class="resume-card action-card"
-            :disabled="batchGeneratingTranscript || transcriptPendingCount === 0"
-            @click="generatePendingTranscripts"
-          >
-            <strong>{{ batchGeneratingTranscript ? '批量生成中...' : '批量补 transcript' }}</strong>
-            <p>优先补最值得整理的几条。</p>
-          </button>
-        </div>
-        <div v-if="intelligenceSummary?.prioritized_items?.length" class="priority-list">
-          <div class="priority-title">优先补这几条</div>
-          <button
-            v-for="item in intelligenceSummary.prioritized_items"
-            :key="`priority-video-${item.id}`"
-            class="priority-card"
-            @click="openPriorityVideo(item.id)"
-          >
-            <strong>{{ item.title }}</strong>
-            <p>{{ item.reason }}</p>
-          </button>
-        </div>
-      </div>
     </aside>
 
     <section class="content">
@@ -141,11 +106,8 @@
                   <span class="panel-tag">{{ displayCategory(selectedVideo) || '学习视频' }}</span>
                   <h3>{{ selectedVideo.title }}</h3>
                   <p v-if="selectedVideo.subtitle">{{ selectedVideo.subtitle }}</p>
-                </div>
+              </div>
               <div class="modal-actions">
-                <button class="ghost-btn" :disabled="generatingTranscript || deleting || savingMeta" @click="generateTranscript">
-                  {{ generatingTranscript ? '生成中...' : (selectedVideo?.transcriptAvailable ? '重新生成 transcript' : '生成 transcript') }}
-                </button>
                 <button class="ghost-btn" :disabled="deleting || savingMeta" @click="openMetaEditor">
                   {{ savingMeta ? '保存中...' : (isEditingMeta ? '取消编辑' : '编辑信息') }}
                 </button>
@@ -228,55 +190,9 @@
                     <span>作者</span>
                     <strong>{{ selectedVideo.author || '未整理' }}</strong>
                   </div>
-                  <div>
-                    <span>学习重点</span>
-                    <strong>{{ selectedVideo.learningFocus || '待整理' }}</strong>
-                  </div>
                 </div>
 
                 <div class="intelligence-grid intelligence-grid-single">
-                  <div class="meta-editor-card intelligence-card">
-                  <div class="meta-editor-header">
-                      <h4>内容摘要</h4>
-                      <span>{{ selectedVideo.summary ? '参与推荐' : '补 transcript 后更准' }}</span>
-                    </div>
-                    <p class="intelligence-copy">{{ selectedVideo.summary || selectedVideo.description || '当前还没有整理出内容摘要。' }}</p>
-                  </div>
-
-                  <div class="meta-editor-card intelligence-card">
-                  <div class="meta-editor-header">
-                      <h4>适合怎么用</h4>
-                      <span>{{ selectedVideo.recommendedFor ? '参与学习教练推荐' : '当前先按标题和标签理解' }}</span>
-                    </div>
-                    <p class="intelligence-copy">{{ selectedVideo.recommendedFor || '适合先作为参考视频收藏，后面补 transcript 后会更适合做智能推荐。' }}</p>
-                  </div>
-
-                  <div class="meta-editor-card intelligence-card">
-                    <div class="meta-editor-header">
-                      <h4>关键点</h4>
-                      <span>先抓 1 到 2 个最值得回看的点</span>
-                    </div>
-                    <ul v-if="selectedVideo.keyPoints?.length" class="intelligence-points">
-                      <li v-for="(point, index) in selectedVideo.keyPoints" :key="`${selectedVideo.id}-point-${index}`">
-                        {{ point }}
-                      </li>
-                    </ul>
-                    <p v-else class="intelligence-copy">当前还没有提炼出关键点。</p>
-                  </div>
-
-                  <div class="meta-editor-card intelligence-card">
-                    <div class="meta-editor-header">
-                      <h4>标签</h4>
-                      <span>会直接参与搜索和歌曲练习推荐</span>
-                    </div>
-                    <div v-if="selectedVideo.tags?.length" class="chip-row">
-                      <span v-for="tag in selectedVideo.tags" :key="`${selectedVideo.id}-${tag}`" class="chip">
-                        {{ tag }}
-                      </span>
-                    </div>
-                    <p v-else class="intelligence-copy">当前还没有标签。</p>
-                  </div>
-
                   <div v-if="selectedVideo" class="meta-editor-card intelligence-card">
                     <div class="meta-editor-header">
                       <h4>关联歌曲练习</h4>
@@ -298,14 +214,6 @@
                       </article>
                     </div>
                     <p v-else class="intelligence-copy">后面补完更多 transcript、标签和摘要后，这里的回跳会更准。</p>
-                  </div>
-
-                  <div v-if="selectedVideo.transcriptAvailable || selectedVideo.transcriptPreview" class="meta-editor-card intelligence-card">
-                    <div class="meta-editor-header">
-                      <h4>文字内容预览</h4>
-                      <span>{{ selectedVideo.transcriptAvailable ? '后面可继续做问答、摘要和相关推荐' : '当前只显示少量内容' }}</span>
-                    </div>
-                    <p class="intelligence-copy transcript-preview">{{ selectedVideo.transcriptPreview || '当前还没有可用的 transcript 预览。' }}</p>
                   </div>
 
                   <div v-if="selectedVideo" class="meta-editor-card">
@@ -357,13 +265,12 @@
 </template>
 
 <script setup>
-import { computed, nextTick, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import seedIndex from '../../../backend/data/index.json'
 
 const STORAGE_KEY = 'guitar-platform-collected-videos'
 const PLAY_COUNT_STORAGE_KEY = 'guitar-platform-video-play-counts'
 const PENDING_VIDEO_ID_KEY = 'guitar-platform-pending-video-id'
-const COACH_MODEL_STORAGE_KEY = 'guitar-platform-coach-model'
 
 const loading = ref(true)
 const error = ref('')
@@ -371,12 +278,8 @@ const searchQuery = ref('')
 const selectedKey = ref('')
 const videos = ref([])
 const scanning = ref(false)
-const rebuildingIntelligence = ref(false)
-const generatingTranscript = ref(false)
-const batchGeneratingTranscript = ref(false)
 const deleting = ref(false)
 const savingMeta = ref(false)
-const intelligenceSummary = ref(null)
 const relatedSongs = ref([])
 const relatedSongsLoading = ref(false)
 const recentKeys = ref(loadRecentKeys())
@@ -409,12 +312,6 @@ const allVideos = computed(() =>
     tags: video.tags || [],
     path: video.path || '',
     description: video.description || '',
-    summary: video.summary || '',
-    learningFocus: video.learning_focus || '',
-    recommendedFor: video.recommended_for || '',
-    keyPoints: video.key_points || [],
-    transcriptPreview: video.transcript_preview || '',
-    transcriptAvailable: Boolean(video.transcript_available),
     thumbnail: video.thumbnail || '',
     thumbnailUrl: video.thumbnail ? mediaUrl('collected', video.thumbnail) : '',
     url: video.path ? videoStreamUrl(video) : '',
@@ -427,7 +324,7 @@ const filteredVideos = computed(() => {
   if (!keyword) return allVideos.value
 
   return allVideos.value.filter(item =>
-    [item.title, item.subtitle, item.author, item.category, item.summary, item.learningFocus, item.recommendedFor, ...(item.keyPoints || []), ...(item.tags || [])]
+    [item.title, item.subtitle, item.author, item.category, ...(item.tags || [])]
       .some(value => (value || '').toLowerCase().includes(keyword))
   )
 })
@@ -445,18 +342,6 @@ const recentVideos = computed(() =>
 const currentFilterLabel = computed(() => {
   return searchQuery.value.trim() ? `搜索：${searchQuery.value.trim()}` : '全部视频'
 })
-
-const transcriptReadyCount = computed(() =>
-  allVideos.value.filter(item => item.transcriptAvailable || item.transcriptPreview).length
-)
-
-const transcriptPendingCount = computed(() =>
-  Math.max(0, allVideos.value.length - transcriptReadyCount.value)
-)
-
-const transcriptCoverageLabel = computed(() =>
-  `${transcriptReadyCount.value}/${allVideos.value.length || 0}`
-)
 
 watch(() => selectedKey.value, async () => {
   const video = selectedVideo.value
@@ -487,7 +372,6 @@ async function loadData() {
     videos.value = seedIndex.videos || []
     error.value = ''
   } finally {
-    await loadIntelligenceSummary()
     const pendingVideoId = consumePendingVideoId()
     if (pendingVideoId) {
       const pendingVideo = allVideos.value.find(item => item.id === pendingVideoId)
@@ -496,16 +380,6 @@ async function loadData() {
       }
     }
     loading.value = false
-  }
-}
-
-async function loadIntelligenceSummary() {
-  try {
-    const response = await fetch('/api/videos/intelligence-summary')
-    if (!response.ok) throw new Error('内容整理概览加载失败')
-    intelligenceSummary.value = await response.json()
-  } catch {
-    intelligenceSummary.value = null
   }
 }
 
@@ -518,7 +392,6 @@ async function scanVideos() {
     if (!response.ok) throw new Error(data.detail || '扫描失败')
 
     videos.value = data.videos || []
-    await loadIntelligenceSummary()
     if (allVideos.value.length > 0) {
       selectedKey.value = ''
     }
@@ -527,80 +400,6 @@ async function scanVideos() {
   } finally {
     scanning.value = false
   }
-}
-
-async function rebuildIntelligence() {
-  rebuildingIntelligence.value = true
-  error.value = ''
-  try {
-    const response = await fetch('/api/videos/rebuild-intelligence', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ coach_model: currentCoachModel() }),
-    })
-    const data = await response.json()
-    if (!response.ok) throw new Error(data.detail || '刷新内容理解失败')
-    videos.value = data.videos || []
-    await loadIntelligenceSummary()
-  } catch (err) {
-    error.value = err.message
-  } finally {
-    rebuildingIntelligence.value = false
-  }
-}
-
-async function generateTranscript() {
-  if (!selectedVideo.value || generatingTranscript.value) return
-  generatingTranscript.value = true
-  error.value = ''
-  try {
-    const response = await fetch(`/api/videos/${selectedVideo.value.id}/generate-transcript?coach_model=${encodeURIComponent(currentCoachModel())}`, {
-      method: 'POST',
-    })
-    const data = await response.json()
-    if (!response.ok) throw new Error(data.detail || '生成 transcript 失败')
-    videos.value = videos.value.map(item => item.id === data.video.id ? data.video : item)
-    await loadIntelligenceSummary()
-  } catch (err) {
-    error.value = err.message
-  } finally {
-    generatingTranscript.value = false
-  }
-}
-
-async function generatePendingTranscripts() {
-  if (batchGeneratingTranscript.value || transcriptPendingCount.value === 0) return
-  batchGeneratingTranscript.value = true
-  error.value = ''
-  try {
-    const response = await fetch('/api/videos/generate-transcripts', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ limit: 3, coach_model: currentCoachModel() }),
-    })
-    const data = await response.json()
-    if (!response.ok) throw new Error(data.detail || '批量生成 transcript 失败')
-    videos.value = data.videos || videos.value
-    await loadIntelligenceSummary()
-    if (data.failures?.length) {
-      error.value = `有 ${data.failures.length} 条生成失败，请稍后重试。`
-    }
-  } catch (err) {
-    error.value = err.message
-  } finally {
-    batchGeneratingTranscript.value = false
-  }
-}
-
-function currentCoachModel() {
-  if (typeof window === 'undefined') return 'deepseek-r1:8b'
-  return window.localStorage.getItem(COACH_MODEL_STORAGE_KEY) || 'deepseek-r1:8b'
-}
-
-function openPriorityVideo(videoId) {
-  const item = allVideos.value.find(video => video.id === videoId)
-  if (!item) return
-  selectVideo(item)
 }
 
 async function deleteSelectedVideo() {
@@ -753,6 +552,14 @@ function seekVideoRange(event) {
   player.currentTime = Math.max(0, Math.min(duration.value, Number(event.target.value)))
 }
 
+function seekBy(deltaSeconds) {
+  const player = videoPlayerRef.value
+  if (!player) return
+  const nextTime = clampVideoTime((player.currentTime || 0) + deltaSeconds)
+  player.currentTime = nextTime
+  currentTime.value = nextTime
+}
+
 function setLoopStart() {
   const player = videoPlayerRef.value
   if (!player) return
@@ -889,8 +696,41 @@ function isFilePreview() {
   return typeof window !== 'undefined' && window.location.protocol === 'file:'
 }
 
+function isTypingTarget(target) {
+  if (!(target instanceof HTMLElement)) return false
+  const tag = target.tagName
+  return target.isContentEditable || tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT'
+}
+
+function handleGlobalVideoKeydown(event) {
+  if (!selectedVideo.value || !videoPlayerRef.value) return
+  if (isTypingTarget(event.target)) return
+
+  if (event.code === 'Space' || event.key === ' ') {
+    event.preventDefault()
+    togglePlay()
+    return
+  }
+
+  if (event.key === 'ArrowLeft') {
+    event.preventDefault()
+    seekBy(-5)
+    return
+  }
+
+  if (event.key === 'ArrowRight') {
+    event.preventDefault()
+    seekBy(5)
+  }
+}
+
 onMounted(() => {
+  window.addEventListener('keydown', handleGlobalVideoKeydown)
   loadData()
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('keydown', handleGlobalVideoKeydown)
 })
 </script>
 
