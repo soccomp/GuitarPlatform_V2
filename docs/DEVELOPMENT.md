@@ -25,7 +25,7 @@ scripts/control_guitar_platform.command
 服务端口：
 
 - 前端 Vite：`127.0.0.1:3000`
-- 后端 FastAPI：`127.0.0.1:8000`
+- 后端 FastAPI：`127.0.0.1:8765`
 
 当前桌面入口：
 

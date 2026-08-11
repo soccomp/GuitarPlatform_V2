@@ -203,6 +203,9 @@
                     </div>
 
                     <div class="control-row loop-row">
+                      <button :class="{ active: repeatPlayback }" @click="toggleRepeatPlayback">
+                        {{ repeatPlayback ? '整曲循环中' : '整曲循环' }}
+                      </button>
                       <button :class="{ active: loopStart !== null }" @click="setLoopStart">
                         A {{ loopStart === null ? '--:--' : formatTime(loopStart) }}
                       </button>
@@ -237,6 +240,39 @@
                       @input="setBackingVolume"
                     />
                     <strong>{{ backingVolumePercent }}%</strong>
+                  </div>
+
+                  <div class="control-row volume-row">
+                    <span>录音输入</span>
+                    <select
+                      class="recording-input-select"
+                      :value="selectedAudioInputDeviceId"
+                      :disabled="isRecording || !audioInputDevices.length"
+                      @change="setRecordingInputDevice"
+                    >
+                      <option value="">系统默认输入</option>
+                      <option
+                        v-for="device in audioInputDevices"
+                        :key="device.deviceId"
+                        :value="device.deviceId"
+                      >
+                        {{ device.label || '音频输入设备' }}
+                      </option>
+                    </select>
+                  </div>
+
+                  <div class="control-row volume-row">
+                    <span>吉他录音增益</span>
+                    <input
+                      class="volume-slider"
+                      type="range"
+                      min="50"
+                      max="400"
+                      step="5"
+                      :value="recordingInputGainPercent"
+                      @input="setRecordingInputGain"
+                    />
+                    <strong>{{ recordingInputGainPercent }}%</strong>
                   </div>
 
                   <div class="loop-snippet-panel">
@@ -325,14 +361,14 @@
                   </div>
 
                   <div class="media-hints">
-                    <span v-if="currentAudioFile">当前版本有音频</span>
+                    <span v-if="currentAudioFile">当前伴奏：{{ currentAudioLabel }}</span>
                     <span v-else>当前版本没有独立伴奏</span>
                     <span v-if="referenceFiles.video">同组带参考视频</span>
                     <span v-if="referenceFiles.image">同组带参考图</span>
                   </div>
 
                   <div v-if="audioOptions.length > 1" class="audio-options">
-                    <span class="audio-options-label">当前音频</span>
+                    <span class="audio-options-label">伴奏选择（{{ audioOptions.length }}）</span>
                     <div class="audio-options-list">
                       <button
                         v-for="option in audioOptions"
@@ -633,6 +669,9 @@
 
             <div class="modal-utility-controls">
               <div class="modal-loop-cluster">
+                <button :class="{ active: repeatPlayback }" @click="toggleRepeatPlayback">
+                  {{ repeatPlayback ? '整曲循环中' : '整曲循环' }}
+                </button>
                 <div class="modal-status-chip">
                   <span>A 点</span>
                   <strong>{{ loopStart === null ? '--:--' : formatTime(loopStart) }}</strong>
@@ -693,8 +732,74 @@
           </div>
         </div>
 
-        <div class="video-frame related-video-frame" v-if="activeRelatedVideo">
-          <video :src="buildRelatedVideoUrl(activeRelatedVideo)" controls autoplay playsinline />
+        <div
+          v-if="activeRelatedVideo"
+          ref="relatedVideoFrame"
+          class="video-frame related-video-frame custom-related-video-frame"
+          @click="handleRelatedVideoFrameClick"
+        >
+          <video
+            ref="relatedVideoPlayer"
+            :src="buildRelatedVideoUrl(activeRelatedVideo)"
+            autoplay
+            playsinline
+            @loadedmetadata="handleRelatedVideoReady"
+            @timeupdate="handleRelatedVideoProgress"
+            @play="relatedVideoIsPlaying = true"
+            @pause="relatedVideoIsPlaying = false"
+          />
+          <div class="related-video-controls" @click.stop>
+            <button
+              class="related-video-icon-btn"
+              type="button"
+              :aria-label="relatedVideoIsPlaying ? '暂停' : '播放'"
+              @click="toggleRelatedVideoPlay"
+            >
+              {{ relatedVideoIsPlaying ? '❚❚' : '▶' }}
+            </button>
+            <span class="related-video-time">
+              {{ formatTime(relatedVideoCurrentTime) }} / {{ formatTime(relatedVideoDuration) }}
+            </span>
+            <input
+              class="related-video-seek"
+              type="range"
+              min="0"
+              :max="relatedVideoDuration || 0"
+              step="0.1"
+              :value="relatedVideoCurrentTime"
+              :disabled="!relatedVideoDuration"
+              aria-label="视频进度"
+              @input="seekRelatedVideoRange"
+              @pointerup="blurActivePlaybackControl"
+            />
+            <div class="related-video-speed-controls" aria-label="播放速度">
+              <button
+                class="related-video-mini-btn"
+                type="button"
+                aria-label="降低播放速度"
+                @click="adjustRelatedVideoSpeed(-RELATED_VIDEO_PLAYBACK_RATE_STEP)"
+              >
+                -
+              </button>
+              <span>{{ relatedVideoPlaybackRate.toFixed(2) }}x</span>
+              <button
+                class="related-video-mini-btn"
+                type="button"
+                aria-label="提高播放速度"
+                @click="adjustRelatedVideoSpeed(RELATED_VIDEO_PLAYBACK_RATE_STEP)"
+              >
+                +
+              </button>
+            </div>
+            <button
+              class="related-video-icon-btn"
+              type="button"
+              :aria-label="relatedVideoFullscreen ? '退出全屏' : '全屏'"
+              @click="toggleRelatedVideoFullscreen"
+            >
+              {{ relatedVideoFullscreen ? '⤢' : '⛶' }}
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -714,6 +819,11 @@ const PRACTICE_SIDE_TAB_STORAGE_KEY = 'guitar-platform-practice-side-tab'
 const LOOP_SNIPPETS_STORAGE_KEY = 'guitar-platform-loop-snippets'
 const RECENT_PRACTICE_LINKS_KEY = 'guitar-platform-recent-practice-links'
 const BACKING_VOLUME_STORAGE_KEY = 'guitar-platform-backing-volume'
+const RECORDING_INPUT_DEVICE_STORAGE_KEY = 'guitar-platform-recording-input-device'
+const RECORDING_INPUT_GAIN_STORAGE_KEY = 'guitar-platform-recording-input-gain'
+const RELATED_VIDEO_MIN_PLAYBACK_RATE = 0.6
+const RELATED_VIDEO_MAX_PLAYBACK_RATE = 1
+const RELATED_VIDEO_PLAYBACK_RATE_STEP = 0.05
 const COACH_MODELS = [
   { value: 'qwen3:8b', label: 'Qwen 3 8B', hint: '更稳，更像日常陪练' },
   { value: 'deepseek-r1:8b', label: 'DeepSeek R1 8B', hint: '推理更强，建议更展开' },
@@ -734,7 +844,11 @@ export default {
       currentTime: 0,
       duration: 0,
       playbackRate: 1,
+      repeatPlayback: false,
       backingVolume: this.loadBackingVolume(),
+      recordingInputGain: this.loadRecordingInputGain(),
+      selectedAudioInputDeviceId: this.loadRecordingInputDevice(),
+      audioInputDevices: [],
       speeds: [0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 1.0],
       loopStart: null,
       loopEnd: null,
@@ -776,6 +890,12 @@ export default {
       relatedVideosLoading: false,
       showRelatedVideoModal: false,
       activeRelatedVideo: null,
+      relatedVideoIsPlaying: false,
+      relatedVideoCurrentTime: 0,
+      relatedVideoDuration: 0,
+      relatedVideoPlaybackRate: 1,
+      relatedVideoFullscreen: false,
+      RELATED_VIDEO_PLAYBACK_RATE_STEP,
       learningRecommendations: null,
       learningRecommendationsLoading: false,
       learningPlanProgress: this.loadLearningPlanProgress(),
@@ -854,6 +974,9 @@ export default {
     },
     backingVolumePercent() {
       return Math.round(this.backingVolume * 100)
+    },
+    recordingInputGainPercent() {
+      return Math.round(this.recordingInputGain * 100)
     },
     visibleMarkers() {
       if (!this.selectedSong || !this.selectedVersion) return []
@@ -1030,12 +1153,27 @@ export default {
       window?.navigator?.mediaDevices?.getUserMedia && window.MediaRecorder,
     )
     window.addEventListener('guitar-platform-coach-model-change', this.handleCoachModelChange)
+    window.addEventListener('keydown', this.handleRelatedVideoKeydown, true)
+    window.addEventListener('keyup', this.handleRelatedVideoKeyup, true)
+    window.addEventListener('keydown', this.handleSongPlaybackKeydown, true)
+    window.addEventListener('keyup', this.handleSongPlaybackKeyup, true)
+    window?.navigator?.mediaDevices?.addEventListener?.('devicechange', this.loadAudioInputDevices)
+    document.addEventListener('fullscreenchange', this.syncRelatedVideoFullscreenState)
+    document.addEventListener('webkitfullscreenchange', this.syncRelatedVideoFullscreenState)
     this.initAudio()
+    await this.loadAudioInputDevices()
     await this.loadSongs()
     await this.loadCoachSessions()
   },
   beforeUnmount() {
     window.removeEventListener('guitar-platform-coach-model-change', this.handleCoachModelChange)
+    window.removeEventListener('keydown', this.handleRelatedVideoKeydown, true)
+    window.removeEventListener('keyup', this.handleRelatedVideoKeyup, true)
+    window.removeEventListener('keydown', this.handleSongPlaybackKeydown, true)
+    window.removeEventListener('keyup', this.handleSongPlaybackKeyup, true)
+    window?.navigator?.mediaDevices?.removeEventListener?.('devicechange', this.loadAudioInputDevices)
+    document.removeEventListener('fullscreenchange', this.syncRelatedVideoFullscreenState)
+    document.removeEventListener('webkitfullscreenchange', this.syncRelatedVideoFullscreenState)
     if (this.audio) {
       this.audio.pause()
       this.audio.src = ''
@@ -1053,6 +1191,7 @@ export default {
     initAudio() {
       this.audio = new Audio()
       this.audio.volume = this.backingVolume
+      this.audio.loop = this.repeatPlayback
       this.audio.addEventListener('timeupdate', () => {
         this.currentTime = this.audio.currentTime
         if (
@@ -1083,6 +1222,7 @@ export default {
       })
       this.audio.addEventListener('ended', () => {
         this.isPlaying = false
+        this.currentTime = this.duration
         if (this.videoCoachActive && this.mediaRecorder && this.mediaRecorder.state !== 'inactive') {
           this.stopVideoCoachPlayback()
           return
@@ -1237,7 +1377,10 @@ export default {
       if (!this.currentAudioFile) return
       if (this.audio.paused) {
         this.rememberCurrentPractice()
-        this.audio.currentTime = this.playbackStartTime()
+        const reachedEnd = this.audio.ended
+          || (this.duration > 0 && this.audio.currentTime >= this.duration - 0.1)
+        this.audio.currentTime = reachedEnd ? 0 : this.playbackStartTime()
+        this.currentTime = this.audio.currentTime
         await this.audio.play()
       } else {
         this.audio.pause()
@@ -1263,15 +1406,15 @@ export default {
       }
       await this.togglePlay()
     },
-    async startCoachPlayback() {
+    async startCoachPlayback(options = {}) {
       if (!this.currentAudioFile || this.coachAnalyzing || this.coachPlaybackActive) return
       this.rememberCurrentPractice()
-      await this.startCoachRecording({ autoplay: true, withVideo: false })
+      await this.startCoachRecording({ autoplay: true, withVideo: false, ...options })
     },
-    async startVideoCoachPlayback() {
+    async startVideoCoachPlayback(options = {}) {
       if (!this.currentAudioFile || this.coachAnalyzing || this.videoCoachActive) return
       this.rememberCurrentPractice()
-      await this.startCoachRecording({ autoplay: true, withVideo: true, countdown: 3 })
+      await this.startCoachRecording({ autoplay: true, withVideo: true, countdown: 3, ...options })
     },
     stopCoachPlayback() {
       if (!this.coachPlaybackActive) return
@@ -1333,9 +1476,51 @@ export default {
       } catch {}
       return 0.9
     },
+    loadRecordingInputDevice() {
+      try {
+        return window.localStorage.getItem(RECORDING_INPUT_DEVICE_STORAGE_KEY) || ''
+      } catch {}
+      return ''
+    },
+    loadRecordingInputGain() {
+      try {
+        const raw = Number(window.localStorage.getItem(RECORDING_INPUT_GAIN_STORAGE_KEY))
+        if (Number.isFinite(raw) && raw >= 0.5 && raw <= 4) {
+          return raw
+        }
+      } catch {}
+      return 1
+    },
     persistBackingVolume() {
       try {
         window.localStorage.setItem(BACKING_VOLUME_STORAGE_KEY, String(this.backingVolume))
+      } catch {}
+    },
+    async loadAudioInputDevices() {
+      if (!window?.navigator?.mediaDevices?.enumerateDevices) return
+      try {
+        const devices = await window.navigator.mediaDevices.enumerateDevices()
+        this.audioInputDevices = devices
+          .filter(device => device.kind === 'audioinput' && device.deviceId)
+          .map(device => ({
+            deviceId: device.deviceId,
+            label: device.label,
+          }))
+      } catch {}
+    },
+    setRecordingInputDevice(event) {
+      this.selectedAudioInputDeviceId = event?.target?.value || ''
+      try {
+        window.localStorage.setItem(RECORDING_INPUT_DEVICE_STORAGE_KEY, this.selectedAudioInputDeviceId)
+      } catch {}
+    },
+    setRecordingInputGain(event) {
+      const value = Number(event?.target?.value)
+      if (!Number.isFinite(value)) return
+      this.recordingInputGain = Math.max(0.5, Math.min(4, value / 100))
+      this.applyRecordingInputGain()
+      try {
+        window.localStorage.setItem(RECORDING_INPUT_GAIN_STORAGE_KEY, String(this.recordingInputGain))
       } catch {}
     },
     setBackingVolume(event) {
@@ -1356,6 +1541,11 @@ export default {
         this.backingRecordGain.gain.value = this.backingVolume * 0.92
       }
     },
+    applyRecordingInputGain() {
+      if (this.inputRecordGain) {
+        this.inputRecordGain.gain.value = this.recordingInputGain
+      }
+    },
     setLoopStart() {
       this.loopStart = this.clampAudioTime(this.audio.currentTime)
       if (this.loopEnd !== null && this.loopEnd <= this.loopStart) {
@@ -1372,6 +1562,13 @@ export default {
     clearLoop() {
       this.loopStart = null
       this.loopEnd = null
+    },
+    toggleRepeatPlayback() {
+      this.repeatPlayback = !this.repeatPlayback
+      if (this.audio) {
+        this.audio.loop = this.repeatPlayback
+      }
+      this.blurActivePlaybackControl()
     },
     loadLoopSnippets() {
       try {
@@ -1753,10 +1950,165 @@ export default {
     openRelatedVideo(video) {
       this.activeRelatedVideo = video
       this.showRelatedVideoModal = true
+      this.relatedVideoIsPlaying = false
+      this.relatedVideoCurrentTime = 0
+      this.relatedVideoDuration = 0
+      this.relatedVideoPlaybackRate = 1
+      this.relatedVideoFullscreen = false
     },
     closeRelatedVideoModal() {
+      const player = this.$refs.relatedVideoPlayer
+      if (player) {
+        player.pause()
+      }
       this.showRelatedVideoModal = false
       this.activeRelatedVideo = null
+      this.relatedVideoIsPlaying = false
+      this.relatedVideoCurrentTime = 0
+      this.relatedVideoDuration = 0
+      this.relatedVideoFullscreen = false
+    },
+    handleRelatedVideoReady(event) {
+      const player = event.target
+      this.relatedVideoDuration = Number.isFinite(player.duration) ? player.duration : 0
+      player.playbackRate = this.relatedVideoPlaybackRate
+    },
+    handleRelatedVideoProgress(event) {
+      const player = event.target
+      this.relatedVideoCurrentTime = player.currentTime || 0
+      this.relatedVideoDuration = Number.isFinite(player.duration) ? player.duration : this.relatedVideoDuration
+    },
+    async toggleRelatedVideoPlay() {
+      const player = this.$refs.relatedVideoPlayer
+      if (!player) return
+      if (player.paused) {
+        await player.play().catch(() => {})
+      } else {
+        player.pause()
+      }
+      this.blurActivePlaybackControl()
+    },
+    seekRelatedVideoBy(deltaSeconds) {
+      const player = this.$refs.relatedVideoPlayer
+      if (!player) return
+      const duration = Number.isFinite(player.duration) ? player.duration : 0
+      const nextTime = Math.max(0, Math.min(duration || Number.MAX_SAFE_INTEGER, (player.currentTime || 0) + deltaSeconds))
+      player.currentTime = nextTime
+      this.relatedVideoCurrentTime = nextTime
+      this.blurActivePlaybackControl()
+    },
+    seekRelatedVideoRange(event) {
+      const player = this.$refs.relatedVideoPlayer
+      if (!player || !this.relatedVideoDuration) return
+      const nextTime = Math.max(0, Math.min(this.relatedVideoDuration, Number(event.target.value)))
+      player.currentTime = nextTime
+      this.relatedVideoCurrentTime = nextTime
+    },
+    setRelatedVideoSpeed(speed) {
+      this.relatedVideoPlaybackRate = this.clampRelatedVideoPlaybackRate(speed)
+      const player = this.$refs.relatedVideoPlayer
+      if (player) {
+        player.playbackRate = this.relatedVideoPlaybackRate
+      }
+      this.blurActivePlaybackControl()
+    },
+    adjustRelatedVideoSpeed(delta) {
+      this.setRelatedVideoSpeed(this.relatedVideoPlaybackRate + delta)
+    },
+    clampRelatedVideoPlaybackRate(speed) {
+      const value = Number.isFinite(speed) ? speed : 1
+      return Number(Math.max(
+        RELATED_VIDEO_MIN_PLAYBACK_RATE,
+        Math.min(RELATED_VIDEO_MAX_PLAYBACK_RATE, value),
+      ).toFixed(2))
+    },
+    handleRelatedVideoFrameClick(event) {
+      const frame = this.$refs.relatedVideoFrame
+      const player = this.$refs.relatedVideoPlayer
+      if (!frame || !player) return
+      if (event.target instanceof HTMLElement && event.target.closest('.related-video-controls')) return
+      this.toggleRelatedVideoPlay()
+    },
+    getFullscreenElement() {
+      return document.fullscreenElement || document.webkitFullscreenElement || null
+    },
+    async toggleRelatedVideoFullscreen() {
+      const frame = this.$refs.relatedVideoFrame
+      if (!frame) return
+      if (this.getFullscreenElement()) {
+        const exitFullscreen = document.exitFullscreen || document.webkitExitFullscreen
+        if (exitFullscreen) await exitFullscreen.call(document)
+      } else {
+        const requestFullscreen = frame.requestFullscreen || frame.webkitRequestFullscreen
+        if (requestFullscreen) await requestFullscreen.call(frame)
+      }
+      this.blurActivePlaybackControl()
+    },
+    syncRelatedVideoFullscreenState() {
+      this.relatedVideoFullscreen = this.getFullscreenElement() === this.$refs.relatedVideoFrame
+      this.blurActivePlaybackControl()
+    },
+    isRelatedVideoShortcut(event) {
+      return event.code === 'Space'
+        || event.key === ' '
+        || event.key === 'Spacebar'
+        || event.key === 'ArrowLeft'
+        || event.key === 'ArrowRight'
+    },
+    claimRelatedVideoShortcut(event) {
+      event.preventDefault()
+      event.stopPropagation()
+      event.stopImmediatePropagation?.()
+    },
+    handleRelatedVideoKeydown(event) {
+      if (!this.showRelatedVideoModal || !this.$refs.relatedVideoPlayer || !this.isRelatedVideoShortcut(event)) return
+      if (event.code === 'Space' || event.key === ' ' || event.key === 'Spacebar') {
+        this.claimRelatedVideoShortcut(event)
+        this.blurActivePlaybackControl()
+        if (event.repeat) return
+        this.toggleRelatedVideoPlay()
+        return
+      }
+      if (event.key === 'ArrowLeft') {
+        this.claimRelatedVideoShortcut(event)
+        this.seekRelatedVideoBy(-5)
+        return
+      }
+      if (event.key === 'ArrowRight') {
+        this.claimRelatedVideoShortcut(event)
+        this.seekRelatedVideoBy(5)
+      }
+    },
+    handleRelatedVideoKeyup(event) {
+      if (!this.showRelatedVideoModal || !this.$refs.relatedVideoPlayer || !this.isRelatedVideoShortcut(event)) return
+      this.claimRelatedVideoShortcut(event)
+      this.blurActivePlaybackControl()
+    },
+    isSongPlaybackSpace(event) {
+      return event.code === 'Space' || event.key === ' ' || event.key === 'Spacebar'
+    },
+    claimSongPlaybackSpace(event) {
+      event.preventDefault()
+      event.stopPropagation()
+      event.stopImmediatePropagation?.()
+    },
+    handleSongPlaybackKeydown(event) {
+      if (this.showRelatedVideoModal || !this.currentAudioFile || !this.isSongPlaybackSpace(event)) return
+      this.claimSongPlaybackSpace(event)
+      this.blurActivePlaybackControl()
+      if (event.repeat) return
+      this.handlePlaybackAction()
+    },
+    handleSongPlaybackKeyup(event) {
+      if (this.showRelatedVideoModal || !this.currentAudioFile || !this.isSongPlaybackSpace(event)) return
+      this.claimSongPlaybackSpace(event)
+      this.blurActivePlaybackControl()
+    },
+    blurActivePlaybackControl() {
+      const activeElement = document.activeElement
+      if (activeElement instanceof HTMLElement) {
+        activeElement.blur()
+      }
     },
     async openTodayPracticeSong(songId) {
       const target = this.songs.find(song => song.id === songId)
@@ -1799,15 +2151,19 @@ export default {
       this.clearCoachRecordingPreview()
 
       try {
+        const audioConstraints = {
+          echoCancellation: false,
+          noiseSuppression: false,
+          autoGainControl: false,
+          channelCount: 2,
+          sampleRate: 48000,
+          sampleSize: 16,
+        }
+        if (this.selectedAudioInputDeviceId) {
+          audioConstraints.deviceId = { exact: this.selectedAudioInputDeviceId }
+        }
         const stream = await navigator.mediaDevices.getUserMedia({
-          audio: {
-            echoCancellation: false,
-            noiseSuppression: false,
-            autoGainControl: false,
-            channelCount: 2,
-            sampleRate: 48000,
-            sampleSize: 16,
-          },
+          audio: audioConstraints,
           video: options.withVideo
             ? {
                 width: { ideal: 1280 },
@@ -1816,6 +2172,7 @@ export default {
               }
             : false,
         })
+        await this.loadAudioInputDevices()
         this.coachCaptureMode = options.withVideo ? 'video' : 'audio'
         const analysisMimeType = this.pickRecordingMimeType()
         const mixedMimeType = this.pickMixedRecordingMimeType()
@@ -1848,6 +2205,11 @@ export default {
         this.mixRecorder.addEventListener('stop', finalizeRecording, { once: true })
         this.videoCoachActive = Boolean(options.withVideo)
         this.coachPlaybackActive = Boolean(options.autoplay) && !options.withVideo
+        const startTime = options.restartFromBeginning ? 0 : this.playbackStartTime()
+        if (options.autoplay) {
+          this.audio.currentTime = startTime
+          this.currentTime = startTime
+        }
         if (options.countdown && options.countdown > 0) {
           await this.runCoachCountdown(options.countdown)
         }
@@ -1856,7 +2218,6 @@ export default {
         this.mediaRecorder.start()
         this.mixRecorder.start()
         if (options.autoplay) {
-          this.audio.currentTime = this.playbackStartTime()
           await this.audio.play().catch(error => {
             this.coachPlaybackActive = false
             this.videoCoachActive = false
@@ -1926,10 +2287,10 @@ export default {
       this.clearCoachRecordingPreview()
       this.coachError = ''
       if (captureMode === 'video') {
-        await this.startVideoCoachPlayback()
+        await this.startVideoCoachPlayback({ restartFromBeginning: true })
         return
       }
-      await this.startCoachPlayback()
+      await this.startCoachPlayback({ restartFromBeginning: true })
     },
     cancelPendingCoachTake() {
       if (!this.pendingCoachTake) return
@@ -2206,8 +2567,8 @@ export default {
       this.currentInputSource = this.audioContext.createMediaStreamSource(new MediaStream(stream.getAudioTracks()))
       if (!this.inputRecordGain) {
         this.inputRecordGain = this.audioContext.createGain()
-        this.inputRecordGain.gain.value = 1.0
       }
+      this.inputRecordGain.gain.value = this.recordingInputGain
       this.currentInputSource.connect(this.inputRecordGain)
       this.inputRecordGain.connect(this.mixDestination)
 
@@ -2838,6 +3199,21 @@ export default {
   flex: 1 1 140px;
   min-width: 120px;
   accent-color: #f97316;
+}
+
+.recording-input-select {
+  flex: 1 1 180px;
+  min-width: 160px;
+  border: 1px solid rgba(249, 115, 22, 0.45);
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.8);
+  color: #fff7ed;
+  font-size: 12px;
+  padding: 8px 12px;
+}
+
+.recording-input-select:disabled {
+  opacity: 0.55;
 }
 
 .volume-row strong {
@@ -3872,6 +4248,7 @@ export default {
   font-size: 13px;
 }
 
+.modal-loop-cluster button.active,
 .modal-speed-cluster button.active {
   background: #f97316;
   color: #fff7ed;
@@ -3902,12 +4279,153 @@ export default {
   background: #050816;
 }
 
+.custom-related-video-frame {
+  position: relative;
+  cursor: pointer;
+}
+
 .related-video-frame video {
   width: 100%;
   max-height: min(68vh, 640px);
   display: block;
   background: #000;
   object-fit: contain;
+}
+
+.related-video-frame video:focus,
+.related-video-frame video:focus-visible {
+  outline: none;
+}
+
+.related-video-controls {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: grid;
+  grid-template-columns: auto auto minmax(120px, 1fr) auto auto;
+  align-items: center;
+  gap: 12px;
+  padding: 36px 18px 14px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.78), rgba(0, 0, 0, 0));
+  color: #f8fafc;
+  cursor: default;
+}
+
+.related-video-icon-btn {
+  display: inline-grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(15, 23, 42, 0.58);
+  color: #fff;
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.related-video-icon-btn:hover {
+  background: rgba(249, 115, 22, 0.92);
+}
+
+.related-video-icon-btn:focus,
+.related-video-icon-btn:focus-visible,
+.related-video-seek:focus,
+.related-video-seek:focus-visible {
+  outline: none;
+}
+
+.related-video-time {
+  min-width: 92px;
+  font-weight: 800;
+  color: #f8fafc;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.55);
+  white-space: nowrap;
+}
+
+.related-video-seek {
+  width: 100%;
+  accent-color: #ff7a1a;
+  cursor: pointer;
+}
+
+.related-video-speed-controls {
+  display: inline-grid;
+  grid-template-columns: 28px 58px 28px;
+  align-items: center;
+  gap: 4px;
+  min-width: 124px;
+  color: #f8fafc;
+  font-weight: 800;
+  text-align: center;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.55);
+}
+
+.related-video-mini-btn {
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(15, 23, 42, 0.58);
+  color: #fff;
+  font-size: 18px;
+  font-weight: 900;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.related-video-mini-btn:hover {
+  background: rgba(249, 115, 22, 0.92);
+}
+
+.related-video-mini-btn:focus,
+.related-video-mini-btn:focus-visible {
+  outline: none;
+}
+
+.custom-related-video-frame:fullscreen {
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
+  border-radius: 0;
+  display: grid;
+  place-items: center;
+  background: #000;
+}
+
+.custom-related-video-frame:fullscreen video {
+  width: 100vw;
+  height: 100vh;
+  max-height: none;
+}
+
+.custom-related-video-frame:fullscreen .related-video-controls {
+  padding: 56px 28px 24px;
+}
+
+.custom-related-video-frame:-webkit-full-screen {
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
+  border-radius: 0;
+  display: grid;
+  place-items: center;
+  background: #000;
+}
+
+.custom-related-video-frame:-webkit-full-screen video {
+  width: 100vw;
+  height: 100vh;
+  max-height: none;
+}
+
+.custom-related-video-frame:-webkit-full-screen .related-video-controls {
+  padding: 56px 28px 24px;
 }
 
 .gp-shell {

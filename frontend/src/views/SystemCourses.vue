@@ -230,19 +230,85 @@
               </div>
             </div>
 
-            <div class="video-frame">
+            <div
+              ref="videoFrameRef"
+              class="video-frame custom-video-frame"
+              @click="handleVideoFrameClick"
+            >
               <video
                 v-if="selectedVideo.path"
                 ref="videoPlayerRef"
                 :src="selectedVideo.url"
-                controls
-                controlsList="nodownload"
                 :muted="previewMuted"
                 autoplay
                 playsinline
                 @loadedmetadata="handleVideoReady"
                 @timeupdate="handleVideoProgress"
+                @play="isPlaying = true"
+                @pause="isPlaying = false"
               ></video>
+              <div
+                v-if="selectedVideo.path"
+                class="player-controls"
+                @click.stop
+              >
+                <button
+                  class="player-icon-btn"
+                  type="button"
+                  :aria-label="isPlaying ? '暂停' : '播放'"
+                  @click="togglePlay"
+                >
+                  {{ isPlaying ? '❚❚' : '▶' }}
+                </button>
+                <span class="player-time">{{ formatTime(currentTime) }} / {{ formatTime(duration) }}</span>
+                <input
+                  class="player-seek"
+                  type="range"
+                  min="0"
+                  :max="duration || 0"
+                  step="0.1"
+                  :value="currentTime"
+                  :disabled="!duration"
+                  aria-label="视频进度"
+                  @input="seekVideoRange"
+                  @pointerup="blurActivePlaybackControl"
+                />
+                <button
+                  class="player-icon-btn"
+                  type="button"
+                  :aria-label="previewMuted ? '取消静音' : '静音'"
+                  @click="toggleMute"
+                >
+                  {{ previewMuted ? '静' : '音' }}
+                </button>
+                <div class="player-speed-controls" aria-label="播放速度">
+                  <button
+                    class="player-mini-btn"
+                    type="button"
+                    aria-label="降低播放速度"
+                    @click="adjustSpeed(-PLAYBACK_RATE_STEP)"
+                  >
+                    -
+                  </button>
+                  <span>{{ playbackRate.toFixed(2) }}x</span>
+                  <button
+                    class="player-mini-btn"
+                    type="button"
+                    aria-label="提高播放速度"
+                    @click="adjustSpeed(PLAYBACK_RATE_STEP)"
+                  >
+                    +
+                  </button>
+                </div>
+                <button
+                  class="player-icon-btn"
+                  type="button"
+                  :aria-label="isFullscreen ? '退出全屏' : '全屏'"
+                  @click="toggleFullscreen"
+                >
+                  {{ isFullscreen ? '⤢' : '⛶' }}
+                </button>
+              </div>
               <div v-else class="state-box">当前视频未配置媒体路径</div>
             </div>
 
@@ -369,15 +435,85 @@
                 <button class="ghost-btn" @click="previewExpanded = false">回到目录</button>
               </div>
             </div>
-            <div class="video-frame preview-modal-frame">
+            <div
+              ref="previewVideoFrameRef"
+              class="video-frame preview-modal-frame custom-video-frame"
+              @click="handleVideoFrameClick"
+            >
               <video
                 v-if="selectedVideo.path"
+                ref="previewVideoPlayerRef"
                 :src="selectedVideo.url"
-                controls
-                controlsList="nodownload"
                 autoplay
+                playsinline
+                :muted="previewMuted"
+                @loadedmetadata="handleVideoReady"
                 @timeupdate="handleVideoProgress"
+                @play="isPlaying = true"
+                @pause="isPlaying = false"
               ></video>
+              <div
+                v-if="selectedVideo.path"
+                class="player-controls"
+                @click.stop
+              >
+                <button
+                  class="player-icon-btn"
+                  type="button"
+                  :aria-label="isPlaying ? '暂停' : '播放'"
+                  @click="togglePlay"
+                >
+                  {{ isPlaying ? '❚❚' : '▶' }}
+                </button>
+                <span class="player-time">{{ formatTime(currentTime) }} / {{ formatTime(duration) }}</span>
+                <input
+                  class="player-seek"
+                  type="range"
+                  min="0"
+                  :max="duration || 0"
+                  step="0.1"
+                  :value="currentTime"
+                  :disabled="!duration"
+                  aria-label="视频进度"
+                  @input="seekVideoRange"
+                  @pointerup="blurActivePlaybackControl"
+                />
+                <button
+                  class="player-icon-btn"
+                  type="button"
+                  :aria-label="previewMuted ? '取消静音' : '静音'"
+                  @click="toggleMute"
+                >
+                  {{ previewMuted ? '静' : '音' }}
+                </button>
+                <div class="player-speed-controls" aria-label="播放速度">
+                  <button
+                    class="player-mini-btn"
+                    type="button"
+                    aria-label="降低播放速度"
+                    @click="adjustSpeed(-PLAYBACK_RATE_STEP)"
+                  >
+                    -
+                  </button>
+                  <span>{{ playbackRate.toFixed(2) }}x</span>
+                  <button
+                    class="player-mini-btn"
+                    type="button"
+                    aria-label="提高播放速度"
+                    @click="adjustSpeed(PLAYBACK_RATE_STEP)"
+                  >
+                    +
+                  </button>
+                </div>
+                <button
+                  class="player-icon-btn"
+                  type="button"
+                  :aria-label="isFullscreen ? '退出全屏' : '全屏'"
+                  @click="toggleFullscreen"
+                >
+                  {{ isFullscreen ? '⤢' : '⛶' }}
+                </button>
+              </div>
               <div v-else class="state-box">当前视频未配置媒体路径</div>
             </div>
           </div>
@@ -422,7 +558,15 @@ const qaMessages = ref([
 const practiceLoading = ref(false)
 const practiceLevel = ref('入门')
 const practiceResult = ref(null)
+const videoFrameRef = ref(null)
 const videoPlayerRef = ref(null)
+const previewVideoFrameRef = ref(null)
+const previewVideoPlayerRef = ref(null)
+const isPlaying = ref(false)
+const isFullscreen = ref(false)
+const currentTime = ref(0)
+const duration = ref(0)
+const playbackRate = ref(1)
 const previewCollapsed = ref(false)
 const previewExpanded = ref(false)
 const previewMuted = ref(true)
@@ -430,6 +574,10 @@ const recentState = ref(loadPersistedState())
 const deletingCourse = ref(false)
 const relatedSongs = ref([])
 const relatedSongsLoading = ref(false)
+
+const MIN_PLAYBACK_RATE = 0.6
+const MAX_PLAYBACK_RATE = 1.5
+const PLAYBACK_RATE_STEP = 0.05
 
 const allVideos = computed(() => {
   return courses.value.map(course => ({
@@ -665,12 +813,31 @@ watch([activeFilter, activeSeries, searchQuery], () => {
 })
 
 watch(selectedVideo, async video => {
+  currentTime.value = 0
+  duration.value = 0
+  isPlaying.value = false
+  isFullscreen.value = false
   if (!video?.path) return
   await nextTick()
   const player = videoPlayerRef.value
   const progress = recentState.value.progress?.[video.key]
   if (player && progress?.position) {
     player.currentTime = progress.position
+  }
+})
+
+watch(previewExpanded, async expanded => {
+  await nextTick()
+  const sourcePlayer = expanded ? videoPlayerRef.value : previewVideoPlayerRef.value
+  const targetPlayer = expanded ? previewVideoPlayerRef.value : videoPlayerRef.value
+  if (!sourcePlayer || !targetPlayer) return
+  const wasPlaying = isPlaying.value || !sourcePlayer.paused
+  targetPlayer.currentTime = sourcePlayer.currentTime || currentTime.value || 0
+  targetPlayer.muted = previewMuted.value
+  targetPlayer.playbackRate = playbackRate.value
+  sourcePlayer.pause()
+  if (wasPlaying) {
+    targetPlayer.play().catch(() => {})
   }
 })
 
@@ -904,7 +1071,32 @@ function removeCourseState(key) {
   })
 }
 
+function activeVideoPlayer() {
+  return previewExpanded.value && previewVideoPlayerRef.value
+    ? previewVideoPlayerRef.value
+    : videoPlayerRef.value
+}
+
+function activeVideoFrame() {
+  return previewExpanded.value && previewVideoFrameRef.value
+    ? previewVideoFrameRef.value
+    : videoFrameRef.value
+}
+
+function syncOtherPlayer(sourcePlayer) {
+  const otherPlayer = sourcePlayer === videoPlayerRef.value ? previewVideoPlayerRef.value : videoPlayerRef.value
+  if (!otherPlayer || otherPlayer === sourcePlayer) return
+  otherPlayer.pause()
+  if (Number.isFinite(sourcePlayer.currentTime)) {
+    otherPlayer.currentTime = sourcePlayer.currentTime
+  }
+  otherPlayer.muted = previewMuted.value
+  otherPlayer.playbackRate = playbackRate.value
+}
+
 function handleVideoProgress(event) {
+  currentTime.value = event.target.currentTime || 0
+  duration.value = Number.isFinite(event.target.duration) ? event.target.duration : duration.value
   const current = selectedVideo.value
   if (!current?.path) return
   const position = Math.floor(event.target.currentTime || 0)
@@ -913,20 +1105,25 @@ function handleVideoProgress(event) {
   rememberVideo(current, position)
 }
 
-function handleVideoReady() {
-  const player = videoPlayerRef.value
+function handleVideoReady(event) {
+  const player = event?.target || activeVideoPlayer()
+  if (!player) return
+  duration.value = Number.isFinite(player.duration) ? player.duration : 0
   const position = resumeInfo.value?.position || 0
   if (player && position > 0 && position < player.duration - 3) {
     player.currentTime = position
   }
-  startPreviewPlayback()
+  player.muted = previewMuted.value
+  player.playbackRate = playbackRate.value
+  player.play().catch(() => {})
 }
 
 function resumePlayback() {
-  const player = videoPlayerRef.value
+  const player = activeVideoPlayer()
   const position = resumeInfo.value?.position || 0
   if (!player || !position) return
   player.currentTime = position
+  currentTime.value = position
   player.play().catch(() => {})
 }
 
@@ -934,20 +1131,22 @@ function startPreviewPlayback() {
   const player = videoPlayerRef.value
   if (!player || previewCollapsed.value) return
   player.muted = previewMuted.value
+  player.playbackRate = playbackRate.value
   player.play().catch(() => {})
 }
 
 function continuePreviewPlayback() {
   previewCollapsed.value = false
   previewMuted.value = false
-  const player = videoPlayerRef.value
+  const player = activeVideoPlayer()
   if (!player) return
   player.muted = false
+  player.playbackRate = playbackRate.value
   player.play().catch(() => {})
 }
 
 async function togglePlay() {
-  const player = videoPlayerRef.value
+  const player = activeVideoPlayer()
   if (!player) return
   if (player.paused) {
     await player.play().catch(() => {})
@@ -957,11 +1156,80 @@ async function togglePlay() {
 }
 
 function seekBy(deltaSeconds) {
-  const player = videoPlayerRef.value
+  const player = activeVideoPlayer()
   if (!player) return
   const duration = Number.isFinite(player.duration) ? player.duration : 0
   const nextTime = Math.max(0, Math.min(duration || Number.MAX_SAFE_INTEGER, (player.currentTime || 0) + deltaSeconds))
   player.currentTime = nextTime
+  currentTime.value = nextTime
+}
+
+function seekVideoRange(event) {
+  const player = activeVideoPlayer()
+  if (!player || !duration.value) return
+  const nextTime = Math.max(0, Math.min(duration.value, Number(event.target.value)))
+  player.currentTime = nextTime
+  currentTime.value = nextTime
+  syncOtherPlayer(player)
+}
+
+function setSpeed(speed) {
+  playbackRate.value = clampPlaybackRate(speed)
+  ;[videoPlayerRef.value, previewVideoPlayerRef.value].forEach(player => {
+    if (player) player.playbackRate = playbackRate.value
+  })
+  blurActivePlaybackControl()
+}
+
+function adjustSpeed(delta) {
+  setSpeed(playbackRate.value + delta)
+}
+
+function clampPlaybackRate(speed) {
+  const value = Number.isFinite(speed) ? speed : 1
+  return Number(Math.max(MIN_PLAYBACK_RATE, Math.min(MAX_PLAYBACK_RATE, value)).toFixed(2))
+}
+
+function toggleMute() {
+  previewMuted.value = !previewMuted.value
+  ;[videoPlayerRef.value, previewVideoPlayerRef.value].forEach(player => {
+    if (player) player.muted = previewMuted.value
+  })
+  blurActivePlaybackControl()
+}
+
+function isVideoFrameTarget(target) {
+  if (!target || target === activeVideoFrame() || target === activeVideoPlayer()) return true
+  return target instanceof HTMLElement && target.closest('.player-controls') === null
+}
+
+function handleVideoFrameClick(event) {
+  if (!selectedVideo.value || !activeVideoPlayer() || !isVideoFrameTarget(event.target)) return
+  togglePlay()
+}
+
+function getFullscreenElement() {
+  if (typeof document === 'undefined') return null
+  return document.fullscreenElement || document.webkitFullscreenElement || null
+}
+
+async function toggleFullscreen() {
+  const frame = activeVideoFrame()
+  if (!frame) return
+
+  if (getFullscreenElement()) {
+    const exitFullscreen = document.exitFullscreen || document.webkitExitFullscreen
+    if (exitFullscreen) await exitFullscreen.call(document)
+  } else {
+    const requestFullscreen = frame.requestFullscreen || frame.webkitRequestFullscreen
+    if (requestFullscreen) await requestFullscreen.call(frame)
+  }
+  blurActivePlaybackControl()
+}
+
+function syncFullscreenState() {
+  isFullscreen.value = getFullscreenElement() === activeVideoFrame()
+  blurActivePlaybackControl()
 }
 
 function openRecentItem(item) {
@@ -1097,43 +1365,76 @@ function isFilePreview() {
   return typeof window !== 'undefined' && window.location.protocol === 'file:'
 }
 
-function isTypingTarget(target) {
-  if (!(target instanceof HTMLElement)) return false
-  const tag = target.tagName
-  return target.isContentEditable || tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT'
+function blurActivePlaybackControl() {
+  if (typeof document === 'undefined') return
+  const activeElement = document.activeElement
+  if (activeElement instanceof HTMLElement) {
+    activeElement.blur()
+  }
+}
+
+function isPlaybackShortcut(event) {
+  return event.code === 'Space'
+    || event.key === ' '
+    || event.key === 'Spacebar'
+    || event.key === 'ArrowLeft'
+    || event.key === 'ArrowRight'
+}
+
+function claimPlaybackShortcut(event) {
+  event.preventDefault()
+  event.stopPropagation()
+  event.stopImmediatePropagation?.()
 }
 
 function handleGlobalVideoKeydown(event) {
-  if (!selectedVideo.value || !videoPlayerRef.value) return
-  if (isTypingTarget(event.target)) return
+  if (!selectedVideo.value || !activeVideoPlayer()) return
+  if (!isPlaybackShortcut(event)) return
 
-  if (event.code === 'Space' || event.key === ' ') {
-    event.preventDefault()
+  if (event.code === 'Space' || event.key === ' ' || event.key === 'Spacebar') {
+    claimPlaybackShortcut(event)
+    blurActivePlaybackControl()
+    if (event.repeat) return
     togglePlay()
     return
   }
 
   if (event.key === 'ArrowLeft') {
-    event.preventDefault()
+    claimPlaybackShortcut(event)
+    blurActivePlaybackControl()
     seekBy(-5)
     return
   }
 
   if (event.key === 'ArrowRight') {
-    event.preventDefault()
+    claimPlaybackShortcut(event)
+    blurActivePlaybackControl()
     seekBy(5)
   }
 }
 
+function handleGlobalVideoKeyup(event) {
+  if (!selectedVideo.value || !activeVideoPlayer() || !isPlaybackShortcut(event)) return
+  claimPlaybackShortcut(event)
+  blurActivePlaybackControl()
+}
+
 onBeforeUnmount(() => {
-  window.removeEventListener('keydown', handleGlobalVideoKeydown)
-  if (selectedVideo.value && videoPlayerRef.value) {
-    rememberVideo(selectedVideo.value, Math.floor(videoPlayerRef.value.currentTime || 0))
+  window.removeEventListener('keydown', handleGlobalVideoKeydown, true)
+  window.removeEventListener('keyup', handleGlobalVideoKeyup, true)
+  document.removeEventListener('fullscreenchange', syncFullscreenState)
+  document.removeEventListener('webkitfullscreenchange', syncFullscreenState)
+  const player = activeVideoPlayer()
+  if (selectedVideo.value && player) {
+    rememberVideo(selectedVideo.value, Math.floor(player.currentTime || 0))
   }
 })
 
 onMounted(() => {
-  window.addEventListener('keydown', handleGlobalVideoKeydown)
+  window.addEventListener('keydown', handleGlobalVideoKeydown, true)
+  window.addEventListener('keyup', handleGlobalVideoKeyup, true)
+  document.addEventListener('fullscreenchange', syncFullscreenState)
+  document.addEventListener('webkitfullscreenchange', syncFullscreenState)
   loadData()
 })
 </script>
@@ -2066,10 +2367,161 @@ onMounted(() => {
   background: #0a1022;
 }
 
+.custom-video-frame {
+  position: relative;
+  cursor: pointer;
+}
+
 .video-frame video {
   width: 100%;
   display: block;
   background: #000;
+}
+
+.video-frame video:focus,
+.video-frame video:focus-visible {
+  outline: none;
+}
+
+.player-controls {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  padding: 34px 10px 10px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.78), rgba(0, 0, 0, 0));
+  color: #f8fafc;
+  cursor: default;
+  box-sizing: border-box;
+}
+
+.player-icon-btn {
+  flex: 0 0 auto;
+  display: inline-grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(15, 23, 42, 0.58);
+  color: #fff;
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.player-icon-btn:hover {
+  background: rgba(249, 115, 22, 0.92);
+}
+
+.player-icon-btn:focus,
+.player-icon-btn:focus-visible,
+.player-seek:focus,
+.player-seek:focus-visible {
+  outline: none;
+}
+
+.player-time {
+  flex: 0 1 auto;
+  min-width: 72px;
+  font-weight: 800;
+  color: #f8fafc;
+  font-size: 12px;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.55);
+  white-space: nowrap;
+}
+
+.player-seek {
+  order: 2;
+  flex: 1 0 100%;
+  width: 100%;
+  min-width: 0;
+  accent-color: #ff7a1a;
+  cursor: pointer;
+}
+
+.player-speed-controls {
+  flex: 0 0 auto;
+  display: inline-grid;
+  grid-template-columns: 24px 48px 24px;
+  align-items: center;
+  gap: 4px;
+  min-width: 100px;
+  color: #f8fafc;
+  font-weight: 800;
+  font-size: 12px;
+  text-align: center;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.55);
+}
+
+.player-mini-btn {
+  display: inline-grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(15, 23, 42, 0.58);
+  color: #fff;
+  font-size: 18px;
+  font-weight: 900;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.player-mini-btn:hover {
+  background: rgba(249, 115, 22, 0.92);
+}
+
+.player-mini-btn:focus,
+.player-mini-btn:focus-visible {
+  outline: none;
+}
+
+.custom-video-frame:fullscreen {
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
+  border-radius: 0;
+  display: grid;
+  place-items: center;
+  background: #000;
+}
+
+.custom-video-frame:fullscreen video {
+  width: 100vw;
+  height: 100vh;
+  max-height: none;
+}
+
+.custom-video-frame:fullscreen .player-controls {
+  padding: 56px 28px 24px;
+}
+
+.custom-video-frame:-webkit-full-screen {
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
+  border-radius: 0;
+  display: grid;
+  place-items: center;
+  background: #000;
+}
+
+.custom-video-frame:-webkit-full-screen video {
+  width: 100vw;
+  height: 100vh;
+  max-height: none;
+}
+
+.custom-video-frame:-webkit-full-screen .player-controls {
+  padding: 56px 28px 24px;
 }
 
 .preview-collapsed-card {
