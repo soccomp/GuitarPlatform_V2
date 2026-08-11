@@ -5,6 +5,7 @@ from pathlib import Path
 
 from config import COLLECTED_DIR, COURSES_DIR, SONGS_DIR
 from services.index_store import clean_relative_path
+from services.video_intelligence import find_video_transcript, merge_video_intelligence, read_video_transcript_text
 
 
 AUDIO_EXTENSIONS = {".mp3", ".wav", ".flac", ".m4a"}
@@ -78,20 +79,22 @@ def scan_collected_video_library() -> list[dict]:
 
         category = relative_path.parts[0] if len(relative_path.parts) > 1 else "未分类"
         thumbnail_path = ensure_collected_video_thumbnail(video_file, relative_path)
-        videos.append(
-            {
-                "id": build_collected_video_id(relative_path),
-                "title": video_file.stem,
-                "source": "local",
-                "author": "",
-                "category": category,
-                "path": clean_relative_path(relative_path.as_posix()),
-                "thumbnail": thumbnail_path,
-                "tags": [part for part in relative_path.parts[:-1] if part and part != category],
-                "description": "",
-                "type": "collected",
-            }
-        )
+        transcript_path = find_video_transcript(relative_path, COLLECTED_DIR)
+        video_entry = {
+            "id": build_collected_video_id(relative_path),
+            "title": video_file.stem,
+            "source": "local",
+            "author": "",
+            "category": category,
+            "path": clean_relative_path(relative_path.as_posix()),
+            "thumbnail": thumbnail_path,
+            "tags": [part for part in relative_path.parts[:-1] if part and part != category],
+            "description": "",
+            "type": "collected",
+            "transcript_path": clean_relative_path(transcript_path),
+        }
+        transcript_text = read_video_transcript_text(video_entry["transcript_path"], COLLECTED_DIR)
+        videos.append(merge_video_intelligence(video_entry, transcript_text=transcript_text))
 
     return videos
 
@@ -138,13 +141,16 @@ def collect_versions(song_dir: Path) -> list[dict]:
 
 def collect_media_files(song_dir: Path, version_dir: Path) -> dict:
     files: dict[str, str] = {}
+    audio_options: list[str] = []
     for file_path in sorted([path for path in version_dir.iterdir() if path.is_file()]):
         if file_path.name.lower() in IGNORED_FILENAMES:
             continue
         ext = file_path.suffix.lower()
         relative_path = file_path.relative_to(song_dir).as_posix()
-        if ext in AUDIO_EXTENSIONS and "audio" not in files:
-            files["audio"] = relative_path
+        if ext in AUDIO_EXTENSIONS:
+            audio_options.append(relative_path)
+            if "audio" not in files:
+                files["audio"] = relative_path
         elif ext in {".gp", ".gp5", ".gpx", ".gpzip"} and "gp" not in files:
             files["gp"] = relative_path
         elif ext == ".pdf" and "pdf" not in files:
@@ -153,6 +159,8 @@ def collect_media_files(song_dir: Path, version_dir: Path) -> dict:
             files["video"] = relative_path
         elif ext in IMAGE_EXTENSIONS and "image" not in files:
             files["image"] = relative_path
+    if audio_options:
+        files["audio_options"] = audio_options
     return files
 
 

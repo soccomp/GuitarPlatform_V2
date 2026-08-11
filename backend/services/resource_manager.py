@@ -38,6 +38,10 @@ def delete_video_resource(video: dict) -> list[dict]:
     video_path = resolve_under(COLLECTED_DIR, video.get("path", ""))
     _remove_file(video_path)
 
+    transcript_relative = clean_relative_path(video.get("transcript_path", ""))
+    if transcript_relative:
+        _remove_file(resolve_under(COLLECTED_DIR, transcript_relative))
+
     thumbnail_relative = clean_relative_path(video.get("thumbnail", ""))
     if thumbnail_relative:
         _remove_file(resolve_under(COLLECTED_DIR, thumbnail_relative))

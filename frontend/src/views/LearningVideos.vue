@@ -4,11 +4,13 @@
       <div class="sidebar-header">
         <div>
           <h2>学习视频</h2>
-          <p>收藏视频按主题整理，统一回看和练习</p>
+          <p>按主题整理，直接回看。</p>
         </div>
-        <button class="ghost-btn" :disabled="scanning" @click="scanVideos">
-          {{ scanning ? '扫描中...' : '扫描目录' }}
-        </button>
+        <div class="sidebar-actions">
+          <button class="ghost-btn" :disabled="scanning" @click="scanVideos">
+            {{ scanning ? '扫描中...' : '扫描目录' }}
+          </button>
+        </div>
       </div>
 
       <label class="search-panel">
@@ -41,6 +43,7 @@
           打开过的视频会出现在这里，方便你反复回看。
         </div>
       </div>
+
     </aside>
 
     <section class="content">
@@ -48,7 +51,7 @@
         <div class="section-header">
           <div>
             <h3>{{ currentFilterLabel }}</h3>
-            <p>像逛视频首页一样，直接点卡片开始学。</p>
+            <p>点卡片直接看。</p>
           </div>
           <span>{{ filteredVideos.length }} 条内容</span>
         </div>
@@ -76,7 +79,14 @@
             </div>
             <div class="video-card-body">
               <strong>{{ item.title }}</strong>
-              <p>{{ item.author || item.subtitle || '点击播放学习视频' }}</p>
+              <p>{{ item.author || item.subtitle || displayCategory(item) || '点击播放学习视频' }}</p>
+              <div class="video-card-highlights">
+                <span v-if="item.learningFocus">{{ item.learningFocus }}</span>
+              </div>
+              <div class="video-card-meta">
+                <span>播放 {{ item.playCount || 0 }} 次</span>
+                <span v-if="displayCategory(item)">{{ displayCategory(item) }}</span>
+              </div>
             </div>
           </button>
         </div>
@@ -91,13 +101,16 @@
           @click.self="closeVideo"
         >
           <div class="video-modal-card">
-            <div class="player-header">
-              <div>
-                <span class="panel-tag">{{ displayCategory(selectedVideo) || '学习视频' }}</span>
-                <h3>{{ selectedVideo.title }}</h3>
-                <p v-if="selectedVideo.subtitle">{{ selectedVideo.subtitle }}</p>
+              <div class="player-header">
+                <div>
+                  <span class="panel-tag">{{ displayCategory(selectedVideo) || '学习视频' }}</span>
+                  <h3>{{ selectedVideo.title }}</h3>
+                  <p v-if="selectedVideo.subtitle">{{ selectedVideo.subtitle }}</p>
               </div>
               <div class="modal-actions">
+                <button class="ghost-btn" :disabled="deleting || savingMeta" @click="openMetaEditor">
+                  {{ savingMeta ? '保存中...' : (isEditingMeta ? '取消编辑' : '编辑信息') }}
+                </button>
                 <button class="danger-btn" :disabled="deleting" @click="deleteSelectedVideo">
                   {{ deleting ? '删除中...' : '删除视频' }}
                 </button>
@@ -105,31 +118,209 @@
               </div>
             </div>
 
-            <div class="video-frame">
-              <video
-                v-if="selectedVideo.path"
-                :key="selectedVideo.id"
-                :src="selectedVideo.url"
-                controls
-                controlsList="nodownload"
-                autoplay
-              ></video>
-              <div v-else class="state-box">当前视频未配置媒体路径</div>
-            </div>
+            <div class="video-modal-layout">
+              <div class="video-modal-main">
+                <div
+                  ref="videoFrameRef"
+                  class="video-frame custom-video-frame"
+                  @click="handleVideoFrameClick"
+                >
+                  <video
+                    v-if="selectedVideo.path"
+                    ref="videoPlayerRef"
+                    :key="selectedVideo.id"
+                    :src="selectedVideo.url"
+                    autoplay
+                    playsinline
+                    @loadedmetadata="handleVideoReady"
+                    @timeupdate="handleVideoProgress"
+                    @play="isPlaying = true"
+                    @pause="isPlaying = false"
+                  ></video>
+                  <div
+                    v-if="selectedVideo.path"
+                    class="player-controls"
+                    @click.stop
+                  >
+                    <button
+                      class="player-icon-btn"
+                      type="button"
+                      :aria-label="isPlaying ? '暂停' : '播放'"
+                      @click="togglePlay"
+                    >
+                      {{ isPlaying ? '❚❚' : '▶' }}
+                    </button>
+                    <span class="player-time">{{ formatTime(currentTime) }} / {{ formatTime(duration) }}</span>
+                    <input
+                      class="player-seek"
+                      type="range"
+                      min="0"
+                      :max="duration || 0"
+                      step="0.1"
+                      :value="currentTime"
+                      :disabled="!duration"
+                      aria-label="视频进度"
+                      @input="seekVideoRange"
+                      @pointerup="blurActivePlaybackControl"
+                    />
+                    <button
+                      class="player-icon-btn"
+                      type="button"
+                      :aria-label="isMuted ? '取消静音' : '静音'"
+                      @click="toggleMute"
+                    >
+                      {{ isMuted ? '静' : '音' }}
+                    </button>
+                    <div class="player-speed-controls" aria-label="播放速度">
+                      <button
+                        class="player-mini-btn"
+                        type="button"
+                        aria-label="降低播放速度"
+                        @click="adjustSpeed(-PLAYBACK_RATE_STEP)"
+                      >
+                        -
+                      </button>
+                      <span>{{ playbackRate.toFixed(2) }}x</span>
+                      <button
+                        class="player-mini-btn"
+                        type="button"
+                        aria-label="提高播放速度"
+                        @click="adjustSpeed(PLAYBACK_RATE_STEP)"
+                      >
+                        +
+                      </button>
+                    </div>
+                    <button
+                      class="player-icon-btn"
+                      type="button"
+                      :aria-label="isFullscreen ? '退出全屏' : '全屏'"
+                      @click="toggleFullscreen"
+                    >
+                      {{ isFullscreen ? '⤢' : '⛶' }}
+                    </button>
+                  </div>
+                  <div v-else class="state-box">当前视频未配置媒体路径</div>
+                </div>
 
-            <div class="detail-strip">
-              <div>
-                <span>分类</span>
-                <strong>{{ displayCategory(selectedVideo) || '未填写' }}</strong>
+                <div v-if="selectedVideo.path" class="practice-controls">
+                  <div class="practice-topbar">
+                    <button class="ghost-btn" @click="togglePlay">
+                      {{ isPlaying ? '暂停' : '播放' }}
+                    </button>
+                    <span>{{ formatTime(currentTime) }} / {{ formatTime(duration) }}</span>
+                  </div>
+
+                  <input
+                    class="seek-slider"
+                    type="range"
+                    min="0"
+                    :max="duration || 0"
+                    step="0.1"
+                    :value="currentTime"
+                    :disabled="!duration"
+                    @input="seekVideoRange"
+                  />
+
+                  <div class="practice-actions">
+                    <button :class="{ active: loopStart !== null }" @click="setLoopStart">
+                      A {{ loopStart === null ? '--:--' : formatTime(loopStart) }}
+                    </button>
+                    <button :class="{ active: loopEnd !== null }" @click="setLoopEnd">
+                      B {{ loopEnd === null ? '--:--' : formatTime(loopEnd) }}
+                    </button>
+                    <button @click="clearLoop">清除循环</button>
+                  </div>
+
+                  <div class="practice-actions speed-row">
+                    <span>速度</span>
+                    <button
+                      v-for="speed in speeds"
+                      :key="speed"
+                      :class="{ active: playbackRate === speed }"
+                      @click="setSpeed(speed)"
+                    >
+                      {{ speed }}x
+                    </button>
+                  </div>
+                </div>
               </div>
-              <div>
-                <span>作者</span>
-                <strong>{{ selectedVideo.author || '未整理' }}</strong>
-              </div>
-              <div>
-                <span>备注</span>
-                <strong>{{ selectedVideo.description || '暂无整理备注' }}</strong>
-              </div>
+
+              <aside class="video-modal-side">
+                <div class="detail-strip detail-strip-stack">
+                  <div>
+                    <span>分类</span>
+                    <strong>{{ displayCategory(selectedVideo) || '未填写' }}</strong>
+                  </div>
+                  <div>
+                    <span>作者</span>
+                    <strong>{{ selectedVideo.author || '未整理' }}</strong>
+                  </div>
+                </div>
+
+                <div class="intelligence-grid intelligence-grid-single">
+                  <div v-if="selectedVideo" class="meta-editor-card intelligence-card">
+                    <div class="meta-editor-header">
+                      <h4>关联歌曲练习</h4>
+                      <span>{{ relatedSongs.length ? '直接回到要练的歌' : '当前还没有明显命中的歌曲' }}</span>
+                    </div>
+                    <div v-if="relatedSongsLoading" class="empty-copy compact-empty">正在整理这条视频更适合回到哪些歌验证...</div>
+                    <div v-else-if="relatedSongs.length" class="linked-song-list">
+                      <article
+                        v-for="song in relatedSongs"
+                        :key="`video-song-${song.id}`"
+                        class="linked-song-card"
+                      >
+                        <div class="linked-song-copy">
+                          <strong>{{ song.title }}</strong>
+                          <p>{{ song.artist || '歌曲练习' }}</p>
+                          <span>{{ song.reason }}</span>
+                        </div>
+                        <button class="ghost-btn" @click="openRelatedSong(song.id)">去练这首歌</button>
+                      </article>
+                    </div>
+                    <p v-else class="intelligence-copy">后面补完更多 transcript、标签和摘要后，这里的回跳会更准。</p>
+                  </div>
+
+                  <div v-if="selectedVideo" class="meta-editor-card">
+                    <div class="meta-editor-header">
+                      <h4>视频标题与介绍</h4>
+                      <span>{{ isEditingMeta ? '可直接修改显示标题、备注和自定义标签' : '需要时可自定义平台内显示信息' }}</span>
+                    </div>
+
+                    <div v-if="isEditingMeta" class="meta-editor-form">
+                      <label>
+                        <span>显示标题</span>
+                        <input v-model.trim="metaDraft.title" class="text-input" type="text" placeholder="例如：早班火车 Solo 教学" />
+                      </label>
+                      <label>
+                        <span>作者 / 备注来源</span>
+                        <input v-model.trim="metaDraft.author" class="text-input" type="text" placeholder="例如：B站收藏 / 某某老师" />
+                      </label>
+                      <label>
+                        <span>分类</span>
+                        <input v-model.trim="metaDraft.category" class="text-input" type="text" placeholder="例如：歌曲教学 / Solo 参考" />
+                      </label>
+                      <label>
+                        <span>介绍 / 备注</span>
+                        <textarea v-model.trim="metaDraft.description" class="text-input meta-textarea" placeholder="写一点你想保留的说明，比如这条视频适合练哪一段、讲了什么重点。"></textarea>
+                      </label>
+                      <label>
+                        <span>自定义标签</span>
+                        <input v-model.trim="metaDraft.tags" class="text-input" type="text" placeholder="用逗号分隔，比如：早班火车,Solo,主拍" />
+                      </label>
+                      <div class="meta-editor-actions">
+                        <button class="ghost-btn" :disabled="savingMeta" @click="cancelMetaEditor">取消</button>
+                        <button class="play-btn" :disabled="savingMeta || !metaDraft.title" @click="saveMetaEditor">保存</button>
+                      </div>
+                    </div>
+
+                    <div v-else class="meta-editor-preview">
+                      <p><strong>当前标题：</strong>{{ selectedVideo.title }}</p>
+                      <p><strong>当前介绍：</strong>{{ selectedVideo.description || '暂无整理备注' }}</p>
+                    </div>
+                  </div>
+                </div>
+              </aside>
             </div>
           </div>
         </div>
@@ -139,10 +330,12 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
-import seedIndex from '../../../backend/data/index.json'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { loadLocalSeedIndex } from '../utils/localSeedIndex'
 
 const STORAGE_KEY = 'guitar-platform-collected-videos'
+const PLAY_COUNT_STORAGE_KEY = 'guitar-platform-video-play-counts'
+const PENDING_VIDEO_ID_KEY = 'guitar-platform-pending-video-id'
 
 const loading = ref(true)
 const error = ref('')
@@ -151,7 +344,35 @@ const selectedKey = ref('')
 const videos = ref([])
 const scanning = ref(false)
 const deleting = ref(false)
+const savingMeta = ref(false)
+const relatedSongs = ref([])
+const relatedSongsLoading = ref(false)
 const recentKeys = ref(loadRecentKeys())
+const playCounts = ref(loadPlayCounts())
+const videoFrameRef = ref(null)
+const videoPlayerRef = ref(null)
+const isPlaying = ref(false)
+const isMuted = ref(false)
+const isFullscreen = ref(false)
+const currentTime = ref(0)
+const duration = ref(0)
+const playbackRate = ref(1)
+const loopStart = ref(null)
+const loopEnd = ref(null)
+const MIN_PLAYBACK_RATE = 0.6
+const MAX_PLAYBACK_RATE = 1.5
+const PLAYBACK_RATE_STEP = 0.05
+const speeds = Array.from(
+  { length: Math.round((MAX_PLAYBACK_RATE - MIN_PLAYBACK_RATE) / PLAYBACK_RATE_STEP) + 1 },
+  (_, index) => Number((MIN_PLAYBACK_RATE + index * PLAYBACK_RATE_STEP).toFixed(2)),
+)
+const isEditingMeta = ref(false)
+const metaDraft = ref({
+  title: '',
+  author: '',
+  category: '',
+  description: '',
+})
 
 const allVideos = computed(() =>
   videos.value.map(video => ({
@@ -165,9 +386,16 @@ const allVideos = computed(() =>
     tags: video.tags || [],
     path: video.path || '',
     description: video.description || '',
+    summary: video.summary || '',
+    learningFocus: video.learning_focus || '',
+    recommendedFor: video.recommended_for || '',
+    keyPoints: video.key_points || [],
+    transcriptPreview: video.transcript_preview || '',
+    transcriptAvailable: Boolean(video.transcript_available),
     thumbnail: video.thumbnail || '',
     thumbnailUrl: video.thumbnail ? mediaUrl('collected', video.thumbnail) : '',
     url: video.path ? videoStreamUrl(video) : '',
+    playCount: playCounts.value[video.id] || 0,
   }))
 )
 
@@ -195,6 +423,24 @@ const currentFilterLabel = computed(() => {
   return searchQuery.value.trim() ? `搜索：${searchQuery.value.trim()}` : '全部视频'
 })
 
+watch(() => selectedKey.value, async () => {
+  const video = selectedVideo.value
+  currentTime.value = 0
+  duration.value = 0
+  isPlaying.value = false
+  loopStart.value = null
+  loopEnd.value = null
+  relatedSongs.value = []
+  if (!video?.path) return
+  bumpPlayCount(video.id)
+  syncMetaDraft(video)
+  await loadRelatedSongs(video.id)
+  await nextTick()
+  if (videoPlayerRef.value) {
+    videoPlayerRef.value.playbackRate = playbackRate.value
+  }
+})
+
 async function loadData() {
   loading.value = true
   error.value = ''
@@ -203,9 +449,17 @@ async function loadData() {
     if (!response.ok) throw new Error('收藏视频列表加载失败')
     videos.value = await response.json()
   } catch (err) {
+    const seedIndex = await loadLocalSeedIndex()
     videos.value = seedIndex.videos || []
     error.value = ''
   } finally {
+    const pendingVideoId = consumePendingVideoId()
+    if (pendingVideoId) {
+      const pendingVideo = allVideos.value.find(item => item.id === pendingVideoId)
+      if (pendingVideo) {
+        selectVideo(pendingVideo)
+      }
+    }
     loading.value = false
   }
 }
@@ -263,10 +517,230 @@ function selectVideo(item) {
   if (typeof window !== 'undefined') {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(recentKeys.value))
   }
+  blurActivePlaybackControl()
 }
 
 function closeVideo() {
   selectedKey.value = ''
+  currentTime.value = 0
+  duration.value = 0
+  isPlaying.value = false
+  loopStart.value = null
+  loopEnd.value = null
+  isEditingMeta.value = false
+  relatedSongs.value = []
+}
+
+async function loadRelatedSongs(videoId) {
+  if (!videoId) {
+    relatedSongs.value = []
+    return
+  }
+  relatedSongsLoading.value = true
+  try {
+    const response = await fetch(`/api/videos/${videoId}/related-songs`)
+    if (!response.ok) throw new Error('关联歌曲加载失败')
+    relatedSongs.value = await response.json()
+  } catch {
+    relatedSongs.value = []
+  } finally {
+    relatedSongsLoading.value = false
+  }
+}
+
+function syncMetaDraft(video) {
+  metaDraft.value = {
+    title: video?.title || '',
+    author: video?.author || '',
+    category: video?.category || '',
+    description: video?.description || '',
+    tags: Array.isArray(video?.tags) ? video.tags.join(', ') : '',
+  }
+}
+
+function openMetaEditor() {
+  if (isEditingMeta.value) {
+    cancelMetaEditor()
+    return
+  }
+  syncMetaDraft(selectedVideo.value)
+  isEditingMeta.value = true
+}
+
+function cancelMetaEditor() {
+  isEditingMeta.value = false
+  syncMetaDraft(selectedVideo.value)
+}
+
+async function saveMetaEditor() {
+  if (!selectedVideo.value || !metaDraft.value.title || savingMeta.value) return
+  savingMeta.value = true
+  error.value = ''
+  try {
+    const response = await fetch(`/api/videos/${selectedVideo.value.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        ...metaDraft.value,
+        tags: String(metaDraft.value.tags || '')
+          .split(/[，,]/)
+          .map(item => item.trim())
+          .filter(Boolean),
+      }),
+    })
+    const data = await response.json()
+    if (!response.ok) throw new Error(data.detail || '保存失败')
+
+    videos.value = videos.value.map(item => item.id === data.id ? data : item)
+    isEditingMeta.value = false
+  } catch (err) {
+    error.value = err.message
+  } finally {
+    savingMeta.value = false
+  }
+}
+
+function handleVideoReady(event) {
+  duration.value = event.target.duration || 0
+  event.target.playbackRate = playbackRate.value
+  event.target.muted = isMuted.value
+}
+
+function handleVideoProgress(event) {
+  const player = event.target
+  currentTime.value = player.currentTime || 0
+  if (
+    loopStart.value !== null
+    && loopEnd.value !== null
+    && loopEnd.value > loopStart.value
+    && player.currentTime >= loopEnd.value
+  ) {
+    player.currentTime = loopStart.value
+  }
+}
+
+async function togglePlay() {
+  const player = videoPlayerRef.value
+  if (!player) return
+  if (player.paused) {
+    await player.play()
+  } else {
+    player.pause()
+  }
+}
+
+function seekVideoRange(event) {
+  const player = videoPlayerRef.value
+  if (!player || !duration.value) return
+  player.currentTime = Math.max(0, Math.min(duration.value, Number(event.target.value)))
+}
+
+function seekBy(deltaSeconds) {
+  const player = videoPlayerRef.value
+  if (!player) return
+  const nextTime = clampVideoTime((player.currentTime || 0) + deltaSeconds)
+  player.currentTime = nextTime
+  currentTime.value = nextTime
+}
+
+function setLoopStart() {
+  const player = videoPlayerRef.value
+  if (!player) return
+  loopStart.value = clampVideoTime(player.currentTime)
+  if (loopEnd.value !== null && loopEnd.value <= loopStart.value) {
+    loopEnd.value = null
+  }
+}
+
+function setLoopEnd() {
+  const player = videoPlayerRef.value
+  if (!player) return
+  const end = clampVideoTime(player.currentTime)
+  if (loopStart.value !== null && end <= loopStart.value) {
+    loopStart.value = Math.max(0, end - 0.5)
+  }
+  loopEnd.value = end
+}
+
+function clearLoop() {
+  loopStart.value = null
+  loopEnd.value = null
+}
+
+function setSpeed(speed) {
+  playbackRate.value = clampPlaybackRate(speed)
+  if (videoPlayerRef.value) {
+    videoPlayerRef.value.playbackRate = playbackRate.value
+  }
+  blurActivePlaybackControl()
+}
+
+function adjustSpeed(delta) {
+  setSpeed(playbackRate.value + delta)
+}
+
+function clampPlaybackRate(speed) {
+  const value = Number.isFinite(speed) ? speed : 1
+  return Number(Math.max(MIN_PLAYBACK_RATE, Math.min(MAX_PLAYBACK_RATE, value)).toFixed(2))
+}
+
+function toggleMute() {
+  const player = videoPlayerRef.value
+  if (!player) return
+  player.muted = !player.muted
+  isMuted.value = player.muted
+  blurActivePlaybackControl()
+}
+
+function isVideoFrameTarget(target) {
+  if (!target || target === videoFrameRef.value || target === videoPlayerRef.value) return true
+  return target instanceof HTMLElement && target.closest('.player-controls') === null
+}
+
+function handleVideoFrameClick(event) {
+  if (!selectedVideo.value || !videoPlayerRef.value || !isVideoFrameTarget(event.target)) return
+  togglePlay()
+}
+
+function getFullscreenElement() {
+  if (typeof document === 'undefined') return null
+  return document.fullscreenElement || document.webkitFullscreenElement || null
+}
+
+async function toggleFullscreen() {
+  const frame = videoFrameRef.value
+  if (!frame) return
+
+  if (getFullscreenElement()) {
+    const exitFullscreen = document.exitFullscreen || document.webkitExitFullscreen
+    if (exitFullscreen) {
+      await exitFullscreen.call(document)
+    }
+  } else {
+    const requestFullscreen = frame.requestFullscreen || frame.webkitRequestFullscreen
+    if (requestFullscreen) {
+      await requestFullscreen.call(frame)
+    }
+  }
+  blurActivePlaybackControl()
+}
+
+function syncFullscreenState() {
+  isFullscreen.value = getFullscreenElement() === videoFrameRef.value
+  blurActivePlaybackControl()
+}
+
+function clampVideoTime(time) {
+  const value = Number.isFinite(time) ? time : 0
+  if (!duration.value) return Math.max(0, value)
+  return Math.max(0, Math.min(duration.value, value))
+}
+
+function formatTime(seconds) {
+  if (!Number.isFinite(seconds)) return '0:00'
+  const mins = Math.floor(seconds / 60)
+  const secs = Math.floor(seconds % 60)
+  return `${mins}:${secs.toString().padStart(2, '0')}`
 }
 
 function displayCategory(item) {
@@ -282,6 +756,43 @@ function loadRecentKeys() {
   } catch {
     return []
   }
+}
+
+function loadPlayCounts() {
+  if (typeof window === 'undefined') return {}
+  try {
+    const raw = window.localStorage.getItem(PLAY_COUNT_STORAGE_KEY)
+    return raw ? JSON.parse(raw) : {}
+  } catch {
+    return {}
+  }
+}
+
+function consumePendingVideoId() {
+  if (typeof window === 'undefined') return ''
+  try {
+    const pending = window.localStorage.getItem(PENDING_VIDEO_ID_KEY) || ''
+    if (pending) {
+      window.localStorage.removeItem(PENDING_VIDEO_ID_KEY)
+    }
+    return pending
+  } catch {
+    return ''
+  }
+}
+
+function persistPlayCounts() {
+  if (typeof window === 'undefined') return
+  window.localStorage.setItem(PLAY_COUNT_STORAGE_KEY, JSON.stringify(playCounts.value))
+}
+
+function bumpPlayCount(videoId) {
+  if (!videoId) return
+  playCounts.value = {
+    ...playCounts.value,
+    [videoId]: Number(playCounts.value[videoId] || 0) + 1,
+  }
+  persistPlayCounts()
 }
 
 function sourceLabel(source) {
@@ -314,30 +825,117 @@ function mediaUrl(section, path) {
   return `../../library/${section}/${cleanPath}`
 }
 
+function openRelatedSong(songId) {
+  if (!songId || typeof window === 'undefined') return
+  window.localStorage.setItem('guitar-platform-pending-song-id', songId)
+  window.dispatchEvent(new CustomEvent('guitar-platform-navigate', { detail: { tab: 'songs' } }))
+}
+
 function isFilePreview() {
   return typeof window !== 'undefined' && window.location.protocol === 'file:'
 }
 
-loadData()
+function blurActivePlaybackControl() {
+  if (typeof document === 'undefined') return
+  const activeElement = document.activeElement
+  if (activeElement instanceof HTMLElement) {
+    activeElement.blur()
+  }
+}
+
+function isPlaybackShortcut(event) {
+  return event.code === 'Space'
+    || event.key === ' '
+    || event.key === 'Spacebar'
+    || event.key === 'ArrowLeft'
+    || event.key === 'ArrowRight'
+}
+
+function claimPlaybackShortcut(event) {
+  event.preventDefault()
+  event.stopPropagation()
+  event.stopImmediatePropagation?.()
+}
+
+function handleGlobalVideoKeydown(event) {
+  if (!selectedVideo.value || !videoPlayerRef.value) return
+  if (!isPlaybackShortcut(event)) return
+
+  if (event.code === 'Space' || event.key === ' ' || event.key === 'Spacebar') {
+    claimPlaybackShortcut(event)
+    blurActivePlaybackControl()
+    if (event.repeat) return
+    togglePlay()
+    return
+  }
+
+  if (event.key === 'ArrowLeft') {
+    claimPlaybackShortcut(event)
+    blurActivePlaybackControl()
+    seekBy(-5)
+    return
+  }
+
+  if (event.key === 'ArrowRight') {
+    claimPlaybackShortcut(event)
+    blurActivePlaybackControl()
+    seekBy(5)
+  }
+}
+
+function handleGlobalVideoKeyup(event) {
+  if (!selectedVideo.value || !videoPlayerRef.value || !isPlaybackShortcut(event)) return
+  claimPlaybackShortcut(event)
+  blurActivePlaybackControl()
+}
+
+onMounted(() => {
+  window.addEventListener('keydown', handleGlobalVideoKeydown, true)
+  window.addEventListener('keyup', handleGlobalVideoKeyup, true)
+  document.addEventListener('fullscreenchange', syncFullscreenState)
+  document.addEventListener('webkitfullscreenchange', syncFullscreenState)
+  loadData()
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('keydown', handleGlobalVideoKeydown, true)
+  window.removeEventListener('keyup', handleGlobalVideoKeyup, true)
+  document.removeEventListener('fullscreenchange', syncFullscreenState)
+  document.removeEventListener('webkitfullscreenchange', syncFullscreenState)
+})
 </script>
 
 <style scoped>
 .learning-layout {
   display: grid;
-  grid-template-columns: 280px 1fr;
-  gap: 20px;
+  grid-template-columns: 252px 1fr;
+  gap: 10px;
   min-height: 680px;
 }
 
 .sidebar,
 .video-shelf {
   background: #16213e;
-  border-radius: 18px;
+  border-radius: 16px;
   border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .sidebar {
-  padding: 20px;
+  position: sticky;
+  top: 12px;
+  max-height: calc(100vh - 40px);
+  overflow: auto;
+  padding: 12px;
+}
+
+.sidebar-header h2 {
+  font-size: 17px;
+  line-height: 1.2;
+}
+
+.sidebar-header p {
+  font-size: 12px;
+  line-height: 1.45;
 }
 
 .sidebar-header h2,
@@ -358,15 +956,33 @@ loadData()
   color: #95a2bf;
 }
 
+.video-card-highlights {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 0;
+  min-height: 22px;
+}
+
+.video-card-highlights span {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 4px 8px;
+  background: rgba(249, 115, 22, 0.12);
+  color: #fdba74;
+  font-size: 11px;
+}
+
 .search-panel,
 .resume-list {
   display: grid;
-  gap: 10px;
+  gap: 8px;
 }
 
 .search-panel,
 .nav-block {
-  margin-top: 20px;
+  margin-top: 14px;
 }
 
 .search-panel {
@@ -388,6 +1004,88 @@ loadData()
   align-items: flex-start;
 }
 
+.sidebar-actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.priority-list {
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.priority-title {
+  color: #fdba74;
+  font-size: 12px;
+}
+
+.priority-card {
+  width: 100%;
+  text-align: left;
+  border: 1px solid rgba(249, 115, 22, 0.2);
+  border-radius: 11px;
+  padding: 9px 10px;
+  background: rgba(249, 115, 22, 0.06);
+  color: #e5e7eb;
+  cursor: pointer;
+}
+
+.priority-card strong {
+  display: block;
+  color: #f8fafc;
+  margin-bottom: 4px;
+}
+
+.priority-card p {
+  color: #cbd5e1;
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.linked-song-list {
+  display: grid;
+  gap: 8px;
+}
+
+.linked-song-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+  padding: 9px 10px;
+  border-radius: 11px;
+  background: rgba(8, 14, 28, 0.76);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.linked-song-copy {
+  min-width: 0;
+}
+
+.linked-song-copy strong {
+  display: block;
+  color: #f8fafc;
+  font-size: 12.5px;
+  line-height: 1.35;
+}
+
+.linked-song-copy p {
+  margin-top: 2px;
+  color: #cbd5e1;
+  font-size: 11.5px;
+}
+
+.linked-song-copy span {
+  display: block;
+  margin-top: 4px;
+  color: #94a3b8;
+  font-size: 11px;
+  line-height: 1.45;
+}
+
 .text-input {
   width: 100%;
   border: 1px solid rgba(255, 255, 255, 0.08);
@@ -402,7 +1100,7 @@ loadData()
   border-radius: 999px;
   background: transparent;
   color: #f97316;
-  padding: 7px 12px;
+  padding: 6px 11px;
   cursor: pointer;
   white-space: nowrap;
 }
@@ -417,8 +1115,8 @@ loadData()
   width: 100%;
   text-align: left;
   border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 12px;
-  padding: 12px 14px;
+  border-radius: 10px;
+  padding: 8px 10px;
   background: #0f1730;
   color: #d9dfeb;
   cursor: pointer;
@@ -432,11 +1130,36 @@ loadData()
 
 .content {
   display: grid;
-  gap: 20px;
+  gap: 14px;
 }
 
 .video-shelf {
-  padding: 20px;
+  padding: 12px;
+}
+
+.video-modal-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.18fr) minmax(260px, 0.82fr);
+  gap: 12px;
+  align-items: start;
+}
+
+.video-modal-main,
+.video-modal-side {
+  min-width: 0;
+}
+
+.video-modal-side {
+  display: grid;
+  gap: 12px;
+}
+
+.section-header h3 {
+  font-size: 18px;
+}
+
+.section-header p {
+  font-size: 12px;
 }
 
 .panel-tag {
@@ -480,10 +1203,15 @@ loadData()
 }
 
 .video-frame {
-  margin: 18px 0 20px;
-  border-radius: 16px;
+  margin: 14px 0 16px;
+  border-radius: 14px;
   overflow: hidden;
   background: #0a1022;
+}
+
+.custom-video-frame {
+  position: relative;
+  cursor: pointer;
 }
 
 .video-frame video {
@@ -494,16 +1222,203 @@ loadData()
   object-fit: contain;
 }
 
+.video-frame video:focus,
+.video-frame video:focus-visible {
+  outline: none;
+}
+
+.player-controls {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: grid;
+  grid-template-columns: auto auto minmax(120px, 1fr) auto auto auto;
+  align-items: center;
+  gap: 12px;
+  padding: 36px 18px 14px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.78), rgba(0, 0, 0, 0));
+  color: #f8fafc;
+  cursor: default;
+}
+
+.player-icon-btn {
+  display: inline-grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(15, 23, 42, 0.58);
+  color: #fff;
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.player-icon-btn:hover {
+  background: rgba(249, 115, 22, 0.92);
+}
+
+.player-icon-btn:focus,
+.player-icon-btn:focus-visible,
+.player-seek:focus,
+.player-seek:focus-visible {
+  outline: none;
+}
+
+.player-time {
+  min-width: 92px;
+  font-weight: 800;
+  color: #f8fafc;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.55);
+  white-space: nowrap;
+}
+
+.player-seek {
+  width: 100%;
+  accent-color: #ff7a1a;
+  cursor: pointer;
+}
+
+.player-speed-controls {
+  display: inline-grid;
+  grid-template-columns: 28px 58px 28px;
+  align-items: center;
+  gap: 4px;
+  min-width: 124px;
+  color: #f8fafc;
+  font-weight: 800;
+  text-align: center;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.55);
+}
+
+.player-mini-btn {
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(15, 23, 42, 0.58);
+  color: #fff;
+  font-size: 18px;
+  font-weight: 900;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.player-mini-btn:hover {
+  background: rgba(249, 115, 22, 0.92);
+}
+
+.player-mini-btn:focus,
+.player-mini-btn:focus-visible {
+  outline: none;
+}
+
+.custom-video-frame:fullscreen {
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
+  border-radius: 0;
+  display: grid;
+  place-items: center;
+  background: #000;
+}
+
+.custom-video-frame:fullscreen video {
+  width: 100vw;
+  height: 100vh;
+  max-height: none;
+}
+
+.custom-video-frame:fullscreen .player-controls {
+  padding: 56px 28px 24px;
+}
+
+.custom-video-frame:-webkit-full-screen {
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
+  border-radius: 0;
+  display: grid;
+  place-items: center;
+  background: #000;
+}
+
+.custom-video-frame:-webkit-full-screen video {
+  width: 100vw;
+  height: 100vh;
+  max-height: none;
+}
+
+.custom-video-frame:-webkit-full-screen .player-controls {
+  padding: 56px 28px 24px;
+}
+
 .detail-strip {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px;
+  gap: 8px;
+}
+
+.detail-strip-stack {
+  grid-template-columns: 1fr;
+}
+
+.practice-controls {
+  display: grid;
+  gap: 8px;
+  margin: -2px 0 14px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: #0f1730;
+}
+
+.practice-topbar,
+.practice-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.practice-topbar {
+  justify-content: space-between;
+  color: #dbe3f4;
+  font-size: 14px;
+}
+
+.seek-slider {
+  width: 100%;
+  accent-color: #f97316;
+}
+
+.practice-actions button {
+  border: 1px solid rgba(249, 115, 22, 0.4);
+  background: transparent;
+  color: #f97316;
+  border-radius: 999px;
+  padding: 7px 12px;
+  cursor: pointer;
+}
+
+.practice-actions button.active {
+  background: #f97316;
+  color: #fff7ed;
+}
+
+.speed-row span {
+  color: #95a2bf;
+  font-size: 13px;
 }
 
 .detail-strip div {
   background: #0f1730;
-  border-radius: 14px;
-  padding: 12px 14px;
+  border-radius: 10px;
+  padding: 9px 10px;
   min-width: 0;
 }
 
@@ -524,16 +1439,118 @@ loadData()
   white-space: nowrap;
 }
 
+.meta-editor-card {
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: 12px;
+  background: #0f1730;
+  display: grid;
+  gap: 8px;
+}
+
+.intelligence-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.intelligence-grid-single {
+  grid-template-columns: 1fr;
+  margin-top: 0;
+}
+
+.intelligence-card {
+  margin-top: 0;
+}
+
+.intelligence-copy {
+  color: #dbe3f4;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.intelligence-points {
+  display: grid;
+  gap: 8px;
+  padding-left: 18px;
+  color: #dbe3f4;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.transcript-preview {
+  color: #cbd5e1;
+}
+
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 4px 9px;
+  background: rgba(255, 255, 255, 0.06);
+  color: #f8fafc;
+  font-size: 12px;
+}
+
+.meta-editor-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.meta-editor-header h4 {
+  color: #f4f5f7;
+}
+
+.meta-editor-header span,
+.meta-editor-preview p {
+  color: #95a2bf;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.meta-editor-form {
+  display: grid;
+  gap: 12px;
+}
+
+.meta-editor-form label {
+  display: grid;
+  gap: 6px;
+  color: #dbe3f4;
+  font-size: 13px;
+}
+
+.meta-textarea {
+  min-height: 96px;
+  resize: vertical;
+}
+
+.meta-editor-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
 .video-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
-  gap: 18px;
+  grid-template-columns: repeat(auto-fill, minmax(164px, 1fr));
+  gap: 10px;
 }
 
 .video-card {
   overflow: hidden;
   padding: 0;
-  border-radius: 16px;
+  border-radius: 14px;
   background: #0f1730;
   transition: border-color 0.2s ease, transform 0.2s ease, background 0.2s ease;
 }
@@ -547,7 +1564,7 @@ loadData()
   position: relative;
   display: grid;
   place-items: center;
-  min-height: 128px;
+  min-height: 102px;
   overflow: hidden;
   background:
     radial-gradient(circle at 22% 20%, rgba(255, 255, 255, 0.34), transparent 18%),
@@ -616,24 +1633,36 @@ loadData()
 
 .video-card-body {
   display: grid;
-  gap: 8px;
-  padding: 12px 13px 14px;
+  gap: 5px;
+  padding: 9px 10px 10px;
 }
 
 .video-card-body strong {
   display: -webkit-box;
-  min-height: 42px;
+  min-height: 36px;
   overflow: hidden;
   color: #f4f5f7;
-  line-height: 1.45;
+  font-size: 13px;
+  line-height: 1.4;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
 }
 
 .video-card-body p {
+  min-height: 18px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  font-size: 11px;
+}
+
+.video-card-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  color: #94a3b8;
+  font-size: 11px;
 }
 
 .state-box {
@@ -659,12 +1688,12 @@ loadData()
 }
 
 .video-modal-card {
-  width: min(1080px, calc(100vw - 56px));
+  width: min(960px, calc(100vw - 48px));
   max-height: calc(100vh - 56px);
   overflow: auto;
   border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 22px;
-  padding: 22px;
+  border-radius: 18px;
+  padding: 14px;
   background:
     radial-gradient(circle at top left, rgba(249, 115, 22, 0.18), transparent 34%),
     #16213e;
@@ -679,12 +1708,14 @@ loadData()
 .video-modal .video-frame video {
   width: auto;
   max-width: 100%;
-  max-height: min(68vh, 760px);
+  max-height: min(62vh, 720px);
 }
 
 @media (max-width: 960px) {
   .learning-layout,
-  .detail-strip {
+  .detail-strip,
+  .intelligence-grid,
+  .video-modal-layout {
     grid-template-columns: 1fr;
   }
 

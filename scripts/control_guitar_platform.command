@@ -5,6 +5,7 @@ USER_ID="$(id -u)"
 BACKEND_LABEL="com.claw.guitar-platform.backend"
 FRONTEND_LABEL="com.claw.guitar-platform.frontend"
 APP_URL="http://127.0.0.1:3000/"
+LAUNCH_AGENTS_DIR="$HOME/Library/LaunchAgents"
 
 choose_action() {
   osascript <<'APPLESCRIPT'
@@ -21,8 +22,8 @@ restart_services() {
 }
 
 stop_services() {
-  launchctl bootout "gui/${USER_ID}" "/Users/claw/Library/LaunchAgents/${BACKEND_LABEL}.plist" >/dev/null 2>&1 || true
-  launchctl bootout "gui/${USER_ID}" "/Users/claw/Library/LaunchAgents/${FRONTEND_LABEL}.plist" >/dev/null 2>&1 || true
+  launchctl bootout "gui/${USER_ID}" "${LAUNCH_AGENTS_DIR}/${BACKEND_LABEL}.plist" >/dev/null 2>&1 || true
+  launchctl bootout "gui/${USER_ID}" "${LAUNCH_AGENTS_DIR}/${FRONTEND_LABEL}.plist" >/dev/null 2>&1 || true
   osascript -e 'display notification "前后端服务已停止" with title "吉他学习平台"'
 }
 

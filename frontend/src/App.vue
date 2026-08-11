@@ -1,17 +1,21 @@
 <template>
   <div class="app">
     <header class="header">
-      <h1>🎸 吉他学习平台 v2</h1>
-      <nav class="nav">
-        <button
-          v-for="tab in tabs"
-          :key="tab.id"
-          :class="{ active: currentTab === tab.id }"
-          @click="currentTab = tab.id"
-        >
-          {{ tab.label }}
-        </button>
-      </nav>
+      <div class="header-main">
+        <h1>吉他学习平台</h1>
+      </div>
+      <div class="header-tools">
+        <nav class="nav">
+          <button
+            v-for="tab in tabs"
+            :key="tab.id"
+            :class="{ active: currentTab === tab.id }"
+            @click="currentTab = tab.id"
+          >
+            {{ tab.label }}
+          </button>
+        </nav>
+      </div>
     </header>
     <main class="main">
       <SystemCourses v-if="currentTab === 'courses'" />
@@ -22,7 +26,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { onBeforeUnmount, onMounted, ref } from 'vue'
 import SystemCourses from './views/SystemCourses.vue'
 import LearningVideos from './views/LearningVideos.vue'
 import Songs from './views/Songs.vue'
@@ -33,6 +37,21 @@ const tabs = [
   { id: 'learning', label: '🎬 学习视频' },
   { id: 'songs', label: '🎵 歌曲练习' },
 ]
+
+function handleNavigate(event) {
+  const tab = event?.detail?.tab
+  if (tab && tabs.some(item => item.id === tab)) {
+    currentTab.value = tab
+  }
+}
+
+onMounted(() => {
+  window.addEventListener('guitar-platform-navigate', handleNavigate)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('guitar-platform-navigate', handleNavigate)
+})
 </script>
 
 <style>
@@ -48,61 +67,96 @@ body {
 }
 
 .app {
-  max-width: 1340px;
+  max-width: 1280px;
   margin: 0 auto;
-  padding: 24px 16px;
+  padding: 14px 14px 24px;
 }
 
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 16px;
-  margin-bottom: 32px;
-  padding: 12px 0;
+  gap: 12px;
+  margin-bottom: 14px;
+  padding: 4px 0;
+}
+
+.header-main {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  flex: 0 0 auto;
+}
+
+.header-tools {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  min-width: 0;
+  flex: 1 1 auto;
 }
 
 .header h1 {
-  font-size: 30px;
+  font-size: 22px;
   color: #fff7ed;
+  letter-spacing: 0.01em;
 }
 
 .nav {
   display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
+  gap: 8px;
+  padding: 4px;
+  background: rgba(15, 23, 42, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
 }
 
 .nav button {
-  background: rgba(15, 23, 48, 0.9);
-  color: #d1d5db;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 0;
   border-radius: 999px;
-  padding: 10px 18px;
-  font-size: 15px;
+  padding: 9px 14px;
+  color: #cbd5f5;
+  background: transparent;
+  font-size: 13px;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
 }
 
 .nav button:hover {
-  border-color: #f97316;
+  background: rgba(255, 255, 255, 0.08);
   color: #fff;
 }
 
 .nav button.active {
-  background: #f97316;
-  border-color: #f97316;
-  color: #fff7ed;
+  background: linear-gradient(135deg, #f97316, #fb7185);
+  color: #111827;
+  font-weight: 700;
 }
 
 .main {
-  min-height: 680px;
+  min-height: 80vh;
 }
 
-@media (max-width: 760px) {
+@media (max-width: 900px) {
   .header {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: stretch;
+  }
+
+  .header-main,
+  .header-tools {
+    width: 100%;
+  }
+
+  .header-tools {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .nav {
+    width: 100%;
+    overflow-x: auto;
   }
 }
 </style>

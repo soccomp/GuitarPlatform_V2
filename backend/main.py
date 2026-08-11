@@ -9,7 +9,7 @@ from config import DATA_DIR, LIBRARY_DIR
 # Add backend directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent))
 
-from routers import courses, songs, videos
+from routers import coach, courses, songs, videos
 
 app = FastAPI(title="Guitar Learning Platform V2")
 
@@ -26,6 +26,7 @@ app.add_middleware(
 app.include_router(courses.router)
 app.include_router(songs.router)
 app.include_router(videos.router)
+app.include_router(coach.router)
 
 # Static files
 app.mount("/library", StaticFiles(directory=str(LIBRARY_DIR)), name="library")

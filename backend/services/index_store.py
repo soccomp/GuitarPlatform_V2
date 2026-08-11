@@ -48,6 +48,12 @@ def normalize_course(course: dict) -> dict:
     normalized.setdefault("tags", [])
     normalized.setdefault("video_path", "")
     normalized.setdefault("transcript_path", "")
+    normalized.setdefault("summary", "")
+    normalized.setdefault("learning_focus", "")
+    normalized.setdefault("recommended_for", "")
+    normalized.setdefault("key_points", [])
+    normalized.setdefault("transcript_preview", "")
+    normalized.setdefault("transcript_available", False)
     return normalized
 
 
@@ -68,11 +74,18 @@ def normalize_song(song: dict) -> dict:
 
 
 def normalize_song_version(version: dict) -> dict:
-    files = {
-        kind: clean_relative_path(path)
-        for kind, path in (version.get("files") or {}).items()
-        if path
-    }
+    files = {}
+    for kind, path in (version.get("files") or {}).items():
+        if not path:
+            continue
+        if kind == "audio_options":
+            values = [clean_relative_path(item) for item in path if item]
+            if values:
+                files[kind] = values
+            continue
+        files[kind] = clean_relative_path(path)
+    if files.get("audio") and "audio_options" not in files:
+        files["audio_options"] = [files["audio"]]
     return {
         "name": version.get("name", "默认版"),
         "files": files,
@@ -85,9 +98,17 @@ def normalize_video(video: dict) -> dict:
     normalized.setdefault("author", "")
     normalized.setdefault("category", "")
     normalized.setdefault("tags", [])
+    normalized.setdefault("transcript_path", "")
+    normalized.setdefault("summary", "")
+    normalized.setdefault("learning_focus", "")
+    normalized.setdefault("recommended_for", "")
+    normalized.setdefault("key_points", [])
+    normalized.setdefault("transcript_preview", "")
+    normalized.setdefault("transcript_available", False)
     normalized.setdefault("source", "unknown")
     normalized.setdefault("type", "collected")
     normalized["path"] = clean_relative_path(normalized.get("path", ""))
+    normalized["transcript_path"] = clean_relative_path(normalized.get("transcript_path", ""))
     return normalized
 
 

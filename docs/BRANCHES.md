@@ -62,6 +62,14 @@ phase2: 歌曲库后端接口完成
 3. 完成后 PR 关联 Issue
 4. 合并后 Issue 自动关闭
 
+仓库当前已提供：
+
+- `.github/ISSUE_TEMPLATE/feature_request.yml`
+- `.github/ISSUE_TEMPLATE/bug_report.yml`
+- `.github/pull_request_template.md`
+
+推荐以后所有开发都通过 Issue 和 PR 进入主线，而不是直接在 `main` 上改。
+
 示例分支名 → Issue 关联：
 ```
 git checkout -b feat/video-download     # Issue #12

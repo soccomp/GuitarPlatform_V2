@@ -5,7 +5,16 @@ __pycache__/
 *.pyc
 
 frontend/node_modules/
+node_modules/
 frontend/dist/
+dist/
+coach_node.zip
+tmp/
+tmp_inspect_ui.js
+projects/
+scripts/promo/
+scripts/com.claw.guitar-platform.backend.plist
+scripts/com.claw.guitar-platform.frontend.plist
 
 library/courses/*
 !library/courses/.gitkeep
@@ -14,3 +23,6 @@ library/songs/*
 library/collected/*
 !library/collected/.gitkeep
 library/*.db
+
+backend/data/coach_recordings/
+backend/data/coach_sessions.json
